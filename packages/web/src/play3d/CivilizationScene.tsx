@@ -1,7 +1,8 @@
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, Sky } from '@react-three/drei';
 import type { CivilizationState } from '../types';
 import { AgentAvatar } from './AgentAvatar';
 import { BUILDINGS, agentRowPositions } from './sceneConfig';
+import { IslandEnvironment } from './IslandEnvironment';
 import { ProceduralBuilding } from './ProceduralBuilding';
 
 export function CivilizationScene({
@@ -21,44 +22,33 @@ export function CivilizationScene({
 
   return (
     <>
-      <color attach="background" args={['#d4e8f5']} />
-      <fog attach="fog" args={['#d4e8f5', 28, 55]} />
-      <ambientLight intensity={0.55} />
+      <Sky sunPosition={[80, 24, 40]} turbidity={0.6} rayleigh={0.5} mieCoefficient={0.005} />
+      <fog attach="fog" args={['#b8dce8', 32, 58]} />
+      <ambientLight intensity={0.65} color="#fff9ed" />
       <directionalLight
         castShadow
-        position={[10, 16, 8]}
-        intensity={1.1}
-        shadow-mapSize={[1024, 1024]}
-        shadow-camera-far={40}
-        shadow-camera-left={-14}
-        shadow-camera-right={14}
-        shadow-camera-top={14}
-        shadow-camera-bottom={-14}
+        position={[12, 22, 10]}
+        intensity={1.25}
+        color="#fff3d6"
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-far={50}
+        shadow-camera-left={-16}
+        shadow-camera-right={16}
+        shadow-camera-top={16}
+        shadow-camera-bottom={-16}
       />
+      <hemisphereLight intensity={0.35} color="#b8e0ff" groundColor="#79ae87" />
       <OrbitControls
         makeDefault
-        target={[0, 0, 0]}
-        minPolarAngle={0.35}
-        maxPolarAngle={Math.PI / 2.2}
-        minDistance={8}
-        maxDistance={32}
+        target={[0, 0.5, 0]}
+        minPolarAngle={0.25}
+        maxPolarAngle={Math.PI / 2.15}
+        minDistance={12}
+        maxDistance={28}
+        maxAzimuthAngle={Math.PI / 3}
+        minAzimuthAngle={-Math.PI / 3}
       />
-      <mesh receiveShadow position={[0, -0.05, 0]}>
-        <boxGeometry args={[22, 0.35, 22]} />
-        <meshStandardMaterial color="#7cbfa0" />
-      </mesh>
-      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.18, 0]}>
-        <planeGeometry args={[10, 10]} />
-        <meshStandardMaterial color="#c4b896" />
-      </mesh>
-      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.19, 0]}>
-        <planeGeometry args={[1.2, 22]} />
-        <meshStandardMaterial color="#d9c9a8" />
-      </mesh>
-      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.19, 0]}>
-        <planeGeometry args={[22, 1.2]} />
-        <meshStandardMaterial color="#d9c9a8" />
-      </mesh>
+      <IslandEnvironment />
       {BUILDINGS.map((b) => (
         <ProceduralBuilding
           key={b.id}
@@ -74,7 +64,7 @@ export function CivilizationScene({
           <AgentAvatar
             key={agent.id}
             agent={agent}
-            position={[slot.x, 0.25, slot.z]}
+            position={[slot.x, 0.15, slot.z]}
             selected={selectedAgentId === agent.id}
             onSelect={onSelectAgent}
           />

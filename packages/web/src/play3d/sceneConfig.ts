@@ -28,9 +28,9 @@ export const BUILDINGS: BuildingDef[] = [
     kind: 'market',
     label: '任务市场',
     x: 0,
-    z: 0,
-    w: 4,
-    d: 4,
+    z: -1,
+    w: 3.2,
+    d: 3.2,
     h: 2.5,
     body: '#f5f0e6',
     roof: '#f2d98a',
@@ -40,8 +40,8 @@ export const BUILDINGS: BuildingDef[] = [
     id: 'bld-skill',
     kind: 'skill',
     label: 'Skill 商店',
-    x: -6,
-    z: 2,
+    x: -4.5,
+    z: 1,
     w: 3,
     d: 3,
     h: 2,
@@ -52,8 +52,8 @@ export const BUILDINGS: BuildingDef[] = [
     id: 'bld-code',
     kind: 'coding',
     label: 'Coding 工坊',
-    x: 5,
-    z: -5,
+    x: 4.2,
+    z: -4,
     w: 3,
     d: 4,
     h: 2,
@@ -65,8 +65,8 @@ export const BUILDINGS: BuildingDef[] = [
     id: 'bld-research',
     kind: 'research',
     label: 'Research 实验室',
-    x: -5,
-    z: -6,
+    x: -4,
+    z: -4.5,
     w: 3,
     d: 3,
     h: 2,
@@ -77,8 +77,8 @@ export const BUILDINGS: BuildingDef[] = [
     id: 'bld-design',
     kind: 'design',
     label: 'Design 工坊',
-    x: 6,
-    z: 5,
+    x: 4.5,
+    z: 4,
     w: 3,
     d: 3,
     h: 2,
@@ -90,7 +90,7 @@ export const BUILDINGS: BuildingDef[] = [
     kind: 'public-rd',
     label: '公共研发中心',
     x: -2,
-    z: 6,
+    z: 4.8,
     w: 4,
     d: 3,
     h: 3,
@@ -101,10 +101,10 @@ export const BUILDINGS: BuildingDef[] = [
     id: 'bld-homes',
     kind: 'homes',
     label: '居民带',
-    x: 7,
-    z: 0,
-    w: 6,
-    d: 2,
+    x: 5.5,
+    z: 0.5,
+    w: 2.8,
+    d: 1.8,
     h: 1.5,
     body: '#c49a6c',
     roof: '#8b5e3c',
@@ -112,11 +112,15 @@ export const BUILDINGS: BuildingDef[] = [
 ];
 
 export function agentRowPositions(count: number): { x: number; z: number }[] {
-  const z = 7;
-  const span = Math.min(count, 8) * 1.5;
-  const startX = -span / 2 + 0.75;
-  return Array.from({ length: count }, (_, i) => ({
-    x: startX + i * 1.5,
-    z,
-  }));
+  const n = Math.min(count, 8);
+  const arcR = 5.2;
+  const centerZ = 3.8;
+  return Array.from({ length: n }, (_, i) => {
+    const t = n <= 1 ? 0.5 : i / (n - 1);
+    const angle = Math.PI * 0.82 + t * Math.PI * 0.36;
+    return {
+      x: Math.cos(angle) * arcR,
+      z: centerZ + Math.sin(angle) * 1.2,
+    };
+  });
 }

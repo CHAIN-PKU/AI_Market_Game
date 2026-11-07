@@ -31,11 +31,7 @@ export function AgentDetailPanel({
   onClose: () => void;
 }) {
   if (!agent && !buildingLabel) {
-    return (
-      <aside className="play3d-detail play3d-detail-empty">
-        <p className="play3d-detail-whisper">点一个小家伙，或者点一栋房子，听听他们这阵子在想什么。</p>
-      </aside>
-    );
+    return null;
   }
 
   if (buildingLabel && !agent) {
