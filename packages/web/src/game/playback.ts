@@ -1,3 +1,5 @@
+import type { BidDemoFixture, RawEvent } from './types';
+
 export type StepId =
   | 'idle'
   | 'posted'
@@ -62,4 +64,91 @@ export function nextStep(step: StepId): StepId | null {
 export function prevStep(step: StepId): StepId | null {
   const i = STEP_INDEX[step];
   return i > 0 ? TIMELINE[i - 1]!.id : null;
+}
+
+/* ---------------- event cue queue (rawEvents -> playback steps) ---------------- */
+
+export type PlaybackCue = {
+  step: StepId;
+  label: string;
+  hint: string;
+  duration: number;
+  events: RawEvent[];
+};
+
+/**
+ * Map engine events onto the narrative playback steps.
+ * Multiple events can share a step (e.g. completed + tax -> settled);
+ * steps without events stay in the queue so pause/step/back remains stable.
+ */
+export function buildPlaybackCues(fixture: BidDemoFixture): PlaybackCue[] {
+  const focusStep = new Map<string, StepId>();
+  FOCUS_STEPS.forEach((f, i) => {
+    const agentId = fixture.focusAgentIds[i];
+    if (agentId) focusStep.set(agentId, f.step);
+  });
+
+  const mainTaskId = fixture.scenario.taskId;
+  const byStep = new Map<StepId, RawEvent[]>();
+  const add = (step: StepId, event: RawEvent) => {
+    const list = byStep.get(step) ?? [];
+    list.push(event);
+    byStep.set(step, list);
+  };
+
+  for (const event of fixture.rawEvents) {
+    const payload = (event.payload ?? {}) as Record<string, unknown>;
+    const taskId = typeof payload.taskId === 'string' ? payload.taskId : null;
+    const agentId = typeof payload.agentId === 'string' ? payload.agentId : null;
+
+    if (event.kind === 'task_posted' && taskId === mainTaskId) add('posted', event);
+    if ((event.kind === 'bid_placed' || event.kind === 'bid_declined') && taskId === mainTaskId) {
+      add('bids', event);
+      const focus = agentId ? focusStep.get(agentId) : undefined;
+      if (focus) add(focus, event);
+    }
+    if (event.kind === 'task_assigned' && taskId === mainTaskId) add('assigned', event);
+    if ((event.kind === 'task_completed' || event.kind === 'task_failed') && taskId === mainTaskId) {
+      add('settled', event);
+    }
+    if (event.kind === 'tax_collected' && taskId === mainTaskId) add('settled', event);
+    if (event.kind === 'skill_purchased' || event.kind === 'skill_shared') {
+      if (!fixture.winner || agentId === fixture.winner.agentId) add('skill', event);
+    }
+  }
+
+  // Player tasks are posted before the round starts, so the engine has no in-round
+  // task_posted event for them. Synthesize one for the "posted" step.
+  if (!(byStep.get('posted')?.length) && fixture.scenario) {
+    add('posted', {
+      id: `synthetic-posted-${mainTaskId}`,
+      round: fixture.demoRound,
+      kind: 'task_posted',
+      message: `任务公告：${fixture.scenario.title}`,
+      payload: { taskId: mainTaskId, reward: fixture.scenario.reward },
+    });
+  }
+
+  return TIMELINE.map((step) => ({
+    step: step.id,
+    label: step.label,
+    hint: step.hint,
+    duration: step.duration,
+    events: byStep.get(step.id) ?? [],
+  }));
+}
+
+/** Skip animation without touching the fixture/economy. */
+export function skipToEnd(): StepId {
+  return 'next';
+}
+
+/** Presentation-only duration; never changes GameState. */
+export function durationAt(step: StepId, speed: number): number {
+  return (TIMELINE[STEP_INDEX[step]]?.duration ?? 0) / Math.max(0.25, speed);
+}
+
+/** Pure pause helper for the playback contract. */
+export function advanceIfPlaying(step: StepId, playing: boolean): StepId {
+  return playing ? nextStep(step) ?? step : step;
 }

@@ -191,6 +191,12 @@ export function GamePage() {
     if (prev) setStep(prev);
   }, [step]);
 
+  const skipToEnd = useCallback(() => {
+    setPlaying(false);
+    setStep('next');
+    if (winnerId) setSelectedId(winnerId);
+  }, [winnerId]);
+
   const derived: Derived = useMemo(() => {
     const posted = step !== 'idle';
     const bidsOpen = atLeast(step, 'bids');
@@ -367,6 +373,7 @@ export function GamePage() {
         onNext={stepOnce}
         onPrev={stepBack}
         onReset={resetAll}
+        onSkip={skipToEnd}
         onSpeed={() => setSpeed((s) => (s === 1 ? 2 : 1))}
         onOpenEvents={() => setShowEvents(true)}
         onRestart={restartDemo}

@@ -1,6 +1,6 @@
 import type { BidDemoFixture, DemoAgent } from './types';
 import { ROLE_KEY, ROLE_LABEL } from './types';
-import { STEP_INDEX, TIMELINE, type StepId } from './playback';
+import { STEP_INDEX, TIMELINE, buildPlaybackCues, type StepId } from './playback';
 import {
   cooperationLabel,
   decisionBadge,
@@ -657,6 +657,7 @@ export function Dock({
   onNext,
   onPrev,
   onReset,
+  onSkip,
   onSpeed,
   onOpenEvents,
   onRestart,
@@ -668,6 +669,7 @@ export function Dock({
   onNext: () => void;
   onPrev: () => void;
   onReset: () => void;
+  onSkip: () => void;
   onSpeed: () => void;
   onOpenEvents: () => void;
   onRestart: () => void;
@@ -702,6 +704,9 @@ export function Dock({
         <button type="button" className="g-icon-btn" onClick={onNext} title="单步" disabled={idx >= TIMELINE.length - 1}>
           <StepIcon size={16} />
         </button>
+        <button type="button" className="g-icon-btn" onClick={onSkip} title="跳过动画" disabled={idx >= TIMELINE.length - 1}>
+          <span className="g-skip-glyph">⏭</span>
+        </button>
         <button type="button" className="g-speed" onClick={onSpeed} title="播放速度">
           <SpeedIcon size={15} /> {speed}x
         </button>
@@ -732,11 +737,12 @@ export function EventDrawer({ fixture, step, onClose }: { fixture: BidDemoFixtur
     'tax_collected',
     'skill_purchased',
   ]);
+  const cue = buildPlaybackCues(fixture).find((c) => c.step === step);
   return (
     <div className="g-drawer">
       <div className="g-drawer-head">
         <h2>本轮事件记录</h2>
-        <span className="g-muted">来自模拟引擎 · 第 {fixture.demoRound} 轮</span>
+        <span className="g-muted">来自模拟引擎 · 第 {fixture.demoRound} 轮 · 当前队列 {cue?.events.length ?? 0} 条 · 共 {fixture.rawEvents.length} 条</span>
         <button type="button" className="g-close g-close--static" onClick={onClose} aria-label="关闭">
           <CloseIcon size={15} />
         </button>
@@ -826,6 +832,15 @@ export function DebugPanel({
             <button type="button" className={view === '2d' ? 'g-debug-chip is-on' : 'g-debug-chip'} onClick={() => onViewChange('2d')}>
               2D
             </button>
+          </dd>
+        </div>
+        <div>
+          <dt>播放队列（事件 → 步骤）</dt>
+          <dd>
+            {buildPlaybackCues(fixture)
+              .filter((c) => c.events.length > 0)
+              .map((c) => `${c.step}:${c.events.length}`)
+              .join(' · ')}
           </dd>
         </div>
       </dl>

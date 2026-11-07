@@ -3174,3 +3174,9 @@
   font-size: var(--g-fs-small);
   white-space: nowrap;
 }
+
+.g-skip-glyph {
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: -0.08em;
+}
