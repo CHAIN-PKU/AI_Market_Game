@@ -1302,3 +1302,51 @@ body {
   text-align: center;
   padding: 0.35rem 1rem 0.75rem;
 }
+
+.play3d-detail-whisper {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+.play3d-detail-role {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4c9fa8;
+  margin-bottom: 0.5rem;
+}
+
+.play3d-detail-voice {
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.65rem 0.75rem;
+  background: #fff9ed;
+  border-left: 3px solid #e7b65a;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #253c3a;
+}
+
+.play3d-detail-section {
+  margin-top: 0.75rem;
+}
+
+.play3d-detail-h3 {
+  font-size: 0.75rem;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #71847b;
+  margin-bottom: 0.35rem;
+}
+
+.play3d-detail-meta {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.play3d-detail-footnote {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}

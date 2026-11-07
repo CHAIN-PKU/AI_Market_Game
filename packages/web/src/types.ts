@@ -28,9 +28,17 @@ export interface AgentState {
   wallet: number;
   abilities: { coding: number; research: number; design: number };
   skills: { skillId: string }[];
+  traits?: {
+    riskTolerance: number;
+    investAggression: number;
+    domainAffinity: { coding: number; research: number; design: number };
+  };
   stats: {
     tasksCompleted: number;
     tasksFailed: number;
+    grossEarnings?: number;
+    taxPaid?: number;
+    skillSpend?: number;
   };
 }
 

@@ -2,6 +2,7 @@
 
 > **产品：** AI Market Game（工程目录 `D:\AICivilization`）  
 > **决策源：** `docs/DECISIONS.md`（优先于本文件冲突处）  
+> **经验库：** `AGENTS_experience.md`（验收反馈、视觉顺序、玩家文案纪律）  
 > **远程：** https://github.com/CHAIN-PKU/AI_Market_Game
 
 ---

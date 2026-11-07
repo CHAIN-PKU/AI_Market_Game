@@ -57,7 +57,7 @@ export function Play3DPage() {
         <div>
           <h1 className="play3d-title">AI Market Game</h1>
           <p className="play3d-sub">
-            {civ ? formatCivName(civ.displayName) : '…'} · 3D Walking Skeleton
+            {civ ? formatCivName(civ.displayName) : '…'} · 微缩沙盘（美术优化中）
           </p>
         </div>
         <div className="play3d-stats tabular-nums">
@@ -131,7 +131,7 @@ export function Play3DPage() {
 
       {meta && (
         <p className="play3d-foot text-xs text-[var(--color-muted)]">
-          大脑模式：{meta.playerBrainLabel} · 本屏仅展示文明 A（Slice 单文明）
+          当前模式：{meta.playerBrainLabel} · 画面展示文明 A 的 8 位居民
         </p>
       )}
     </div>
