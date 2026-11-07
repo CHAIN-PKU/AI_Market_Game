@@ -9,3 +9,5 @@ coverage/
 *.tsbuildinfo
 *.log
 runtime/handoff/
+# DSH harness workspace plugin staging (not project source)
+dsh-plugins/
