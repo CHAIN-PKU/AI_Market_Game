@@ -252,21 +252,62 @@ export function GamePage() {
     setFixture(next);
     setShowInstitutions(false);
     setCampaign(null);
+    localStorage.removeItem('dsh-campaign-id');
     setNotice(summary);
   }, []);
 
   const applyCampaign = useCallback(
-    (id: string, next: BidDemoFixture, meta: { round: number; maxRounds: number; done: boolean }) => {
+    (
+      id: string,
+      next: BidDemoFixture,
+      meta: { round: number; maxRounds: number; done: boolean },
+      autoplay = true,
+    ) => {
       setSelectedId(null);
       setFixture(next);
       setShowInstitutions(false);
       setCampaign({ id, ...meta });
       setNotice(`文明 ${meta.round}/${meta.maxRounds} · ${summarizeRun(next)}`);
       setPlaying(false);
-      setAutoStart(true);
+      if (autoplay) {
+        setAutoStart(true);
+      } else {
+        setCueIndex(0);
+        setAutoStart(false);
+      }
     },
     [],
   );
+
+  useEffect(() => {
+    const id = localStorage.getItem('dsh-campaign-id');
+    if (!id) return;
+    let cancelled = false;
+    fetch(`/api/campaign/${id}`)
+      .then(async (res) => {
+        if (!res.ok) {
+          if (res.status === 404) localStorage.removeItem('dsh-campaign-id');
+          return null;
+        }
+        return (await res.json()) as {
+          id: string;
+          fixture: BidDemoFixture;
+          campaign: { round: number; maxRounds: number; done: boolean };
+        };
+      })
+      .then((data) => {
+        if (!cancelled && data?.fixture) {
+          applyCampaign(id, data.fixture, data.campaign, false);
+          setNotice(`已恢复文明 ${data.campaign.round}/${data.campaign.maxRounds} · 可继续下一轮或重看本轮`);
+        }
+      })
+      .catch(() => {
+        // API temporarily unavailable: keep the id for the next load.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [applyCampaign]);
 
   const startCampaign = useCallback(async () => {
     setCampaignBusy(true);
@@ -294,6 +335,7 @@ export function GamePage() {
         fixture: BidDemoFixture;
         campaign: { round: number; maxRounds: number; done: boolean };
       };
+      localStorage.setItem('dsh-campaign-id', data.id);
       applyCampaign(data.id, data.fixture, data.campaign);
     } catch (err) {
       setNotice(`无法开始 5 轮文明：${err instanceof Error ? err.message : '引擎不可用'}（需要 API 3001）`);
@@ -316,6 +358,7 @@ export function GamePage() {
         fixture: BidDemoFixture;
         campaign: { round: number; maxRounds: number; done: boolean };
       };
+      localStorage.setItem('dsh-campaign-id', data.id);
       applyCampaign(data.id, data.fixture, data.campaign);
     } catch (err) {
       setNotice(`推进下一轮失败：${err instanceof Error ? err.message : '引擎不可用'}`);

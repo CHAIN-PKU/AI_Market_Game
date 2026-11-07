@@ -16,6 +16,7 @@
 
 - 第 1 轮：`docs/screenshots/campaign/round1-1920.png`
 - 第 2 轮：`docs/screenshots/campaign/round2-1920.png`
+- 刷新恢复后继续第 2 轮：`docs/screenshots/campaign/restore-round2-1920.png`
 
 ---
 
@@ -33,6 +34,7 @@ POST /api/campaign/:id/next
 ```
 
 - `createBidDemoCampaign` / `advanceBidDemoCampaign` 在 `packages/simulation/src/demo/bid-demo.ts`。
+- 服务端把 campaign 写入 `runtime/campaigns/<id>.json`（含 state + lastFixture），内存 Map 只是缓存；API 重启后 `GET`/`next` 会从磁盘恢复。
 - fixture 的 `civilization.treasuryStart` 现在是**本轮开始**的国库，不再是 1,000；因此能直接看到跨轮累积。
 - 每轮的 `walletBefore` 等于上一轮对应居民的 `walletAfter`；测试已断言。
 - 引擎事件与结算仍是唯一真相；UI 只播放。
@@ -73,11 +75,12 @@ POST /api/campaign/:id/next
 
 ## 5. 边界（诚实版）
 
-- campaign 状态在 **API 进程内存**里；重启 API 会丢，刷新网页不会自动恢复当前 campaign（页面会回到 bundled fixture）。
+- campaign 状态已落盘到 `runtime/campaigns/`；刷新网页会通过 `localStorage` 里的 campaign id + `GET /api/campaign/:id` 恢复当前轮（不自动播放，可重看）。
+- 没有 SQLite 存档/版本迁移；删除 `runtime/campaigns/` 会丢失 campaign。
 - 这是 `runSingleRound` 的真实多轮推进，但**不是** `/api/games` 的 `createGame` / `advance` 协议，也没有 SQLite 存档。
 - Event Playback 已支持逐事件播放（`事件 X / 19`）与「跳过动画」；campaign 仍是内存状态（见 `EVENT_CONTRACT.md` §4.5）。
 - 每轮固定发布同一张玩家任务；还没有市场阶段、公司、合作。
-- 重开方式：刷新页面，或在「制度实验」里重跑（会清掉 campaign）。
+- 重开方式：5 轮结束后顶栏「再开 5 轮」；或在「制度实验」里重跑（会清掉 campaign 并删除 localStorage id）。
 
 ---
 

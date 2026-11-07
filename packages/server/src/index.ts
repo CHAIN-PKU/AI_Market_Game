@@ -1,4 +1,6 @@
 import Fastify from 'fastify';
+import fs from 'node:fs';
+import path from 'node:path';
 import cors from '@fastify/cors';
 import {
   advanceBidDemoCampaign,
@@ -101,7 +103,75 @@ app.get('/api/meta', async () => ({
   hint: metaHint(),
 }));
 
-const campaigns = new Map<string, BidDemoCampaign>();
+type DemoFixture = ReturnType<typeof buildBidDemoFixture>;
+type CampaignRecord = { campaign: BidDemoCampaign; fixture: DemoFixture };
+
+const campaigns = new Map<string, CampaignRecord>();
+const CAMPAIGN_DIR = path.join(cfg.repoRoot, 'runtime', 'campaigns');
+
+function saveCampaign(id: string, record: CampaignRecord): void {
+  try {
+    fs.mkdirSync(CAMPAIGN_DIR, { recursive: true });
+    const c = record.campaign;
+    const data = {
+      state: c.state,
+      scenario: c.scenario,
+      seed: c.seed,
+      tasksPerRound: c.tasksPerRound,
+      initialAbility: c.initialAbility,
+      rules: c.rules,
+      maxRounds: c.maxRounds,
+      completedRounds: c.completedRounds,
+      lastFixture: record.fixture,
+    };
+    fs.writeFileSync(path.join(CAMPAIGN_DIR, `${id}.json`), JSON.stringify(data));
+  } catch (err) {
+    console.error('failed to persist campaign', id, err);
+  }
+}
+
+function loadCampaign(id: string): CampaignRecord | null {
+  try {
+    const file = path.join(CAMPAIGN_DIR, `${id}.json`);
+    if (!fs.existsSync(file)) return null;
+    const data = JSON.parse(fs.readFileSync(file, 'utf8')) as {
+      state: BidDemoCampaign['state'];
+      scenario: BidDemoCampaign['scenario'];
+      seed: number;
+      tasksPerRound: number;
+      initialAbility: number;
+      rules: BidDemoCampaign['rules'];
+      maxRounds: number;
+      completedRounds: number;
+      lastFixture: DemoFixture;
+    };
+    const civ = data.state.civilizations[0];
+    if (!civ) return null;
+    const campaign: BidDemoCampaign = {
+      state: data.state,
+      civ,
+      scenario: data.scenario,
+      seed: data.seed,
+      tasksPerRound: data.tasksPerRound,
+      initialAbility: data.initialAbility,
+      rules: data.rules,
+      maxRounds: data.maxRounds,
+      completedRounds: data.completedRounds,
+    };
+    return { campaign, fixture: data.lastFixture };
+  } catch (err) {
+    console.error('failed to load campaign', id, err);
+    return null;
+  }
+}
+
+function getCampaign(id: string): CampaignRecord | null {
+  const memory = campaigns.get(id);
+  if (memory) return memory;
+  const loaded = loadCampaign(id);
+  if (loaded) campaigns.set(id, loaded);
+  return loaded;
+}
 
 function campaignMeta(campaign: BidDemoCampaign) {
   return {
@@ -133,24 +203,29 @@ app.post<{
   });
   const { fixture } = advanceBidDemoCampaign(campaign);
   const id = randomUUID();
-  campaigns.set(id, campaign);
+  const record = { campaign, fixture };
+  campaigns.set(id, record);
+  saveCampaign(id, record);
   return { id, fixture, campaign: campaignMeta(campaign), meta: { engine: 'deterministic-mock' } };
 });
 
 app.post<{ Params: { id: string } }>('/api/campaign/:id/next', async (req, reply) => {
-  const campaign = campaigns.get(req.params.id);
-  if (!campaign) return reply.code(404).send({ error: 'not_found' });
+  const record = getCampaign(req.params.id);
+  if (!record) return reply.code(404).send({ error: 'not_found' });
+  const { campaign } = record;
   if (campaign.completedRounds >= campaign.maxRounds) {
     return reply.code(409).send({ error: 'campaign_finished', campaign: campaignMeta(campaign) });
   }
   const { fixture } = advanceBidDemoCampaign(campaign);
+  record.fixture = fixture;
+  saveCampaign(req.params.id, record);
   return { id: req.params.id, fixture, campaign: campaignMeta(campaign), meta: { engine: 'deterministic-mock' } };
 });
 
 app.get<{ Params: { id: string } }>('/api/campaign/:id', async (req, reply) => {
-  const campaign = campaigns.get(req.params.id);
-  if (!campaign) return reply.code(404).send({ error: 'not_found' });
-  return { id: req.params.id, campaign: campaignMeta(campaign) };
+  const record = getCampaign(req.params.id);
+  if (!record) return reply.code(404).send({ error: 'not_found' });
+  return { id: req.params.id, campaign: campaignMeta(record.campaign), fixture: record.fixture };
 });
 
 app.post<{

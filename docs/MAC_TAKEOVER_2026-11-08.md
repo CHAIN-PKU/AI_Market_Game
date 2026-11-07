@@ -50,6 +50,14 @@
 - API 失败时红条阻断并提示启动 `npm run dev:server`，**不静默回退**。
 - 高税场景下，界面明确显示「Delta 税后剩 65 金，买不起 80 金的 Clean Code Patterns；能力停在 40」——制度直接改变消费与下一轮能力。
 
+### 3.8 Campaign 持久化
+
+- 服务端每次 create/next 写 `runtime/campaigns/<id>.json`（state + lastFixture）；内存 Map 只是缓存。
+- API 重启后 `GET /api/campaign/:id` / `next` 从磁盘恢复，钱包/技能/国库继续累积。
+- 网页把 campaign id 存 localStorage；刷新后恢复当前轮（不自动播放），可继续或重看。
+- 5 轮跑完后顶栏「再开 5 轮」。
+- 截图：`docs/screenshots/campaign/restore-round2-1920.png`
+
 ### 3.7 Event Playback cue-by-cue
 
 - 新增 `buildPlaybackCues` + `flattenPlaybackCues`：把 `rawEvents` 映射成 19 个逐事件点，同时保留 11 个叙事步骤。
@@ -118,7 +126,7 @@
 - 国库跳变已拆解：结算状态卡显示「本任务税 / 其他任务税 / 公共研发」；详见 `INSTITUTION_LAB.md` §5。
 - 右侧居民档案已把「公开决策记录」提到性格参数之前，1080 高度下决策因子、目标、能力、履历一屏可见（`docs/screenshots/mac-verify/2026-11-08-panel-order-1920.png`）。
 - 三个既有问题未处理：drei portal `removeChild` 警告、404 资源、三套调色板未统一。
-- 5 轮文明已跑通，但仍是内存 campaign，不是持久化 `createGame/advance`。
+- 5 轮文明已跑通且落盘恢复（`runtime/campaigns/`），但仍不是 `/api/games` 的 `createGame/advance`。
 - Event Playback 已到 cue-by-cue：`rawEvents → 逐事件点`、播放坞显示「事件 X/Y」、跳过/暂停/倍速契约已测。
 
 ---
@@ -127,8 +135,8 @@
 
 1. **`/game` 接 `createGame` / `advance` 与事件队列**（跳过动画不改 `GameState` 的契约测试）。
 2. **5–7 轮连续实验**：每轮沿用上一轮的钱包/能力，制度对比才完整。
-3. campaign 持久化与刷新恢复。
-4. 接 `/api/games` 的 createGame/advance 协议。
+3. 接 `/api/games` 的 createGame/advance 协议。
+4. SQLite/JSON 存档版本化与导出。
 5. 建筑状态与事件绑定（技能铺亮灯、市集成交）。
 
 ---

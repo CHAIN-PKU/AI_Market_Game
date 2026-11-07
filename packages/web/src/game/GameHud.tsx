@@ -156,10 +156,10 @@ export function TopBar({
             <button
               type="button"
               className="g-btn g-btn--primary g-campaign-btn"
-              onClick={onNextCampaign}
-              disabled={campaignBusy || campaign.done}
+              onClick={campaign.done ? onStartCampaign : onNextCampaign}
+              disabled={campaignBusy}
             >
-              {campaign.done ? '本轮完成' : campaignBusy ? '推进中…' : '下一轮'}
+              {campaign.done ? '再开 5 轮' : campaignBusy ? '推进中…' : '下一轮'}
             </button>
           </>
         ) : (
