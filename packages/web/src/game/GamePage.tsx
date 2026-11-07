@@ -9,25 +9,33 @@ import {
   DebugPanel,
   Dock,
   EventDrawer,
-  TaskPanel,
+  LeftPanel,
   TopBar,
   type Derived,
   type ViewMode,
 } from './GameHud';
-import { STEP_INDEX, TIMELINE, atLeast, nextStep, prevStep, type StepId } from './playback';
+import {
+  STEP_INDEX,
+  TIMELINE,
+  atLeast,
+  focusAgentIndexForStep,
+  focusNumberForStep,
+  nextStep,
+  prevStep,
+  type StepId,
+} from './playback';
 import type { BidDemoFixture } from './types';
 import './game.css';
 
 const fixture = fixtureJson as BidDemoFixture;
 
-function clamp01(n: number) {
-  return Math.max(0.03, Math.min(0.97, n));
-}
-
 const STATUS_LABEL: Record<StepId, string> = {
   idle: '待发布',
   posted: '订单已公示',
-  bidding: 'AI 居民正在竞标',
+  focus_astra: 'Astra 正在评估',
+  focus_delta: 'Delta 正在评估',
+  focus_grove: 'Grove 正在评估',
+  bids: '公开报价中',
   assigned: '已选出中标者',
   working: '任务执行中',
   settled: '任务已结算',
@@ -37,9 +45,12 @@ const STATUS_LABEL: Record<StepId, string> = {
 
 const STEP_HINT: Record<StepId, string> = {
   idle: '发布订单，看看谁会来竞标',
-  posted: '市集把订单挂了出来，居民开始评估',
-  bidding: '有人报价，有人放弃：他们各自算过收益与风险',
-  assigned: '系统按「质量预测 × 报价」选出中标者',
+  posted: '市集把订单挂了出来，三位重点居民开始盘算',
+  focus_astra: '谨慎型先看成功率是否过自己的安全线',
+  focus_delta: '积极型在算：差多少金币能买新 Skill',
+  focus_grove: '稳健型看长期能力，而不是最低价',
+  bids: '2 人报价、5 人放弃；所有理由都来自公开决策记录',
+  assigned: '系统按「质量预测 × 报价」选出中标者，落标者会复盘',
   working: '中标者走向程序坊，开始干活',
   settled: '奖励入账，税金进入国库',
   skill: '赚到钱后，它决定把钱花在能力上',
@@ -59,9 +70,17 @@ export function GamePage() {
   const winnerAgent = useMemo(() => fixture.agents.find((a) => a.id === winnerId) ?? null, [winnerId]);
   const skill = fixture.skillPurchase[0];
 
+  const focusIndex = focusAgentIndexForStep(step);
+  const focusAgent = focusIndex === null ? null : fixture.agents[focusIndex] ?? null;
+  const focusNumber = focusNumberForStep(step);
+
   useEffect(() => {
+    if (focusAgent) {
+      setSelectedId(focusAgent.id);
+      return;
+    }
     if (step === 'assigned' && winnerId) setSelectedId(winnerId);
-  }, [step, winnerId]);
+  }, [step, focusAgent, winnerId]);
 
   useEffect(() => {
     if (!playing) return;
@@ -72,8 +91,7 @@ export function GamePage() {
     }
     const duration = TIMELINE[i]!.duration / speed;
     const timer = setTimeout(() => {
-      const next = TIMELINE[i + 1]!.id;
-      setStep(next);
+      setStep(TIMELINE[i + 1]!.id);
     }, duration);
     return () => clearTimeout(timer);
   }, [playing, step, speed]);
@@ -121,31 +139,34 @@ export function GamePage() {
   }, [step]);
 
   const derived: Derived = useMemo(() => {
+    const posted = step !== 'idle';
+    const bidsOpen = atLeast(step, 'bids');
+    const assigned = atLeast(step, 'assigned');
+    const working = atLeast(step, 'working');
     const settled = atLeast(step, 'settled');
     const skillDone = atLeast(step, 'skill');
-    const bidding = step === 'bidding';
-    const assigned = atLeast(step, 'assigned');
-    const successBefore = clamp01(0.35 + ((winnerAgent?.abilities.coding ?? 40) - fixture.scenario.difficulty) * 0.025);
-    const successAfter = clamp01(
-      0.35 + ((skill?.abilityAfter ?? winnerAgent?.abilities.coding ?? 40) - fixture.scenario.difficulty) * 0.025
-    );
     const tax = fixture.settlement?.tax ?? 0;
     const publicShare = Math.round(tax * fixture.civilization.rules.publicResearchShare);
     const treasury = settled ? fixture.civilization.treasuryStart + tax - publicShare : fixture.civilization.treasuryStart;
     const walletBefore = fixture.settlement?.walletBefore ?? 0;
     const net = fixture.settlement?.net ?? 0;
     const winnerWallet = settled ? walletBefore + net - (skillDone ? skill?.price ?? 0 : 0) : walletBefore;
+    const successBefore = fixture.nextRound.successBefore ?? 0.35;
+    const successAfter = fixture.nextRound.successAfter ?? 0.55;
+    const focusAbilityAfter =
+      fixture.nextRound.abilityAfter ?? winnerAgent?.abilities.coding ?? 40;
     return {
       step,
-      bidding,
+      posted,
+      bidsOpen,
       assigned,
+      working,
       settled,
       skillDone,
       winnerId,
       winnerWallet,
       treasury,
-      focusAbility: winnerAgent?.abilities.coding ?? 40,
-      focusAbilityAfter: skill?.abilityAfter ?? winnerAgent?.abilities.coding ?? 40,
+      focusAbilityAfter,
       successBefore,
       successAfter,
       statusLabel: STATUS_LABEL[step],
@@ -165,9 +186,11 @@ export function GamePage() {
         onToggleDebug={() => setShowDebug((v) => !v)}
       />
 
-      <TaskPanel
+      <LeftPanel
         fixture={fixture}
         derived={derived}
+        focusAgent={focusAgent}
+        focusNumber={focusNumber}
         onPublish={startDemo}
         onOpenEvents={() => setShowEvents(true)}
       />
@@ -181,7 +204,13 @@ export function GamePage() {
             onPointerMissed={() => setSelectedId(null)}
           >
             <Suspense fallback={null}>
-              <GameScene fixture={fixture} step={step} selectedId={selectedId} onSelect={setSelectedId} />
+              <GameScene
+                fixture={fixture}
+                step={step}
+                selectedId={selectedId}
+                focusAgentId={focusAgent?.id ?? null}
+                onSelect={setSelectedId}
+              />
             </Suspense>
           </Canvas>
         ) : (
@@ -192,7 +221,7 @@ export function GamePage() {
           <div className="g-onboarding">
             <span className="g-onboarding-step">新玩家第一步</span>
             <strong>发布第一笔订单</strong>
-            <p>让 8 位 AI 居民自己判断：谁接单、报多少价、为什么放弃。</p>
+            <p>看 Astra / Delta / Grove 三种性格，如何在同一个订单上做出不同决策。</p>
             <button type="button" className="g-btn g-btn--primary" onClick={startDemo}>
               发布订单演示
             </button>
@@ -220,6 +249,7 @@ export function GamePage() {
         fixture={fixture}
         derived={derived}
         selectedId={selectedId}
+        focusAgentId={focusAgent?.id ?? null}
         onSelect={setSelectedId}
         onClose={() => setSelectedId(null)}
       />

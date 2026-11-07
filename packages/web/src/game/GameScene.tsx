@@ -27,27 +27,44 @@ function agentTarget(
   step: StepId,
   agentId: string,
   index: number,
-  fixture: BidDemoFixture
+  fixture: BidDemoFixture,
+  focusAgentId: string | null
 ): [number, number, number] {
   const base = AGENT_SLOTS[index]!.position;
   const winnerId = fixture.winner?.agentId;
   const isBidder = fixture.bids.some((b) => b.agentId === agentId);
 
+  if (step.startsWith('focus_')) {
+    if (agentId === focusAgentId) return [base[0] * 0.72, 0, base[2] * 0.72];
+    return [base[0], 0, base[2]];
+  }
   if (agentId === winnerId) {
     if (step === 'assigned' || step === 'working') return MARKET_FRONT;
     if (step === 'skill') return SKILL_FRONT;
   }
-  if (step === 'bidding') {
+  if (step === 'bids') {
     return isBidder ? [base[0] * 0.62, 0, base[2] * 0.62] : [base[0] * 1.06, 0, base[2] * 1.06];
   }
   return [base[0], 0, base[2]];
 }
 
-function agentVisual(step: StepId, agentId: string, fixture: BidDemoFixture): AgentVisualState {
+function agentVisual(
+  step: StepId,
+  agentId: string,
+  fixture: BidDemoFixture,
+  focusAgentId: string | null
+): AgentVisualState {
   const isWinner = agentId === fixture.winner?.agentId;
   const isBidder = fixture.bids.some((b) => b.agentId === agentId);
+  const isFocused = agentId === focusAgentId;
+
   if (step === 'idle' || step === 'posted') return 'idle';
-  if (step === 'bidding') return isBidder ? 'bidding' : 'watching';
+  if (step === 'focus_astra' || step === 'focus_delta' || step === 'focus_grove') {
+    if (!isFocused) return 'idle';
+    const agent = fixture.agents.find((a) => a.id === agentId);
+    return agent?.decision.action === 'bid' ? 'bidding' : 'watching';
+  }
+  if (step === 'bids') return isBidder ? 'bidding' : 'watching';
   if (step === 'assigned') return isWinner ? 'selected' : 'idle';
   if (step === 'working') return isWinner ? 'working' : 'idle';
   if (step === 'settled') return isWinner ? 'done' : 'idle';
@@ -82,16 +99,19 @@ export function GameScene({
   fixture,
   step,
   selectedId,
+  focusAgentId,
   onSelect,
 }: {
   fixture: BidDemoFixture;
   step: StepId;
   selectedId: string | null;
+  focusAgentId: string | null;
   onSelect: (id: string) => void;
 }) {
   const posted = atLeast(step, 'posted');
-  const bidding = step === 'bidding';
+  const bidsOpen = atLeast(step, 'bids');
   const settled = atLeast(step, 'settled');
+  const bidders = fixture.bids.length;
 
   return (
     <>
@@ -160,20 +180,22 @@ export function GameScene({
           agent={agent}
           index={i}
           start={[AGENT_SLOTS[i]!.position[0], 0.03, AGENT_SLOTS[i]!.position[2]]}
-          target={agentTarget(step, agent.id, i, fixture)}
-          state={agentVisual(step, agent.id, fixture)}
+          target={agentTarget(step, agent.id, i, fixture, focusAgentId)}
+          state={agentVisual(step, agent.id, fixture, focusAgentId)}
           selected={selectedId === agent.id}
+          focused={focusAgentId === agent.id}
           onSelect={onSelect}
         />
       ))}
 
-      {/* market task board */}
       {posted && (
         <Html center position={[0, 4.1, -9]} zIndexRange={[15, 0]} style={{ pointerEvents: 'none' }}>
-          <div className={`scene-task ${bidding ? 'is-hot' : ''} ${settled ? 'is-done' : ''}`}>
+          <div className={`scene-task ${bidsOpen ? 'is-hot' : ''} ${settled ? 'is-done' : ''}`}>
             <span className="scene-task-tag">市集订单</span>
             <strong>{fixture.scenario.title}</strong>
-            <span className="scene-task-reward">{fixture.scenario.reward} 金</span>
+            <span className="scene-task-reward">
+              {fixture.scenario.reward} 金 · {bidsOpen ? `${bidders} 人竞标` : '等待竞标'}
+            </span>
           </div>
         </Html>
       )}

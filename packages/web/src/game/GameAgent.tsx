@@ -28,10 +28,11 @@ type Props = {
   target: [number, number, number];
   state: AgentVisualState;
   selected: boolean;
+  focused?: boolean;
   onSelect: (id: string) => void;
 };
 
-export function GameAgent({ agent, index, start, target, state, selected, onSelect }: Props) {
+export function GameAgent({ agent, index, start, target, state, selected, focused = false, onSelect }: Props) {
   const gltf = useGLTF(resolveGlbUrl(KENNEY_AGENTS[index]!));
   const clone = useMemo(() => {
     const g = cloneWithSkeleton(gltf.scene) as Group;
@@ -95,9 +96,12 @@ export function GameAgent({ agent, index, start, target, state, selected, onSele
   });
 
   const roleKey = ROLE_KEY[agent.role];
-  const bubble =
-    state === 'bidding' && agent.bid
-      ? `${agent.bid.bidAmount} 金`
+  const focusedLine =
+    agent.decision.action === 'bid' ? `${agent.decision.bidAmount} 金` : '先观望';
+  const bubble = focused
+    ? focusedLine
+    : state === 'bidding' && agent.decision.action === 'bid'
+      ? `${agent.decision.bidAmount} 金`
       : state === 'selected'
         ? '中标'
         : state === 'working'
@@ -108,7 +112,13 @@ export function GameAgent({ agent, index, start, target, state, selected, onSele
               ? '✓ 交差'
               : null;
   const roleVisible =
-    selected || state === 'bidding' || state === 'selected' || state === 'working' || state === 'done' || state === 'shopping';
+    focused ||
+    selected ||
+    state === 'bidding' ||
+    state === 'selected' ||
+    state === 'working' ||
+    state === 'done' ||
+    state === 'shopping';
   const badgeY = 1.9 + (index % 2) * 0.28;
   const bubbleY = badgeY + 0.55;
 

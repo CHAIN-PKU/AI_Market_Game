@@ -1,154 +1,154 @@
-# 游戏化 HUD + 第一段竞标交互演出 — 验收材料（2026-11-07）
+# Agent 角色博弈 + 经济剧场 — 验收材料（2026-11-07 · v2）
 
 > 分支：`feat/visual-cozy-hud` · PR #2 · 演示路由：`/game`
-> 证据目录：`docs/screenshots/game-hud/`、`docs/recordings/`、`docs/screenshots/visual-lab/`
+> 证据：`docs/screenshots/game-hud/`（1920 与 1366 各 13 张）、`docs/recordings/game-bid-demo-1280x720.mp4`
 
 ---
 
-## 1. 本轮目标
+## 1. 本轮目标（对应指令校准）
 
-把「Visual Lab 好看但不像游戏」推进到「像一款策略经营游戏」：
+上一版竞标只有「3 人报价、5 人观望、Delta 中标」，角色更像数字。本轮把研发重点放在：
 
-1. 游戏化 HUD（资源栏 / 主任务卡 / 居民卡 / 底部操作栏 / 镜头与视图切换）。
-2. 8 位 AI 居民的**职业识别与状态**（Idle / 观望 / 竞标 / 已中标 / 工作中 / 去技能铺）。
-3. 第一段可看、可暂停、可单步的**任务公告 → 竞标 → 中标 → 执行 → 结算 → 买 Skill**演出。
-4. 同场景 **2.5D vs 2D 交互对照**（判断 3D 带来的体验增量）。
-
-不在本轮范围：真实下一轮推进、完整 Event Playback、制度调整、合作/公司、真实 LLM。
-
----
-
-## 2. 修改的主要文件 / 模块
-
-| 模块 | 文件 | 作用 |
-|------|------|------|
-| 游戏页 | `packages/web/src/game/GamePage.tsx` | 页面壳、播放状态机、派生数值 |
-| HUD | `packages/web/src/game/GameHud.tsx` | 顶栏 / 主任务卡 / 居民卡 / 底栏 / 事件抽屉 / Debug 面板 / 2D 棋盘 |
-| 3D 场景 | `packages/web/src/game/GameScene.tsx` | 等距固定镜头、建筑职能标签、市场任务板 |
-| 角色 | `packages/web/src/game/GameAgent.tsx` | Idle/Walk 动画、移动插值、状态气泡、职业徽章、点击选中 |
-| 样式 | `packages/web/src/game/game.css` | 字号体系、暖色卡片、按钮状态、3D 标签、2D 棋盘 |
-| 图标 | `packages/web/src/game/icons.tsx` | 统一 SVG 图标（金币/人口/轮次/任务/职业/播放控制等），不用 emoji |
-| 播放 | `packages/web/src/game/playback.ts` | 8 步确定性时间线（时长仅影响演出，不影响数值） |
-| 演示数据 | `packages/web/src/demo/bid-demo.fixture.json` | **由真实引擎生成**的确定性数据（含原始事件） |
-| 生成器 | `scripts/gen-bid-demo.mjs` | 调 `packages/simulation/dist` 跑单文明一轮，生成 fixture |
-| 路由 | `packages/web/src/main.tsx`、`HomePage.tsx` | 新增 `/game`，首屏入口改为主 CTA |
-| 配置 | `packages/web/tsconfig.json`、根 `package.json` | JSON 导入、`npm run demo:fixture` |
-
-复用了：`visual-lab/IslandBase`、`GlbInstance`、`assetScale`、`assetUrls`、`islandLayout`、GLB 资产（CC0）。
+1. **竞标变成一场可观察的经济博弈**：每个重点 Agent 的动机、风险判断、钱包目标、对同行的公开认知、报价理由、落标反思，都能按步骤看到。
+2. **Agent Character Profile**：职业、性格、风险/投资/合作偏好、钱包、能力、Skill、当前目标、公开履历、本轮决策记录。
+3. **性格真正影响经济决策**（不是文案标签）：`riskTolerance` 决定「风险安全线」与报价边际；`domainAffinity` 影响任务价值；`investAggression` 影响是否买 Skill。
+4. **三层接口**：Decision Layer（引擎）→ Explanation Layer（结构化解释）→ Presentation Layer（玩家对白）。对白只解释已发生的决策，绝不改写报价/结算。
+5. **游戏化 HUD 继续升级**：重点居民卡、竞标名单、公开履历、Goal、性格参数、2D/2.5D 对照。
 
 ---
 
-## 3. 分支 / commit / PR
+## 2. 三层架构落地位置
 
-- 分支：`feat/visual-cozy-hud`
-- 前置提交：`afbb369`（Visual Lab v2）
-- 本轮提交：提交后见 PR #2 最新 commit（`git log -1`）
-- PR：https://github.com/CHAIN-PKU/AI_Market_Game/pull/2
+| 层 | 位置 | 内容 |
+|----|------|------|
+| Decision | `packages/simulation/src/agents/mock-decision-provider.ts`、`market/bidding.ts`、`core/odds.ts` | 性格参与决策：安全线、报价因子、任务价值、是否参与 |
+| Decision → 事件 | `core/engine.ts` / `core/engine-async.ts` | `bid_placed` 增加结构化字段；新增 `bid_declined` 事件（reasonCode + factors） |
+| Explanation | `scripts/gen-bid-demo.mjs` | 把事件 payload 转成 `decision` 结构（成功率、安全线、价值、目标、可观察同行、结果） |
+| Presentation | `packages/web/src/game/presentation.ts` | 把结构化因子变成短对白/反应；不触达任何经济数值 |
+| UI | `packages/web/src/game/GameHud.tsx` / `GamePage.tsx` | 十步演出、重点居民卡、人物档案、2D 对照 |
+
+**反作弊约束：**
+- 报价、任务结果、金币、Skill 全部来自 fixture / 引擎，前端只读。
+- 对白中的每个数字都来自 `decision.reasonFactors` / `decision.*`，不凭空生成动机。
+- Agent 只知道公开信息：`observedCompetitors` 仅由公开履历（更强同行人数、累计收入最高者）计算，不读取其他 Agent 的当前报价。
+- 未观察到的信息不解释。
 
 ---
 
-## 4. 完整 1920×1080 主界面
+## 3. 十二步竞标剧场（实际 10 步主流程 + 2 个演出状态）
+
+| # | 步骤 | 玩家看到什么 |
+|---|------|--------------|
+| 0 | 订单公告 | 市集挂出 100 金 Coding 单，8 位居民开始评估 |
+| 1 | 重点居民 1/3 · Astra | 谨慎型：自估成功率 35% < 自己的安全线 41% → 放弃；显示安全线/目标/同行信息 |
+| 2 | 重点居民 2/3 · Delta | 积极型：差 80 金买 Skill，报价 71 金抢单 |
+| 3 | 重点居民 3/3 · Grove | 稳健型：不抢最低价，报价 79 金，看长期能力 |
+| 4 | 公开报价 | 2 人竞标、6 人观望；每个人的理由都可点开查看 |
+| 5 | 决标 | 系统按「质量预测 × 报价」选 Delta（同质量、低价） |
+| 6 | 反应 | 赢家「拿下了！」，落标者复盘自己的报价 |
+| 7 | 执行 | 中标者走向程序坊 |
+| 8 | 结算 | 100 金 − 8 税 = 92 金到手，国库 +7 |
+| 9 | 投资 Skill | 花 80 金买 Clean Code Patterns，写程序 40 → 48 |
+| 10 | 下一轮反馈 | 同难度任务成功率 35% → 55% |
+
+命令：`npm run dev` → http://127.0.0.1:5173/game
+
+---
+
+## 4. 性格 → 决策的公式（可核对，不是文案）
+
+| 参数 | 作用 |
+|------|------|
+| `riskTolerance` | `风险安全线 = 0.20 + (1 − riskTolerance) × 0.28`；自估成功率低于安全线 → `bid_declined`（reasonCode `risk_above_comfort`） |
+| `riskTolerance`（报价） | `价格因子 = 0.72 + rng×0.18 + (0.5 − riskTolerance)×0.10 − 攒钱紧迫 0.035`；谨慎者保留更高边际，冒险者/攒钱者报更低 |
+| `domainAffinity` | `风险调整价值 = expectedQuality × reward × (1 + affinity)`；低于 25 → 放弃 |
+| `investAggression` | 结算后是否购买 Skill（引擎既有逻辑） |
+| `cooperationPreference` | 本轮只展示、不参与决策（明确标注「未来多人机制」） |
+
+本轮实测（fixture `seed=20`）：
+
+- Astra：risk 0.25 → 安全线 41% > 成功率 35% → **放弃**（若报价再高也不接）
+- Delta：risk 0.70 → 安全线 28% > 35% → **竞标 71 金**（低价抢单）
+- Grove：risk 0.50 → 安全线 34% < 35% → **竞标 79 金**（不抢最低价）
+- 其余 5 人：自估成功率 5%–12%，全部低于个人安全线 → 观望（不是随机放弃）
+
+---
+
+## 5. 证据
+
+### 完整主界面（1920×1080）
 
 ![待机主界面](screenshots/game-hud/01-idle-1920x1080.png)
 
----
+### 重点居民决策（3 张）
 
-## 5. 真实浏览器录屏
+![Astra 放弃](screenshots/game-hud/03-focus-astra-1920x1080.png)
+![Delta 竞标](screenshots/game-hud/04-focus-delta-1920x1080.png)
+![Grove 竞标](screenshots/game-hud/05-focus-grove-1920x1080.png)
 
-`docs/recordings/game-bid-demo-1280x720.mp4`（约 19 秒，真实 Edge 浏览器 + 真实 WebGL 场景，非概念图/非剪辑摆拍）。
+### 竞标 / 决标 / 结算 / Skill / 2D 对照
 
-> 录制方式：CDP screencast 抓帧 → ffmpeg 编码。首尾含少量加载等待。帧率较低（约 6fps，软件渲染环境限制），用于核对交互顺序与状态变化，不代表最终性能。
+- `06-bids-1920x1080.png`（2 人报价 + 6 人观望）
+- `07-assigned-1920x1080.png`（赢家 + 落标复盘）
+- `09-settled-1920x1080.png`（奖励 / 税 / 到手）
+- `10-skill-1920x1080.png`（买 Skill，能力 40→48）
+- `12-2d-board-1920x1080.png`（同一段竞标的 2D 信息板）
+- 1366×768 全套：`docs/screenshots/game-hud/1366/`
 
----
+### 录屏
 
-## 6. 交互前 / 中 / 后关键截图（1920×1080）
+`docs/recordings/game-bid-demo-1280x720.mp4`（约 29 秒，真实 Edge + WebGL；软件渲染环境约 4–6fps，用于核对顺序，不代表最终性能）。
 
-| 阶段 | 截图 |
-|------|------|
-| 待机 + 新手目标 | `01-idle-1920x1080.png` |
-| 任务公告 | `02-posted-1920x1080.png` |
-| 竞标中（3 人报价 / 5 人观望） | `03-bidding-1920x1080.png` |
-| 决标（右侧自动打开中标者卡） | `04-assigned-1920x1080.png` |
-| 执行中（走向程序坊） | `05-working-1920x1080.png` |
-| 结算（奖励 / 税金 / 到手） | `06-settled-1920x1080.png` |
-| 自主购买 Skill + 能力提升 | `07-skill-1920x1080.png` |
-| 本轮结束 | `08-next-1920x1080.png` |
-| 2D 交互对照 | `09-2d-board-1920x1080.png` |
+### 真实事件与数值
 
-1366×768 可读性版本：`docs/screenshots/game-hud/1366/`（同一流程 10 张）。
-
-### 2.5D vs 2D 对照（同一段竞标）
-
-- 2.5D：`04-assigned-1920x1080.png` / `07-skill-1920x1080.png`
-- 2D：`09-2d-board-1920x1080.png`
-
-**初步判断：**
-
-| 维度 | 2.5D 舞台 | 2D 竞标板 |
-|------|-----------|-----------|
-| 角色/建筑辨识 | 更强，有空间关系与走动 | 强，信息密度更高 |
-| 经济信息可读性 | 需要 HUD 辅助 | 竞标/观望/结算一屏读完 |
-| 制作与运行成本 | 高（3D + 动画 + 性能） | 低 |
-| 情感/文明感 | **明显更强**（本原型的主要增益） | 更像数据面板 |
-
-**建议：** 保留 2.5D 作为主舞台，但把「竞标/结算」这种高信息密度环节做成 2D 覆盖层（两者不是二选一）。下一步请项目负责人实机体验后拍板。
+- 数据文件：`packages/web/src/demo/bid-demo.fixture.json`（`rawEvents` 含 `task_posted / bid_placed / bid_declined / task_assigned / task_completed / tax_collected / skill_purchased`）
+- 关键数值：奖励 100 → 税 8 → 到手 92；Delta 钱包 0 → 92 → 买 Skill 80 → 12；写程序 40 → 48；同难度成功率 35% → 55%
+- 生成命令：`npm run demo:fixture`（要求先 `npm run build -w @ai-civ/simulation`）
 
 ---
 
-## 7. 真实事件日志与关键数值
+## 6. 2.5D vs 2D（更新判断）
 
-数据来源：`packages/web/src/demo/bid-demo.fixture.json`（由 `scripts/gen-bid-demo.mjs` 调真实引擎生成，`seed=1`、`tasksPerRound=2`、`initialAbility=28`、单文明、无 LLM）。
-
-关键数值：
-
-| 项 | 值 |
-|----|----|
-| 任务 | 修复网站登录问题 · Coding · 难度 40 · 奖励 100 金 |
-| 参与竞标 | Astra 80 金（质量 45% / 成功率 35%）、Delta 79 金、Grove 79 金 |
-| 观望 | Boreal、Cinder、Echo、Flux、Helix（估分低于 25 接单门槛） |
-| 中标 | **Delta**（同质量、报价更低 → 分数更高） |
-| 结算 | 奖励 100 − 税 8（8%）= 到手 92 金；国库 1,000 → 1,007 |
-| 自主投资 | Delta 花 80 金买 `Clean Code Patterns`，写程序能力 40 → 48，同难度成功率 35% → 55% |
-| 原始事件 | fixture `rawEvents`：`task_posted` / `bid_placed`×3（重点任务）/ `task_assigned` / `task_completed` / `tax_collected` / `skill_purchased` |
-
-> 注：fixture 中同一轮还有 2 个系统任务（用于让 Mock Agent 的「选前两单」逻辑真实发生），因此部分居民的 `walletAfter` 包含其他订单收入；演示聚焦玩家订单。
+- 2.5D：空间关系、走动、聚拢/去工坊让「文明」有生命感；适合作为主舞台。
+- 2D 板：一屏可读完「焦点三人的性格/决策、投标席、观望席、结算」，适合信息密度高的竞标环节。
+- **建议：2.5D 主场景 + 2D 竞标覆盖层**，而不是二选一；请负责人实机体验后拍板。
 
 ---
 
-## 8. 构建 / 测试 / 浏览器自测
+## 7. 构建 / 测试 / 浏览器自测
 
 | 检查 | 结果 |
 |------|------|
-| `npm test`（simulation） | 7/7 通过 |
-| `npm run build -w @ai-civ/web` | 通过（JS ≈1.41 MB，>500 kB 警告未处理） |
-| 浏览器自测 | `/game` 全流程单步走通；A/B 视图切换、事件抽屉、Debug 面板可用 |
-| 控制台 | 仅 `favicon.ico` 404；3D↔2D 切换时有 React“同步卸载 root”警告（功能无影响，下轮修） |
+| `npm test`（simulation，含新增 4 个决策测试） | **11/11 通过** |
+| `npm run build -w @ai-civ/web` | 通过（≈1.45 MB JS，>500 kB 警告未处理） |
+| `/game` 浏览器自测 | 10 步单步走通；重点居民自动聚焦；2D/2.5D 切换正常；事件抽屉与 Debug 面板可用 |
+| 控制台 | 仅 favicon 404；3D↔2D 切换有非阻断 React 警告 |
 
 ---
 
-## 9. 尚未完成 / 不满意
+## 8. 仍未完成 / 不满意
 
-1. **未接真实 advance**：演示数据由引擎脚本预生成（fixture），浏览器端播放；下一阶段接 `POST /api/advance` 生成真实事件流。
-2. **竞标理由字段不足**：引擎 `bid_placed` payload 只有报价；质量/成功率是前端用引擎参数推导，`放弃` 事件未由引擎发出。需要最小增量字段（见 §10）。
-3. 动画只有 Idle/Walk + 直线位移，无寻路/避障；工作动作未单独制作。
-4. 3D↔2D 切换存在 React 警告；2D 板尚未做入场动画。
-5. HUD 字体仍为系统字体；未引入游戏化字体（避免网络字体依赖）。
-6. 1280/720 高度下左栏内容会滚动截断（信息完整，但需要滚动查看）。
-
----
-
-## 10. 建议下一轮优先解决的三个问题
-
-1. **真实 Event Playback 接线**：`/game` 从 API `createGame` + `advance` 拉取真实 `events`，前端只做播放队列；补齐“跳过动画不改变 GameState”的契约测试。
-2. **引擎最小增量字段**：`bid_placed` 增加 `expectedQuality` / `successProbability` / `reasonSummary`，并新增 `bid_declined`（放弃）事件；所有文案必须来自这些字段，不另写解释。
-3. **按产品方向裁剪 3D 投入**：先用 2.5D 舞台 + 2D 竞标覆盖层完成 Vertical Slice；3D 只保留固定等距镜头与 Idle/Walk，不再增加模型面数/自由相机。
+1. 仍使用 fixture 回放，未接真实 `advance` 事件流（下一阶段 Event Playback）。
+2. 观测对手只用了公开履历，尚未做「同行报价可见性」的制度化设计（当前默认不公开实时报价）。
+3. 动画只有 Idle/Walk + 直线位移，无寻路；工作动作未单独制作。
+4. 3D↔2D 切换有 React 警告；1280×720 左栏需要滚动。
+5. 5 位简化角色只有一段模板对白，未做完整人物弧光。
+6. 未接入真实 LLM；对白为模板，零付费调用。
 
 ---
 
-## 11. 三层验收状态（自检，不等于通过）
+## 9. 建议下一轮三个优先
 
-- **技术验收：** 构建通过、测试通过；经济数值来自引擎生成文件；未发现运行错误（有非阻断警告）。
-- **视觉验收：** HUD 已具备游戏化层级与暖色卡片；角色职业/状态可识别；建筑有职能标签。仍未达“正式美术定稿”（见 §9）。
-- **体验验收：** 新手目标明确（发布第一笔订单）；能看懂谁报价/谁放弃/为什么中标/钱怎么花；制度影响未在本轮验证。
+1. **真实 Event Playback 接线**：`/game` 从 API 创建/推进文明，按真实 `events` 播放；补「跳过动画不改变 GameState」契约测试。
+2. **制度实验接线**：把税率 / 公共研发 / Skill 私有-共享接入 HUD，让同一批角色在不同制度下重新竞标，形成可观察差异。
+3. **角色弧光**：给三名重点角色加入跨轮记忆（最近一次中标/落标/买 Skill），对白引用真实历史；仍不引入付费 LLM。
 
-> 请项目负责人实机试玩后决定：是否进入真实 Playback 接线，以及 2.5D/2D 的最终取舍。
+---
+
+## 10. 三层验收自检（不等于通过）
+
+- **技术验收：** 构建通过、simulation 11/11 测试通过；事件与数值可由 fixture 核对。
+- **视觉验收：** 游戏化 HUD、重点居民卡、人物档案、2D 对照均已完成；仍需负责人判断「像不像成熟策略游戏」。
+- **体验验收：** 新玩家能看到「三种性格 → 三种决策 → 竞价 → 中标 → 赚钱 → 投资 → 下轮变化」；制度影响尚未验证。
+
+> 请项目负责人实机试玩后决定：是否进入真实 API Playback，以及 2.5D/2D 的最终取舍。未经确认不会合并 PR。

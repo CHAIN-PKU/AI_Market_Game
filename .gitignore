@@ -13,3 +13,5 @@ runtime/handoff/
 dsh-plugins/
 # DSH session skills / runtime artifacts
 .dsh/
+# local npm cache during builds
+.npm-cache/

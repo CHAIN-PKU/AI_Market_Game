@@ -1,7 +1,7 @@
 {
-  "version": 1,
+  "version": 2,
   "generatedBy": "scripts/gen-bid-demo.mjs",
-  "seed": 1,
+  "seed": 20,
   "tasksPerRound": 2,
   "warmupRounds": 0,
   "demoRound": 1,
@@ -29,275 +29,867 @@
       "allowCollaboration": true
     },
     "treasuryStart": 1000,
-    "treasuryAfter": 1018
+    "treasuryAfter": 1032
   },
+  "focusAgentIds": [
+    "civ-a-agent-0",
+    "civ-a-agent-3",
+    "civ-a-agent-6"
+  ],
   "agents": [
     {
       "id": "civ-a-agent-0",
       "displayName": "Astra",
       "role": "Coding",
       "specialty": "coding",
-      "abilities": {
-        "coding": 40,
-        "research": 28,
-        "design": 22
-      },
+      "personality": "cautious",
+      "personalityLabel": "谨慎型",
+      "personalityBlurb": "先算风险，再谈赚钱；报价要留出安全边际。",
       "traits": {
-        "riskTolerance": 0.3,
-        "investAggression": 0.25,
+        "riskTolerance": 0.25,
+        "investAggression": 0.45,
+        "cooperationPreference": 0.4,
         "domainAffinity": {
           "coding": 0.55,
           "research": 0.15,
           "design": 0.15
         }
       },
+      "abilities": {
+        "coding": 40,
+        "research": 28,
+        "design": 22
+      },
       "walletBefore": 0,
       "walletAfter": 0,
       "skillsAfter": [],
-      "bid": {
-        "agentId": "civ-a-agent-0",
-        "displayName": "Astra",
-        "bidAmount": 80,
+      "publicRecord": {
+        "tasksCompleted": 0,
+        "tasksFailed": 0,
+        "grossEarnings": 0,
+        "taxPaid": 0
+      },
+      "goal": {
+        "id": "save_for_skill",
+        "label": "攒钱买「Clean Code Patterns」",
+        "skillId": "skill_coding_basic",
+        "skillName": "Clean Code Patterns",
+        "price": 80
+      },
+      "decision": {
+        "action": "pass",
+        "reasonCode": "risk_above_comfort",
+        "bidAmount": null,
         "expectedQuality": 0.45,
         "successProbability": 0.35,
-        "ability": 40
+        "riskComfortFloor": 0.41000000000000003,
+        "expectedReward": 100,
+        "expectedValue": 70,
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.35
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.41
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 70
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 0
+          }
+        ],
+        "observedCompetitors": {
+          "strongerSpecialists": 0,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "personalGoal": {
+          "id": "save_for_skill",
+          "label": "攒钱买「Clean Code Patterns」"
+        },
+        "result": "passed",
+        "reaction": "wary"
       },
-      "expectedQuality": 0.45,
-      "score": 69.8,
-      "passed": false,
-      "passReason": null
+      "isFocus": true
     },
     {
       "id": "civ-a-agent-1",
       "displayName": "Boreal",
       "role": "Research",
       "specialty": "research",
-      "abilities": {
-        "coding": 29,
-        "research": 41,
-        "design": 21
-      },
+      "personality": "pragmatic",
+      "personalityLabel": "务实型",
+      "personalityBlurb": "有把握才出手，平时先攒钱。",
       "traits": {
         "riskTolerance": 0.42,
-        "investAggression": 0.4,
+        "investAggression": 0.45,
+        "cooperationPreference": 0.55,
         "domainAffinity": {
           "coding": 0.15,
           "research": 0.55,
           "design": 0.15
         }
       },
+      "abilities": {
+        "coding": 29,
+        "research": 41,
+        "design": 21
+      },
       "walletBefore": 0,
       "walletAfter": 0,
       "skillsAfter": [],
-      "bid": null,
-      "expectedQuality": 0.12,
-      "score": 13.8,
-      "passed": true,
-      "passReason": "估分 13.8，低于 25 的接单门槛"
+      "publicRecord": {
+        "tasksCompleted": 0,
+        "tasksFailed": 0,
+        "grossEarnings": 0,
+        "taxPaid": 0
+      },
+      "goal": {
+        "id": "save_for_skill",
+        "label": "攒钱买「Literature Review」",
+        "skillId": "skill_research_basic",
+        "skillName": "Literature Review",
+        "price": 80
+      },
+      "decision": {
+        "action": "pass",
+        "reasonCode": "risk_above_comfort",
+        "bidAmount": null,
+        "expectedQuality": 0.12000000000000005,
+        "successProbability": 0.07499999999999996,
+        "riskComfortFloor": 0.36240000000000006,
+        "expectedReward": 100,
+        "expectedValue": 14,
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.075
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.362
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 14
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Literature Review」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 5
+          }
+        ],
+        "observedCompetitors": {
+          "strongerSpecialists": 5,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "personalGoal": {
+          "id": "save_for_skill",
+          "label": "攒钱买「Literature Review」"
+        },
+        "result": "passed",
+        "reaction": "neutral"
+      },
+      "isFocus": false
     },
     {
       "id": "civ-a-agent-2",
       "displayName": "Cinder",
       "role": "Design",
       "specialty": "design",
-      "abilities": {
-        "coding": 30,
-        "research": 22,
-        "design": 42
-      },
+      "personality": "curious",
+      "personalityLabel": "好奇型",
+      "personalityBlurb": "愿意试新领域，但更看重划算不划算。",
       "traits": {
         "riskTolerance": 0.54,
-        "investAggression": 0.55,
+        "investAggression": 0.6,
+        "cooperationPreference": 0.5,
         "domainAffinity": {
           "coding": 0.15,
           "research": 0.15,
           "design": 0.55
         }
       },
+      "abilities": {
+        "coding": 30,
+        "research": 22,
+        "design": 42
+      },
       "walletBefore": 0,
       "walletAfter": 0,
       "skillsAfter": [],
-      "bid": null,
-      "expectedQuality": 0.15,
-      "score": 17.3,
-      "passed": true,
-      "passReason": "估分 17.3，低于 25 的接单门槛"
+      "publicRecord": {
+        "tasksCompleted": 0,
+        "tasksFailed": 0,
+        "grossEarnings": 0,
+        "taxPaid": 0
+      },
+      "goal": {
+        "id": "save_for_skill",
+        "label": "攒钱买「Visual Composition」",
+        "skillId": "skill_design_basic",
+        "skillName": "Visual Composition",
+        "price": 80
+      },
+      "decision": {
+        "action": "pass",
+        "reasonCode": "risk_above_comfort",
+        "bidAmount": null,
+        "expectedQuality": 0.15000000000000002,
+        "successProbability": 0.09999999999999998,
+        "riskComfortFloor": 0.3288,
+        "expectedReward": 100,
+        "expectedValue": 17,
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.1
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.329
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 17
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Visual Composition」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 4
+          }
+        ],
+        "observedCompetitors": {
+          "strongerSpecialists": 4,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "personalGoal": {
+          "id": "save_for_skill",
+          "label": "攒钱买「Visual Composition」"
+        },
+        "result": "passed",
+        "reaction": "neutral"
+      },
+      "isFocus": false
     },
     {
       "id": "civ-a-agent-3",
       "displayName": "Delta",
       "role": "Coding",
       "specialty": "coding",
-      "abilities": {
-        "coding": 40,
-        "research": 31,
-        "design": 21
-      },
+      "personality": "bold",
+      "personalityLabel": "积极型",
+      "personalityBlurb": "愿意用更低报价抢单，目标是把能力装备升级。",
       "traits": {
-        "riskTolerance": 0.6599999999999999,
-        "investAggression": 0.7,
+        "riskTolerance": 0.7,
+        "investAggression": 0.9,
+        "cooperationPreference": 0.5,
         "domainAffinity": {
           "coding": 0.55,
           "research": 0.15,
           "design": 0.15
         }
       },
+      "abilities": {
+        "coding": 40,
+        "research": 31,
+        "design": 21
+      },
       "walletBefore": 0,
       "walletAfter": 12,
       "skillsAfter": [
-        "skill_coding_basic"
+        {
+          "id": "skill_coding_basic",
+          "name": "Clean Code Patterns"
+        }
       ],
-      "bid": {
-        "agentId": "civ-a-agent-3",
-        "displayName": "Delta",
-        "bidAmount": 79,
+      "publicRecord": {
+        "tasksCompleted": 0,
+        "tasksFailed": 0,
+        "grossEarnings": 0,
+        "taxPaid": 0
+      },
+      "goal": {
+        "id": "save_for_skill",
+        "label": "攒钱买「Clean Code Patterns」",
+        "skillId": "skill_coding_basic",
+        "skillName": "Clean Code Patterns",
+        "price": 80
+      },
+      "decision": {
+        "action": "bid",
+        "reasonCode": "bid",
+        "bidAmount": 71,
         "expectedQuality": 0.45,
         "successProbability": 0.35,
-        "ability": 40
+        "riskComfortFloor": 0.28400000000000003,
+        "expectedReward": 100,
+        "expectedValue": 70,
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.35
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.284
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 70
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 0
+          }
+        ],
+        "observedCompetitors": {
+          "strongerSpecialists": 0,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "personalGoal": {
+          "id": "save_for_skill",
+          "label": "攒钱买「Clean Code Patterns」"
+        },
+        "result": "won",
+        "reaction": "glad"
       },
-      "expectedQuality": 0.45,
-      "score": 69.8,
-      "passed": false,
-      "passReason": null
+      "isFocus": true
     },
     {
       "id": "civ-a-agent-4",
       "displayName": "Echo",
       "role": "Research",
       "specialty": "research",
-      "abilities": {
-        "coding": 28,
-        "research": 41,
-        "design": 22
-      },
+      "personality": "quiet",
+      "personalityLabel": "低调型",
+      "personalityBlurb": "不抢风头，靠稳定交付积累口碑。",
       "traits": {
-        "riskTolerance": 0.78,
-        "investAggression": 0.25,
+        "riskTolerance": 0.66,
+        "investAggression": 0.5,
+        "cooperationPreference": 0.6,
         "domainAffinity": {
           "coding": 0.15,
           "research": 0.55,
           "design": 0.15
         }
       },
+      "abilities": {
+        "coding": 28,
+        "research": 41,
+        "design": 22
+      },
       "walletBefore": 0,
-      "walletAfter": 55,
+      "walletAfter": 71,
       "skillsAfter": [
-        "skill_research_basic"
+        {
+          "id": "skill_research_basic",
+          "name": "Literature Review"
+        }
       ],
-      "bid": null,
-      "expectedQuality": 0.09,
-      "score": 10.4,
-      "passed": true,
-      "passReason": "估分 10.4，低于 25 的接单门槛"
+      "publicRecord": {
+        "tasksCompleted": 0,
+        "tasksFailed": 0,
+        "grossEarnings": 0,
+        "taxPaid": 0
+      },
+      "goal": {
+        "id": "save_for_skill",
+        "label": "攒钱买「Literature Review」",
+        "skillId": "skill_research_basic",
+        "skillName": "Literature Review",
+        "price": 80
+      },
+      "decision": {
+        "action": "pass",
+        "reasonCode": "risk_above_comfort",
+        "bidAmount": null,
+        "expectedQuality": 0.09000000000000002,
+        "successProbability": 0.04999999999999993,
+        "riskComfortFloor": 0.2952,
+        "expectedReward": 100,
+        "expectedValue": 10,
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.05
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.295
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 10
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Literature Review」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 7
+          }
+        ],
+        "observedCompetitors": {
+          "strongerSpecialists": 7,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "personalGoal": {
+          "id": "save_for_skill",
+          "label": "攒钱买「Literature Review」"
+        },
+        "result": "passed",
+        "reaction": "neutral"
+      },
+      "isFocus": false
     },
     {
       "id": "civ-a-agent-5",
       "displayName": "Flux",
       "role": "Design",
       "specialty": "design",
-      "abilities": {
-        "coding": 29,
-        "research": 21,
-        "design": 42
-      },
+      "personality": "balanced",
+      "personalityLabel": "平衡型",
+      "personalityBlurb": "风险与收益都要说得过去。",
       "traits": {
-        "riskTolerance": 0.3,
-        "investAggression": 0.4,
+        "riskTolerance": 0.42,
+        "investAggression": 0.7,
+        "cooperationPreference": 0.65,
         "domainAffinity": {
           "coding": 0.15,
           "research": 0.15,
           "design": 0.55
         }
       },
+      "abilities": {
+        "coding": 29,
+        "research": 21,
+        "design": 42
+      },
       "walletBefore": 0,
-      "walletAfter": 0,
-      "skillsAfter": [],
-      "bid": null,
-      "expectedQuality": 0.12,
-      "score": 13.8,
-      "passed": true,
-      "passReason": "估分 13.8，低于 25 的接单门槛"
+      "walletAfter": 78,
+      "skillsAfter": [
+        {
+          "id": "skill_design_basic",
+          "name": "Visual Composition"
+        }
+      ],
+      "publicRecord": {
+        "tasksCompleted": 0,
+        "tasksFailed": 0,
+        "grossEarnings": 0,
+        "taxPaid": 0
+      },
+      "goal": {
+        "id": "save_for_skill",
+        "label": "攒钱买「Visual Composition」",
+        "skillId": "skill_design_basic",
+        "skillName": "Visual Composition",
+        "price": 80
+      },
+      "decision": {
+        "action": "pass",
+        "reasonCode": "risk_above_comfort",
+        "bidAmount": null,
+        "expectedQuality": 0.12000000000000005,
+        "successProbability": 0.07499999999999996,
+        "riskComfortFloor": 0.36240000000000006,
+        "expectedReward": 100,
+        "expectedValue": 14,
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.075
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.362
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 14
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Visual Composition」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 5
+          }
+        ],
+        "observedCompetitors": {
+          "strongerSpecialists": 5,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "personalGoal": {
+          "id": "save_for_skill",
+          "label": "攒钱买「Visual Composition」"
+        },
+        "result": "passed",
+        "reaction": "neutral"
+      },
+      "isFocus": false
     },
     {
       "id": "civ-a-agent-6",
       "displayName": "Grove",
       "role": "Coding",
       "specialty": "coding",
-      "abilities": {
-        "coding": 40,
-        "research": 30,
-        "design": 22
-      },
+      "personality": "steady",
+      "personalityLabel": "稳健型",
+      "personalityBlurb": "看长期能力成长，不盲目抢最低价。",
       "traits": {
-        "riskTolerance": 0.42,
-        "investAggression": 0.55,
+        "riskTolerance": 0.5,
+        "investAggression": 0.6,
+        "cooperationPreference": 0.75,
         "domainAffinity": {
           "coding": 0.55,
           "research": 0.15,
           "design": 0.15
         }
       },
+      "abilities": {
+        "coding": 40,
+        "research": 30,
+        "design": 22
+      },
       "walletBefore": 0,
       "walletAfter": 0,
       "skillsAfter": [],
-      "bid": {
-        "agentId": "civ-a-agent-6",
-        "displayName": "Grove",
+      "publicRecord": {
+        "tasksCompleted": 0,
+        "tasksFailed": 0,
+        "grossEarnings": 0,
+        "taxPaid": 0
+      },
+      "goal": {
+        "id": "save_for_skill",
+        "label": "攒钱买「Clean Code Patterns」",
+        "skillId": "skill_coding_basic",
+        "skillName": "Clean Code Patterns",
+        "price": 80
+      },
+      "decision": {
+        "action": "bid",
+        "reasonCode": "bid",
         "bidAmount": 79,
         "expectedQuality": 0.45,
         "successProbability": 0.35,
-        "ability": 40
+        "riskComfortFloor": 0.34,
+        "expectedReward": 100,
+        "expectedValue": 70,
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.35
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.34
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 70
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 0
+          }
+        ],
+        "observedCompetitors": {
+          "strongerSpecialists": 0,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "personalGoal": {
+          "id": "save_for_skill",
+          "label": "攒钱买「Clean Code Patterns」"
+        },
+        "result": "lost",
+        "reaction": "reflective"
       },
-      "expectedQuality": 0.45,
-      "score": 69.8,
-      "passed": false,
-      "passReason": null
+      "isFocus": true
     },
     {
       "id": "civ-a-agent-7",
       "displayName": "Helix",
       "role": "Research",
       "specialty": "research",
-      "abilities": {
-        "coding": 31,
-        "research": 41,
-        "design": 21
-      },
+      "personality": "observer",
+      "personalityLabel": "观察型",
+      "personalityBlurb": "先看市场，再决定动不动手。",
       "traits": {
         "riskTolerance": 0.54,
-        "investAggression": 0.7,
+        "investAggression": 0.55,
+        "cooperationPreference": 0.5,
         "domainAffinity": {
           "coding": 0.15,
           "research": 0.55,
           "design": 0.15
         }
       },
+      "abilities": {
+        "coding": 31,
+        "research": 41,
+        "design": 21
+      },
       "walletBefore": 0,
       "walletAfter": 0,
       "skillsAfter": [],
-      "bid": null,
-      "expectedQuality": 0.18,
-      "score": 20.7,
-      "passed": true,
-      "passReason": "估分 20.7，低于 25 的接单门槛"
+      "publicRecord": {
+        "tasksCompleted": 0,
+        "tasksFailed": 0,
+        "grossEarnings": 0,
+        "taxPaid": 0
+      },
+      "goal": {
+        "id": "save_for_skill",
+        "label": "攒钱买「Literature Review」",
+        "skillId": "skill_research_basic",
+        "skillName": "Literature Review",
+        "price": 80
+      },
+      "decision": {
+        "action": "pass",
+        "reasonCode": "risk_above_comfort",
+        "bidAmount": null,
+        "expectedQuality": 0.18,
+        "successProbability": 0.12499999999999997,
+        "riskComfortFloor": 0.3288,
+        "expectedReward": 100,
+        "expectedValue": 21,
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.125
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.329
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 21
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Literature Review」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 3
+          }
+        ],
+        "observedCompetitors": {
+          "strongerSpecialists": 3,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "personalGoal": {
+          "id": "save_for_skill",
+          "label": "攒钱买「Literature Review」"
+        },
+        "result": "passed",
+        "reaction": "neutral"
+      },
+      "isFocus": false
     }
   ],
   "bids": [
     {
-      "agentId": "civ-a-agent-0",
-      "displayName": "Astra",
-      "bidAmount": 80,
-      "expectedQuality": 0.45,
-      "successProbability": 0.35,
-      "ability": 40
-    },
-    {
       "agentId": "civ-a-agent-3",
       "displayName": "Delta",
-      "bidAmount": 79,
+      "bidAmount": 71,
       "expectedQuality": 0.45,
       "successProbability": 0.35,
-      "ability": 40
+      "reasonFactors": [
+        {
+          "key": "successProbability",
+          "label": "自估成功率",
+          "value": 0.35
+        },
+        {
+          "key": "riskComfortFloor",
+          "label": "风险安全线",
+          "value": 0.284
+        },
+        {
+          "key": "expectedReward",
+          "label": "订单奖励",
+          "value": 100
+        },
+        {
+          "key": "expectedValue",
+          "label": "风险调整后价值",
+          "value": 70
+        },
+        {
+          "key": "wallet",
+          "label": "当前钱包",
+          "value": 0
+        },
+        {
+          "key": "personalGoal",
+          "label": "当前目标",
+          "value": "攒钱买「Clean Code Patterns」"
+        },
+        {
+          "key": "observedStronger",
+          "label": "同行中更强的人",
+          "value": 0
+        }
+      ],
+      "personalGoalLabel": "攒钱买「Clean Code Patterns」"
     },
     {
       "agentId": "civ-a-agent-6",
@@ -305,16 +897,79 @@
       "bidAmount": 79,
       "expectedQuality": 0.45,
       "successProbability": 0.35,
-      "ability": 40
+      "reasonFactors": [
+        {
+          "key": "successProbability",
+          "label": "自估成功率",
+          "value": 0.35
+        },
+        {
+          "key": "riskComfortFloor",
+          "label": "风险安全线",
+          "value": 0.34
+        },
+        {
+          "key": "expectedReward",
+          "label": "订单奖励",
+          "value": 100
+        },
+        {
+          "key": "expectedValue",
+          "label": "风险调整后价值",
+          "value": 70
+        },
+        {
+          "key": "wallet",
+          "label": "当前钱包",
+          "value": 0
+        },
+        {
+          "key": "personalGoal",
+          "label": "当前目标",
+          "value": "攒钱买「Clean Code Patterns」"
+        },
+        {
+          "key": "observedStronger",
+          "label": "同行中更强的人",
+          "value": 0
+        }
+      ],
+      "personalGoalLabel": "攒钱买「Clean Code Patterns」"
+    }
+  ],
+  "declines": [
+    {
+      "agentId": "civ-a-agent-0",
+      "reasonCode": "risk_above_comfort"
+    },
+    {
+      "agentId": "civ-a-agent-1",
+      "reasonCode": "risk_above_comfort"
+    },
+    {
+      "agentId": "civ-a-agent-2",
+      "reasonCode": "risk_above_comfort"
+    },
+    {
+      "agentId": "civ-a-agent-4",
+      "reasonCode": "risk_above_comfort"
+    },
+    {
+      "agentId": "civ-a-agent-5",
+      "reasonCode": "risk_above_comfort"
+    },
+    {
+      "agentId": "civ-a-agent-7",
+      "reasonCode": "risk_above_comfort"
     }
   ],
   "winner": {
     "agentId": "civ-a-agent-3",
     "displayName": "Delta",
-    "bidAmount": 79,
+    "bidAmount": 71,
     "completed": true,
     "failed": false,
-    "quality": 0.5085459419991821
+    "quality": 0.6938692724332214
   },
   "settlement": {
     "gross": 100,
@@ -332,7 +987,14 @@
       "abilityAfter": 48
     }
   ],
-  "walletAfterRound": 12,
+  "nextRound": {
+    "domain": "coding",
+    "abilityBefore": 40,
+    "abilityAfter": 48,
+    "successBefore": 0.35,
+    "successAfter": 0.55
+  },
+  "otherTasks": [],
   "rawEvents": [
     {
       "id": "evt-2",
@@ -345,144 +1007,1109 @@
       "id": "evt-3",
       "round": 1,
       "kind": "task_posted",
-      "message": "Prototype material (Research)",
+      "message": "Brand identity kit (Design)",
       "payload": {
         "taskId": "task-r2-1",
-        "reward": 147
+        "reward": 172
       }
     },
     {
       "id": "evt-4",
       "round": 1,
       "kind": "task_posted",
-      "message": "Icon set refresh (Design)",
+      "message": "Prototype material (Research)",
       "payload": {
         "taskId": "task-r2-2",
-        "reward": 166
+        "reward": 164
       }
     },
     {
       "id": "evt-5",
       "round": 1,
-      "kind": "bid_placed",
-      "message": "Astra bid on player-task-1-r0",
+      "kind": "bid_declined",
+      "message": "Astra passed on player-task-1-r0",
       "payload": {
         "taskId": "player-task-1-r0",
         "agentId": "civ-a-agent-0",
-        "bidAmount": 80,
-        "decisionSource": "mock"
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.35,
+        "expectedQuality": 0.45,
+        "riskComfortFloor": 0.41000000000000003,
+        "expectedReward": 100,
+        "expectedValue": 70,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Clean Code Patterns」",
+        "observedCompetitors": {
+          "strongerSpecialists": 0,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.35
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.41
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 70
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 0
+          }
+        ]
       }
     },
     {
       "id": "evt-6",
       "round": 1,
-      "kind": "bid_placed",
-      "message": "Astra bid on task-r2-1",
+      "kind": "bid_declined",
+      "message": "Astra passed on task-r2-1",
       "payload": {
         "taskId": "task-r2-1",
         "agentId": "civ-a-agent-0",
-        "bidAmount": 132,
-        "decisionSource": "mock"
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.16,
+        "expectedQuality": 0,
+        "riskComfortFloor": 0.41000000000000003,
+        "expectedReward": 172,
+        "expectedValue": 0,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Clean Code Patterns」",
+        "observedCompetitors": {
+          "strongerSpecialists": 2,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.16
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.41
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 172
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 0
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 2
+          }
+        ]
       }
     },
     {
       "id": "evt-7",
       "round": 1,
-      "kind": "bid_placed",
-      "message": "Boreal bid on task-r2-1",
+      "kind": "bid_declined",
+      "message": "Astra passed on task-r2-2",
       "payload": {
-        "taskId": "task-r2-1",
-        "agentId": "civ-a-agent-1",
-        "bidAmount": 118,
-        "decisionSource": "mock"
+        "taskId": "task-r2-2",
+        "agentId": "civ-a-agent-0",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.19999999999999996,
+        "expectedQuality": 0.27,
+        "riskComfortFloor": 0.41000000000000003,
+        "expectedReward": 164,
+        "expectedValue": 51,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Clean Code Patterns」",
+        "observedCompetitors": {
+          "strongerSpecialists": 5,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.2
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.41
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 164
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 51
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 5
+          }
+        ]
       }
     },
     {
       "id": "evt-8",
       "round": 1,
       "kind": "bid_placed",
-      "message": "Cinder bid on task-r2-1",
+      "message": "Boreal bid on task-r2-2",
       "payload": {
-        "taskId": "task-r2-1",
-        "agentId": "civ-a-agent-2",
-        "bidAmount": 119,
-        "decisionSource": "mock"
+        "taskId": "task-r2-2",
+        "agentId": "civ-a-agent-1",
+        "bidAmount": 126,
+        "decisionSource": "mock",
+        "expectedQuality": 0.66,
+        "successProbability": 0.525,
+        "riskComfortFloor": 0.36240000000000006,
+        "expectedReward": 164,
+        "expectedValue": 168,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Literature Review」",
+        "observedCompetitors": {
+          "strongerSpecialists": 0,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.525
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.362
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 164
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 168
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Literature Review」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 0
+          }
+        ]
       }
     },
     {
       "id": "evt-9",
       "round": 1,
-      "kind": "bid_placed",
-      "message": "Cinder bid on task-r2-2",
+      "kind": "bid_declined",
+      "message": "Boreal passed on player-task-1-r0",
       "payload": {
-        "taskId": "task-r2-2",
-        "agentId": "civ-a-agent-2",
-        "bidAmount": 124,
-        "decisionSource": "mock"
+        "taskId": "player-task-1-r0",
+        "agentId": "civ-a-agent-1",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.07499999999999996,
+        "expectedQuality": 0.12000000000000005,
+        "riskComfortFloor": 0.36240000000000006,
+        "expectedReward": 100,
+        "expectedValue": 14,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Literature Review」",
+        "observedCompetitors": {
+          "strongerSpecialists": 5,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.075
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.362
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 14
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Literature Review」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 5
+          }
+        ]
       }
     },
     {
       "id": "evt-10",
       "round": 1,
-      "kind": "bid_placed",
-      "message": "Delta bid on player-task-1-r0",
+      "kind": "bid_declined",
+      "message": "Boreal passed on task-r2-1",
       "payload": {
-        "taskId": "player-task-1-r0",
-        "agentId": "civ-a-agent-3",
-        "bidAmount": 79,
-        "decisionSource": "mock"
+        "taskId": "task-r2-1",
+        "agentId": "civ-a-agent-1",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.155,
+        "expectedQuality": 0,
+        "riskComfortFloor": 0.36240000000000006,
+        "expectedReward": 172,
+        "expectedValue": 0,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Literature Review」",
+        "observedCompetitors": {
+          "strongerSpecialists": 5,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.155
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.362
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 172
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 0
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Literature Review」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 5
+          }
+        ]
       }
     },
     {
       "id": "evt-11",
       "round": 1,
       "kind": "bid_placed",
-      "message": "Delta bid on task-r2-1",
+      "message": "Cinder bid on task-r2-1",
       "payload": {
         "taskId": "task-r2-1",
-        "agentId": "civ-a-agent-3",
-        "bidAmount": 112,
-        "decisionSource": "mock"
+        "agentId": "civ-a-agent-2",
+        "bidAmount": 147,
+        "decisionSource": "mock",
+        "expectedQuality": 0.51,
+        "successProbability": 0.39999999999999997,
+        "riskComfortFloor": 0.3288,
+        "expectedReward": 172,
+        "expectedValue": 136,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Visual Composition」",
+        "observedCompetitors": {
+          "strongerSpecialists": 0,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.4
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.329
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 172
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 136
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Visual Composition」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 0
+          }
+        ]
       }
     },
     {
       "id": "evt-12",
       "round": 1,
-      "kind": "bid_placed",
-      "message": "Echo bid on task-r2-1",
+      "kind": "bid_declined",
+      "message": "Cinder passed on player-task-1-r0",
       "payload": {
-        "taskId": "task-r2-1",
-        "agentId": "civ-a-agent-4",
-        "bidAmount": 110,
-        "decisionSource": "mock"
+        "taskId": "player-task-1-r0",
+        "agentId": "civ-a-agent-2",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.09999999999999998,
+        "expectedQuality": 0.15000000000000002,
+        "riskComfortFloor": 0.3288,
+        "expectedReward": 100,
+        "expectedValue": 17,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Visual Composition」",
+        "observedCompetitors": {
+          "strongerSpecialists": 4,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.1
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.329
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 17
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Visual Composition」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 4
+          }
+        ]
       }
     },
     {
       "id": "evt-13",
       "round": 1,
-      "kind": "bid_placed",
-      "message": "Flux bid on task-r2-1",
+      "kind": "bid_declined",
+      "message": "Cinder passed on task-r2-2",
       "payload": {
-        "taskId": "task-r2-1",
-        "agentId": "civ-a-agent-5",
-        "bidAmount": 119,
-        "decisionSource": "mock"
+        "taskId": "task-r2-2",
+        "agentId": "civ-a-agent-2",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.04999999999999993,
+        "expectedQuality": 0.09000000000000002,
+        "riskComfortFloor": 0.3288,
+        "expectedReward": 164,
+        "expectedValue": 17,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Visual Composition」",
+        "observedCompetitors": {
+          "strongerSpecialists": 6,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.05
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.329
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 164
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 17
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Visual Composition」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 6
+          }
+        ]
       }
     },
     {
       "id": "evt-14",
       "round": 1,
       "kind": "bid_placed",
-      "message": "Flux bid on task-r2-2",
+      "message": "Delta bid on player-task-1-r0",
       "payload": {
-        "taskId": "task-r2-2",
-        "agentId": "civ-a-agent-5",
-        "bidAmount": 122,
-        "decisionSource": "mock"
+        "taskId": "player-task-1-r0",
+        "agentId": "civ-a-agent-3",
+        "bidAmount": 71,
+        "decisionSource": "mock",
+        "expectedQuality": 0.45,
+        "successProbability": 0.35,
+        "riskComfortFloor": 0.28400000000000003,
+        "expectedReward": 100,
+        "expectedValue": 70,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Clean Code Patterns」",
+        "observedCompetitors": {
+          "strongerSpecialists": 0,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.35
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.284
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 70
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 0
+          }
+        ]
       }
     },
     {
       "id": "evt-15",
+      "round": 1,
+      "kind": "bid_declined",
+      "message": "Delta passed on task-r2-1",
+      "payload": {
+        "taskId": "task-r2-1",
+        "agentId": "civ-a-agent-3",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.155,
+        "expectedQuality": 0,
+        "riskComfortFloor": 0.28400000000000003,
+        "expectedReward": 172,
+        "expectedValue": 0,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Clean Code Patterns」",
+        "observedCompetitors": {
+          "strongerSpecialists": 5,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.155
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.284
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 172
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 0
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 5
+          }
+        ]
+      }
+    },
+    {
+      "id": "evt-16",
+      "round": 1,
+      "kind": "bid_declined",
+      "message": "Delta passed on task-r2-2",
+      "payload": {
+        "taskId": "task-r2-2",
+        "agentId": "civ-a-agent-3",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.27499999999999997,
+        "expectedQuality": 0.36,
+        "riskComfortFloor": 0.28400000000000003,
+        "expectedReward": 164,
+        "expectedValue": 68,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Clean Code Patterns」",
+        "observedCompetitors": {
+          "strongerSpecialists": 3,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.275
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.284
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 164
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 68
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 3
+          }
+        ]
+      }
+    },
+    {
+      "id": "evt-17",
+      "round": 1,
+      "kind": "bid_placed",
+      "message": "Echo bid on task-r2-2",
+      "payload": {
+        "taskId": "task-r2-2",
+        "agentId": "civ-a-agent-4",
+        "bidAmount": 115,
+        "decisionSource": "mock",
+        "expectedQuality": 0.66,
+        "successProbability": 0.525,
+        "riskComfortFloor": 0.2952,
+        "expectedReward": 164,
+        "expectedValue": 168,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Literature Review」",
+        "observedCompetitors": {
+          "strongerSpecialists": 0,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.525
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.295
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 164
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 168
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Literature Review」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "evt-18",
+      "round": 1,
+      "kind": "bid_declined",
+      "message": "Echo passed on player-task-1-r0",
+      "payload": {
+        "taskId": "player-task-1-r0",
+        "agentId": "civ-a-agent-4",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.04999999999999993,
+        "expectedQuality": 0.09000000000000002,
+        "riskComfortFloor": 0.2952,
+        "expectedReward": 100,
+        "expectedValue": 10,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Literature Review」",
+        "observedCompetitors": {
+          "strongerSpecialists": 7,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.05
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.295
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 10
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Literature Review」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 7
+          }
+        ]
+      }
+    },
+    {
+      "id": "evt-19",
+      "round": 1,
+      "kind": "bid_declined",
+      "message": "Echo passed on task-r2-1",
+      "payload": {
+        "taskId": "task-r2-1",
+        "agentId": "civ-a-agent-4",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.16,
+        "expectedQuality": 0,
+        "riskComfortFloor": 0.2952,
+        "expectedReward": 172,
+        "expectedValue": 0,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Literature Review」",
+        "observedCompetitors": {
+          "strongerSpecialists": 2,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.16
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.295
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 172
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 0
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Literature Review」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "evt-20",
+      "round": 1,
+      "kind": "bid_placed",
+      "message": "Flux bid on task-r2-1",
+      "payload": {
+        "taskId": "task-r2-1",
+        "agentId": "civ-a-agent-5",
+        "bidAmount": 128,
+        "decisionSource": "mock",
+        "expectedQuality": 0.51,
+        "successProbability": 0.39999999999999997,
+        "riskComfortFloor": 0.36240000000000006,
+        "expectedReward": 172,
+        "expectedValue": 136,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Visual Composition」",
+        "observedCompetitors": {
+          "strongerSpecialists": 0,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.4
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.362
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 172
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 136
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Visual Composition」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "evt-21",
+      "round": 1,
+      "kind": "bid_declined",
+      "message": "Flux passed on player-task-1-r0",
+      "payload": {
+        "taskId": "player-task-1-r0",
+        "agentId": "civ-a-agent-5",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.07499999999999996,
+        "expectedQuality": 0.12000000000000005,
+        "riskComfortFloor": 0.36240000000000006,
+        "expectedReward": 100,
+        "expectedValue": 14,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Visual Composition」",
+        "observedCompetitors": {
+          "strongerSpecialists": 5,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.075
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.362
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 14
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Visual Composition」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 5
+          }
+        ]
+      }
+    },
+    {
+      "id": "evt-22",
+      "round": 1,
+      "kind": "bid_declined",
+      "message": "Flux passed on task-r2-2",
+      "payload": {
+        "taskId": "task-r2-2",
+        "agentId": "civ-a-agent-5",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.03,
+        "expectedQuality": 0.06,
+        "riskComfortFloor": 0.36240000000000006,
+        "expectedReward": 164,
+        "expectedValue": 11,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Visual Composition」",
+        "observedCompetitors": {
+          "strongerSpecialists": 7,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.03
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.362
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 164
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 11
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Visual Composition」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 7
+          }
+        ]
+      }
+    },
+    {
+      "id": "evt-23",
       "round": 1,
       "kind": "bid_placed",
       "message": "Grove bid on player-task-1-r0",
@@ -490,55 +2117,381 @@
         "taskId": "player-task-1-r0",
         "agentId": "civ-a-agent-6",
         "bidAmount": 79,
-        "decisionSource": "mock"
+        "decisionSource": "mock",
+        "expectedQuality": 0.45,
+        "successProbability": 0.35,
+        "riskComfortFloor": 0.34,
+        "expectedReward": 100,
+        "expectedValue": 70,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Clean Code Patterns」",
+        "observedCompetitors": {
+          "strongerSpecialists": 0,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.35
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.34
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 70
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 0
+          }
+        ]
       }
     },
     {
-      "id": "evt-16",
+      "id": "evt-24",
       "round": 1,
-      "kind": "bid_placed",
-      "message": "Grove bid on task-r2-1",
+      "kind": "bid_declined",
+      "message": "Grove passed on task-r2-1",
       "payload": {
         "taskId": "task-r2-1",
         "agentId": "civ-a-agent-6",
-        "bidAmount": 126,
-        "decisionSource": "mock"
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.16,
+        "expectedQuality": 0,
+        "riskComfortFloor": 0.34,
+        "expectedReward": 172,
+        "expectedValue": 0,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Clean Code Patterns」",
+        "observedCompetitors": {
+          "strongerSpecialists": 2,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.16
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.34
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 172
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 0
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 2
+          }
+        ]
       }
     },
     {
-      "id": "evt-17",
+      "id": "evt-25",
+      "round": 1,
+      "kind": "bid_declined",
+      "message": "Grove passed on task-r2-2",
+      "payload": {
+        "taskId": "task-r2-2",
+        "agentId": "civ-a-agent-6",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.24999999999999997,
+        "expectedQuality": 0.33,
+        "riskComfortFloor": 0.34,
+        "expectedReward": 164,
+        "expectedValue": 62,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Clean Code Patterns」",
+        "observedCompetitors": {
+          "strongerSpecialists": 4,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.25
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.34
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 164
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 62
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 4
+          }
+        ]
+      }
+    },
+    {
+      "id": "evt-26",
       "round": 1,
       "kind": "bid_placed",
-      "message": "Helix bid on task-r2-1",
+      "message": "Helix bid on task-r2-2",
+      "payload": {
+        "taskId": "task-r2-2",
+        "agentId": "civ-a-agent-7",
+        "bidAmount": 118,
+        "decisionSource": "mock",
+        "expectedQuality": 0.66,
+        "successProbability": 0.525,
+        "riskComfortFloor": 0.3288,
+        "expectedReward": 164,
+        "expectedValue": 168,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Literature Review」",
+        "observedCompetitors": {
+          "strongerSpecialists": 0,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.525
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.329
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 164
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 168
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Literature Review」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "evt-27",
+      "round": 1,
+      "kind": "bid_declined",
+      "message": "Helix passed on player-task-1-r0",
+      "payload": {
+        "taskId": "player-task-1-r0",
+        "agentId": "civ-a-agent-7",
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.12499999999999997,
+        "expectedQuality": 0.18,
+        "riskComfortFloor": 0.3288,
+        "expectedReward": 100,
+        "expectedValue": 21,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Literature Review」",
+        "observedCompetitors": {
+          "strongerSpecialists": 3,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.125
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.329
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 21
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Literature Review」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 3
+          }
+        ]
+      }
+    },
+    {
+      "id": "evt-28",
+      "round": 1,
+      "kind": "bid_declined",
+      "message": "Helix passed on task-r2-1",
       "payload": {
         "taskId": "task-r2-1",
         "agentId": "civ-a-agent-7",
-        "bidAmount": 113,
-        "decisionSource": "mock"
+        "reasonCode": "risk_above_comfort",
+        "successProbability": 0.155,
+        "expectedQuality": 0,
+        "riskComfortFloor": 0.3288,
+        "expectedReward": 172,
+        "expectedValue": 0,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Literature Review」",
+        "observedCompetitors": {
+          "strongerSpecialists": 5,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.155
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.329
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 172
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 0
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Literature Review」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 5
+          }
+        ]
       }
     },
     {
-      "id": "evt-18",
+      "id": "evt-29",
       "round": 1,
       "kind": "task_assigned",
-      "message": "civ-a-agent-5 assigned Icon set refresh (Design)",
+      "message": "civ-a-agent-5 assigned Brand identity kit (Design)",
       "payload": {
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-1",
         "agentId": "civ-a-agent-5"
       }
     },
     {
-      "id": "evt-19",
+      "id": "evt-30",
       "round": 1,
       "kind": "task_assigned",
       "message": "civ-a-agent-4 assigned Prototype material (Research)",
       "payload": {
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "agentId": "civ-a-agent-4"
       }
     },
     {
-      "id": "evt-20",
+      "id": "evt-31",
       "round": 1,
       "kind": "task_assigned",
       "message": "civ-a-agent-3 assigned 修复网站登录问题",
@@ -548,7 +2501,7 @@
       }
     },
     {
-      "id": "evt-21",
+      "id": "evt-32",
       "round": 1,
       "kind": "tax_collected",
       "message": "Delta paid 8 tax on 修复网站登录问题",
@@ -561,50 +2514,63 @@
       }
     },
     {
-      "id": "evt-22",
+      "id": "evt-33",
       "round": 1,
       "kind": "task_completed",
       "message": "Delta completed 修复网站登录问题",
       "payload": {
         "taskId": "player-task-1-r0",
-        "quality": 0.5085459419991821
+        "quality": 0.6938692724332214
       }
     },
     {
-      "id": "evt-23",
+      "id": "evt-34",
       "round": 1,
       "kind": "tax_collected",
-      "message": "Echo paid 12 tax on Prototype material (Research)",
+      "message": "Flux paid 14 tax on Brand identity kit (Design)",
+      "payload": {
+        "agentId": "civ-a-agent-5",
+        "civilizationId": "civ-a",
+        "taskId": "task-r2-1",
+        "tax": 14,
+        "net": 158
+      }
+    },
+    {
+      "id": "evt-35",
+      "round": 1,
+      "kind": "task_completed",
+      "message": "Flux completed Brand identity kit (Design)",
+      "payload": {
+        "taskId": "task-r2-1",
+        "quality": 0.5892878216598183
+      }
+    },
+    {
+      "id": "evt-36",
+      "round": 1,
+      "kind": "tax_collected",
+      "message": "Echo paid 13 tax on Prototype material (Research)",
       "payload": {
         "agentId": "civ-a-agent-4",
         "civilizationId": "civ-a",
-        "taskId": "task-r2-1",
-        "tax": 12,
-        "net": 135
+        "taskId": "task-r2-2",
+        "tax": 13,
+        "net": 151
       }
     },
     {
-      "id": "evt-24",
+      "id": "evt-37",
       "round": 1,
       "kind": "task_completed",
       "message": "Echo completed Prototype material (Research)",
       "payload": {
-        "taskId": "task-r2-1",
-        "quality": 0.9480764986667782
+        "taskId": "task-r2-2",
+        "quality": 0.7303437578398734
       }
     },
     {
-      "id": "evt-25",
-      "round": 1,
-      "kind": "task_failed",
-      "message": "Flux failed: Icon set refresh (Design)",
-      "payload": {
-        "agentId": "civ-a-agent-5",
-        "taskId": "task-r2-2"
-      }
-    },
-    {
-      "id": "evt-26",
+      "id": "evt-38",
       "round": 1,
       "kind": "skill_purchased",
       "message": "Delta bought Clean Code Patterns",
@@ -615,7 +2581,7 @@
       }
     },
     {
-      "id": "evt-27",
+      "id": "evt-39",
       "round": 1,
       "kind": "skill_purchased",
       "message": "Echo bought Literature Review",
@@ -626,7 +2592,18 @@
       }
     },
     {
-      "id": "evt-28",
+      "id": "evt-40",
+      "round": 1,
+      "kind": "skill_purchased",
+      "message": "Flux bought Visual Composition",
+      "payload": {
+        "agentId": "civ-a-agent-5",
+        "skillId": "skill_design_basic",
+        "price": 80
+      }
+    },
+    {
+      "id": "evt-41",
       "round": 1,
       "kind": "story",
       "message": "第 1 天，市集开门。",
@@ -639,7 +2616,7 @@
       }
     },
     {
-      "id": "evt-29",
+      "id": "evt-42",
       "round": 1,
       "kind": "story",
       "message": "新到 2 单系统订单。",
@@ -652,51 +2629,30 @@
       }
     },
     {
-      "id": "evt-30",
+      "id": "evt-43",
       "round": 1,
       "kind": "story",
-      "message": "「材料原型试做」成了香饽饽，8 人报价。",
+      "message": "「材料原型试做」成了香饽饽，3 人报价。",
       "payload": {
-        "playerLine": "「材料原型试做」成了香饽饽，8 人报价。",
+        "playerLine": "「材料原型试做」成了香饽饽，3 人报价。",
         "storyRole": "section",
         "section": "bids",
-        "summary": "抢单大战：「材料原型试做」8 人报价，Echo 抢到手。",
+        "summary": "抢单大战：「材料原型试做」3 人报价，Echo 抢到手。",
         "details": [
-          "Astra：老板看看我，「材料原型试做」我能行！",
           "Boreal：「材料原型试做」这活香，我先报个价碰碰运气～",
-          "Cinder：老板看看我，「材料原型试做」我能行！",
-          "还有 5 人也报价了，场面一度很卷。"
+          "Echo：老板看看我，「材料原型试做」我能行！",
+          "Helix：盯上「材料原型试做」了，手速准备起飞！"
         ],
         "contest": {
           "taskLabel": "材料原型试做",
-          "bidderCount": 8,
+          "bidderCount": 3,
           "bidders": [
-            {
-              "name": "Astra",
-              "civId": "civ-a"
-            },
             {
               "name": "Boreal",
               "civId": "civ-a"
             },
             {
-              "name": "Cinder",
-              "civId": "civ-a"
-            },
-            {
-              "name": "Delta",
-              "civId": "civ-a"
-            },
-            {
               "name": "Echo",
-              "civId": "civ-a"
-            },
-            {
-              "name": "Flux",
-              "civId": "civ-a"
-            },
-            {
-              "name": "Grove",
               "civId": "civ-a"
             },
             {
@@ -711,7 +2667,7 @@
       }
     },
     {
-      "id": "evt-31",
+      "id": "evt-44",
       "round": 1,
       "kind": "story",
       "message": "另有 2 单被抢下。",
@@ -721,46 +2677,47 @@
         "section": "assign",
         "summary": "还有 2 单找到打工人。",
         "details": [
-          "Flux 拿下「图标套装焕新」（166 金）",
+          "Flux 拿下「品牌视觉套件」（172 金）",
           "Delta 拿下「修复网站登录问题」（100 金）"
         ]
       }
     },
     {
-      "id": "evt-32",
+      "id": "evt-45",
       "round": 1,
       "kind": "story",
-      "message": "交差 2 单，失手 1 单。",
+      "message": "顺利交差 3 单！",
       "payload": {
-        "playerLine": "交差 2 单，失手 1 单。",
+        "playerLine": "顺利交差 3 单！",
         "storyRole": "section",
         "section": "work",
-        "summary": "交差 2 单，失手 1 单。",
+        "summary": "顺利交差 3 单！",
         "details": [
           "✓ Delta 搞定「修复网站登录问题」，金币到账～",
-          "✓ Echo 搞定「材料原型试做」，金币到账～",
-          "✗ Flux 「图标套装焕新」翻车了，下次再来。"
+          "✓ Flux 搞定「品牌视觉套件」，金币到账～",
+          "✓ Echo 搞定「材料原型试做」，金币到账～"
         ]
       }
     },
     {
-      "id": "evt-33",
+      "id": "evt-46",
       "round": 1,
       "kind": "story",
-      "message": "2 人投资了新技能。",
+      "message": "3 人投资了新技能。",
       "payload": {
-        "playerLine": "2 人投资了新技能。",
+        "playerLine": "3 人投资了新技能。",
         "storyRole": "section",
         "section": "shop",
-        "summary": "2 位居民去「技能铺」逛了一圈。",
+        "summary": "3 位居民去「技能铺」逛了一圈。",
         "details": [
           "Delta 买了「编程基本功」，准备接更狠的活。",
-          "Echo 买了「科研方法论」，准备接更狠的活。"
+          "Echo 买了「科研方法论」，准备接更狠的活。",
+          "Flux 买了「视觉构图」，准备接更狠的活。"
         ]
       }
     },
     {
-      "id": "evt-34",
+      "id": "evt-47",
       "round": 1,
       "kind": "story",
       "message": "Delta 交差成功",

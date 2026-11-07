@@ -2,16 +2,23 @@
  * Generates the deterministic bidding-demo fixture from the REAL simulation engine.
  * Run: npm run demo:fixture   (requires `npm run build -w @ai-civ/simulation` first)
  *
- * The web demo only replays this fixture — it never re-implements economy rules.
+ * Three layers:
+ *  1. Decision Layer  — simulation engine (MockAgentDecisionProvider, personality-aware).
+ *  2. Explanation Layer — this script turns public event payloads into structured explanations.
+ *  3. Presentation Layer — the web app turns factors into short public lines (no economics).
  */
 import {
   agentExpectedQuality,
   createDualCivilizationGame,
   createFreeMarketRules,
   effectiveAbility,
-  postPlayerTask,
-  runSingleRound,
   getSkillById,
+  observedCompetitorsFor,
+  personalGoalFor,
+  postPlayerTask,
+  riskComfortFloor,
+  runSingleRound,
+  successProbability,
 } from '../packages/simulation/dist/index.js';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -25,15 +32,47 @@ const SCENARIO = {
 
 const ROLE_BY_DOMAIN = { coding: 'Coding', research: 'Research', design: 'Design' };
 
-function successProbability(ability, difficulty, minAbility) {
-  const gap = ability - difficulty;
-  const meetMin = ability >= minAbility;
-  const p = meetMin ? 0.35 + gap * 0.025 : 0.05 + ability * 0.005;
-  return Math.max(0.03, Math.min(0.97, p));
-}
+/** Authored characters for this demo (only focus trio is fully fleshed out). */
+const PROFILES = {
+  0: {
+    personality: 'cautious',
+    personalityLabel: '谨慎型',
+    blurb: '先算风险，再谈赚钱；报价要留出安全边际。',
+    risk: 0.25,
+    invest: 0.45,
+    cooperation: 0.4,
+  },
+  3: {
+    personality: 'bold',
+    personalityLabel: '积极型',
+    blurb: '愿意用更低报价抢单，目标是把能力装备升级。',
+    risk: 0.7,
+    invest: 0.9,
+    cooperation: 0.5,
+  },
+  6: {
+    personality: 'steady',
+    personalityLabel: '稳健型',
+    blurb: '看长期能力成长，不盲目抢最低价。',
+    risk: 0.5,
+    invest: 0.6,
+    cooperation: 0.75,
+  },
+  1: { personality: 'pragmatic', personalityLabel: '务实型', blurb: '有把握才出手，平时先攒钱。', risk: 0.42, invest: 0.45, cooperation: 0.55 },
+  2: { personality: 'curious', personalityLabel: '好奇型', blurb: '愿意试新领域，但更看重划算不划算。', risk: 0.54, invest: 0.6, cooperation: 0.5 },
+  4: { personality: 'quiet', personalityLabel: '低调型', blurb: '不抢风头，靠稳定交付积累口碑。', risk: 0.66, invest: 0.5, cooperation: 0.6 },
+  5: { personality: 'balanced', personalityLabel: '平衡型', blurb: '风险与收益都要说得过去。', risk: 0.42, invest: 0.7, cooperation: 0.65 },
+  7: { personality: 'observer', personalityLabel: '观察型', blurb: '先看市场，再决定动不动手。', risk: 0.54, invest: 0.55, cooperation: 0.5 },
+};
+
+const ROLE_INDEX = { coding: 0, research: 1, design: 2 };
 
 function specialtyOf(agent) {
   return Object.entries(agent.abilities).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+function successForAbility(ability, task) {
+  return successProbability(ability, task.requirements.difficulty, task.requirements.minAbility);
 }
 
 function buildFixture(seed, tasksPerRound, warmupRounds, initialAbility) {
@@ -42,8 +81,16 @@ function buildFixture(seed, tasksPerRound, warmupRounds, initialAbility) {
     createFreeMarketRules('自由市场')
   );
   const civ = state.civilizations[0];
-  // Product Slice is single-civilization: keep only 晨曦文明 for the demo round.
   state.civilizations = [civ];
+
+  // Author the cast (traits are real engine inputs, not display labels).
+  civ.agents.forEach((agent, index) => {
+    const profile = PROFILES[index];
+    if (!profile) return;
+    agent.traits.riskTolerance = profile.risk;
+    agent.traits.investAggression = profile.invest;
+    agent.traits.cooperationPreference = profile.cooperation;
+  });
 
   for (let i = 0; i < warmupRounds; i += 1) runSingleRound(state);
 
@@ -59,70 +106,121 @@ function buildFixture(seed, tasksPerRound, warmupRounds, initialAbility) {
   runSingleRound(state);
 
   const roundEvents = state.events.filter((e) => e.round === demoRound);
-  const bids = roundEvents
-    .filter((e) => e.kind === 'bid_placed' && e.payload?.taskId === task.id)
-    .map((e) => {
-      const agent = before.find((a) => a.id === e.payload.agentId);
-      if (!agent) return null;
-      const abilities = effectiveAbility(agent.abilities, agent.skills.map((s) => s.skillId), []);
-      const quality = agentExpectedQuality(agent, civ, task);
-      const ability = abilities[SCENARIO.domain];
-      return {
-        agentId: agent.id,
-        displayName: agent.displayName,
-        bidAmount: e.payload.bidAmount,
-        expectedQuality: Number(quality.toFixed(3)),
-        successProbability: Number(
-          successProbability(ability, task.requirements.difficulty, task.requirements.minAbility).toFixed(3)
-        ),
-        ability,
-      };
-    })
-    .filter(Boolean)
-    .sort((a, b) => b.successProbability - a.successProbability);
-
-  const assigned = roundEvents.find((e) => e.kind === 'task_assigned' && e.payload?.taskId === task.id);
-  const completed = roundEvents.find((e) => e.kind === 'task_completed' && e.payload?.taskId === task.id);
-  const failed = roundEvents.find((e) => e.kind === 'task_failed' && e.payload?.taskId === task.id);
-  const taxEvent = completed
-    ? roundEvents.find((e) => e.kind === 'tax_collected' && e.payload?.taskId === task.id)
-    : null;
-
+  const focusEvents = roundEvents.filter((e) => e.payload?.taskId === task.id);
+  const bidEvents = focusEvents.filter((e) => e.kind === 'bid_placed');
+  const declineEvents = focusEvents.filter((e) => e.kind === 'bid_declined');
+  const assigned = focusEvents.find((e) => e.kind === 'task_assigned');
+  const completed = focusEvents.find((e) => e.kind === 'task_completed');
+  const failed = focusEvents.find((e) => e.kind === 'task_failed');
+  const taxEvent = completed ? focusEvents.find((e) => e.kind === 'tax_collected') : null;
   const winnerId = assigned?.payload?.agentId ?? null;
   const winnerBefore = before.find((a) => a.id === winnerId);
   const winnerAfter = civ.agents.find((a) => a.id === winnerId);
-  const purchased = winnerId
-    ? roundEvents.filter((e) => e.kind === 'skill_purchased' && e.payload?.agentId === winnerId)
-    : [];
+  const purchased = winnerId ? roundEvents.filter((e) => e.kind === 'skill_purchased' && e.payload?.agentId === winnerId) : [];
 
-  const agents = civ.agents.map((agent, i) => {
-    const previous = before[i];
-    const submitted = bids.find((b) => b.agentId === agent.id);
+  const agents = civ.agents.map((agent, index) => {
+    const previous = before[index];
+    const profile = PROFILES[index];
+    const domain = specialtyOf(previous);
+    const goal = personalGoalFor(previous, civ);
+    const observed = observedCompetitorsFor(previous, civ, SCENARIO.domain);
+    const bidEvent = bidEvents.find((e) => e.payload?.agentId === agent.id);
+    const declineEvent = declineEvents.find((e) => e.payload?.agentId === agent.id);
+    const isWinner = agent.id === winnerId;
+
+    const decisionPayload = bidEvent?.payload ?? declineEvent?.payload ?? null;
+    const action = bidEvent ? 'bid' : 'pass';
     const abilities = effectiveAbility(previous.abilities, previous.skills.map((s) => s.skillId), []);
-    const ability = abilities[SCENARIO.domain];
+    const probability =
+      typeof decisionPayload?.successProbability === 'number'
+        ? decisionPayload.successProbability
+        : successForAbility(abilities[SCENARIO.domain], task);
     const quality = agentExpectedQuality(previous, civ, task);
-    const score = quality * task.reward * (1 + previous.traits.domainAffinity[SCENARIO.domain]);
+    const reasonFactors = decisionPayload?.reasonFactors ?? [];
+    const reaction = isWinner
+      ? completed
+        ? 'glad'
+        : 'worried'
+      : action === 'pass'
+        ? profile.personality === 'cautious'
+          ? 'wary'
+          : 'neutral'
+        : 'reflective';
+
     return {
       id: agent.id,
       displayName: agent.displayName,
-      role: ROLE_BY_DOMAIN[specialtyOf(previous)],
-      specialty: specialtyOf(previous),
+      role: ROLE_BY_DOMAIN[domain],
+      specialty: domain,
+      personality: profile.personality,
+      personalityLabel: profile.personalityLabel,
+      personalityBlurb: profile.blurb,
+      traits: {
+        riskTolerance: previous.traits.riskTolerance,
+        investAggression: previous.traits.investAggression,
+        cooperationPreference: previous.traits.cooperationPreference ?? 0.5,
+        domainAffinity: previous.traits.domainAffinity,
+      },
       abilities: previous.abilities,
-      traits: previous.traits,
       walletBefore: previous.wallet,
       walletAfter: agent.wallet,
-      skillsAfter: agent.skills.map((s) => s.skillId),
-      bid: submitted ?? null,
-      expectedQuality: Number(quality.toFixed(3)),
-      score: Number(score.toFixed(1)),
-      passed: !submitted,
-      passReason: submitted
-        ? null
-        : score < 25
-          ? `估分 ${Number(score.toFixed(1))}，低于 25 的接单门槛`
-          : '这单排不进本轮前两单，先去抢报酬更高的任务',
+      skillsAfter: agent.skills.map((s) => ({ id: s.skillId, name: getSkillById(s.skillId)?.name ?? s.skillId })),
+      publicRecord: {
+        tasksCompleted: previous.stats.tasksCompleted,
+        tasksFailed: previous.stats.tasksFailed,
+        grossEarnings: previous.stats.grossEarnings,
+        taxPaid: previous.stats.taxPaid,
+      },
+      goal: {
+        id: goal.id,
+        label: goal.label,
+        skillId: goal.skillId ?? null,
+        skillName: goal.skillId ? getSkillById(goal.skillId)?.name ?? null : null,
+        price: goal.price ?? null,
+      },
+      decision: {
+        action,
+        reasonCode: bidEvent ? 'bid' : decisionPayload?.reasonCode ?? 'lower_priority',
+        bidAmount: bidEvent?.payload?.bidAmount ?? null,
+        expectedQuality: quality,
+        successProbability: probability,
+        riskComfortFloor:
+          typeof decisionPayload?.riskComfortFloor === 'number' ? decisionPayload.riskComfortFloor : riskComfortFloor(previous),
+        expectedReward: task.reward,
+        expectedValue: decisionPayload?.expectedValue ?? Math.round(quality * task.reward * (1 + previous.traits.domainAffinity[SCENARIO.domain])),
+        reasonFactors,
+        observedCompetitors: decisionPayload?.observedCompetitors ?? observed,
+        personalGoal: { id: goal.id, label: goal.label },
+        result: isWinner ? (completed ? 'won' : 'failed') : action === 'pass' ? 'passed' : 'lost',
+        reaction,
+      },
+      isFocus: index === 0 || index === 3 || index === 6,
     };
   });
+
+  const bids = bidEvents.map((e) => {
+    const agent = agents.find((a) => a.id === e.payload.agentId);
+    return {
+      agentId: e.payload.agentId,
+      displayName: agent?.displayName ?? e.payload.agentId,
+      bidAmount: e.payload.bidAmount,
+      expectedQuality: agent?.decision.expectedQuality ?? 0,
+      successProbability: e.payload.successProbability,
+      reasonFactors: e.payload.reasonFactors,
+      personalGoalLabel: e.payload.personalGoalLabel,
+    };
+  });
+
+  const otherTasks = state.marketTasks
+    .filter((t) => t.id !== task.id && t.roundCreated === demoRound)
+    .map((t) => ({
+      id: t.id,
+      title: t.title,
+      domain: t.requirements.domain,
+      reward: t.reward,
+      status: t.status,
+      winnerName: t.assignedAgentId ? before.find((a) => a.id === t.assignedAgentId)?.displayName ?? null : null,
+    }));
 
   const rawEvents = roundEvents.map((e) => ({
     id: e.id,
@@ -132,8 +230,16 @@ function buildFixture(seed, tasksPerRound, warmupRounds, initialAbility) {
     payload: e.payload ?? null,
   }));
 
+  // Next-round feedback: same task difficulty, winner's post-skill odds.
+  const winnerCodingAfter = winnerAfter
+    ? effectiveAbility(winnerAfter.abilities, winnerAfter.skills.map((s) => s.skillId), [])[SCENARIO.domain]
+    : null;
+  const winnerCodingBefore = winnerBefore
+    ? effectiveAbility(winnerBefore.abilities, winnerBefore.skills.map((s) => s.skillId), [])[SCENARIO.domain]
+    : null;
+
   return {
-    version: 1,
+    version: 2,
     generatedBy: 'scripts/gen-bid-demo.mjs',
     seed,
     tasksPerRound,
@@ -158,8 +264,10 @@ function buildFixture(seed, tasksPerRound, warmupRounds, initialAbility) {
       treasuryStart: state.config.initialTreasury,
       treasuryAfter: civ.treasury,
     },
+    focusAgentIds: [agents[0].id, agents[3].id, agents[6].id],
     agents,
     bids,
+    declines: declineEvents.map((e) => ({ agentId: e.payload.agentId, reasonCode: e.payload.reasonCode })),
     winner: winnerId
       ? {
           agentId: winnerId,
@@ -182,59 +290,72 @@ function buildFixture(seed, tasksPerRound, warmupRounds, initialAbility) {
     skillPurchase: purchased.length
       ? purchased.map((e) => {
           const skill = getSkillById(e.payload.skillId);
-          const domainBefore = effectiveAbility(
-            winnerBefore.abilities,
-            winnerBefore.skills.map((s) => s.skillId),
-            []
-          );
-          const domainAfter = effectiveAbility(winnerAfter.abilities, winnerAfter.skills.map((s) => s.skillId), []);
           return {
             skillId: e.payload.skillId,
             name: skill?.name ?? e.payload.skillId,
             price: e.payload.price,
-            abilityBefore: domainBefore[skill.domain],
-            abilityAfter: domainAfter[skill.domain],
+            abilityBefore: winnerCodingBefore,
+            abilityAfter: winnerCodingAfter,
           };
         })
       : [],
-    walletAfterRound: winnerAfter?.wallet ?? null,
+    nextRound: {
+      domain: SCENARIO.domain,
+      abilityBefore: winnerCodingBefore,
+      abilityAfter: winnerCodingAfter,
+      successBefore: winnerCodingBefore === null ? null : successForAbility(winnerCodingBefore, task),
+      successAfter: winnerCodingAfter === null ? null : successForAbility(winnerCodingAfter, task),
+    },
+    otherTasks,
     rawEvents,
   };
 }
 
 function summarize(fixture) {
-  const bidders = fixture.bids.map((b) => `${b.displayName}:${b.bidAmount}(${b.successProbability})`).join(', ');
-  const bought = fixture.skillPurchase.map((s) => `${s.name} ${s.price}G ${s.abilityBefore}->${s.abilityAfter}`).join('; ');
+  const focus = fixture.agents.filter((a) => a.isFocus);
+  const lines = focus.map((a) => `${a.displayName}[${a.personalityLabel}] ${a.decision.action}${a.decision.bidAmount ? ':' + a.decision.bidAmount : ''} (${a.decision.reasonCode})`);
   return [
     `seed=${fixture.seed} tasksPerRound=${fixture.tasksPerRound} warmup=${fixture.warmupRounds} ability=${fixture.initialAbility} round=${fixture.demoRound}`,
-    `  bids=${fixture.bids.length} [${bidders}]`,
-    `  winner=${fixture.winner?.displayName ?? 'none'} completed=${fixture.winner?.completed ?? false} failed=${fixture.winner?.failed ?? false}`,
+    `  focus: ${lines.join(' | ')}`,
+    `  bids=${fixture.bids.length} winner=${fixture.winner?.displayName} completed=${fixture.winner?.completed}`,
     `  settlement=${JSON.stringify(fixture.settlement)}`,
-    `  skill=${bought || 'none'}`,
+    `  skill=${fixture.skillPurchase.map((s) => `${s.name} ${s.price}G ${s.abilityBefore}->${s.abilityAfter}`).join('; ') || 'none'}`,
   ].join('\n');
 }
 
 const explore = process.argv.includes('--explore');
 if (explore) {
-  for (let seed = 1; seed <= 30; seed += 1) {
+  const results = [];
+  for (let seed = 1; seed <= 120; seed += 1) {
     for (const tasksPerRound of [2, 3]) {
-      for (const warmupRounds of [0, 1]) {
-        for (const initialAbility of [28, 30, 32]) {
-          const f = buildFixture(seed, tasksPerRound, warmupRounds, initialAbility);
-          if (f.winner?.completed && f.skillPurchase.length && f.bids.length >= 2 && f.bids.length <= 5) {
-            console.log(summarize(f));
-          }
-        }
+      for (const warmupRounds of [0]) {
+        const f = buildFixture(seed, tasksPerRound, warmupRounds, 28);
+        const astra = f.agents[0];
+        const delta = f.agents[3];
+        const grove = f.agents[6];
+        const ok =
+          astra.decision.action === 'pass' &&
+          astra.decision.reasonCode === 'risk_above_comfort' &&
+          delta.decision.action === 'bid' &&
+          grove.decision.action === 'bid' &&
+          delta.decision.bidAmount < grove.decision.bidAmount &&
+          f.winner?.agentId === delta.id &&
+          f.winner?.completed &&
+          f.skillPurchase.length > 0 &&
+          f.bids.length === 2;
+        if (ok) results.push(summarize(f));
       }
     }
   }
+  console.log(results.slice(0, 10).join('\n---\n'));
+  console.log('matches:', results.length);
   process.exit(0);
 }
 
 const seed = Number(process.env.DEMO_SEED ?? 12);
 const tasksPerRound = Number(process.env.DEMO_TASKS ?? 3);
-const warmupRounds = Number(process.env.DEMO_WARMUP ?? 1);
-const initialAbility = Number(process.env.DEMO_ABILITY ?? 30);
+const warmupRounds = Number(process.env.DEMO_WARMUP ?? 0);
+const initialAbility = Number(process.env.DEMO_ABILITY ?? 28);
 const fixture = buildFixture(seed, tasksPerRound, warmupRounds, initialAbility);
 const outDir = path.join(process.cwd(), 'packages/web/src/demo');
 fs.mkdirSync(outDir, { recursive: true });
