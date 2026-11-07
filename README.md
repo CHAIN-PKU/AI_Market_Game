@@ -91,7 +91,8 @@ npm run sim:dual
 - **远程：** `git@github.com:CHAIN-PKU/AI_Market_Game.git`
 - **基线标签：** `pre-ux-3d`（3D/UX 重构前可运行快照）
 - **分支建议：** 短周期功能提交；重大里程碑由产品方确认后合并
-- **推送前：** `npm test`；涉及 UI 时附浏览器截图
+- **推送前：** `npm test`；涉及 UI 时附浏览器截图  
+- **Windows 免重复输 SSH 口令：** 见 [docs/GIT_WINDOWS.md](docs/GIT_WINDOWS.md)
 
 ---
 
