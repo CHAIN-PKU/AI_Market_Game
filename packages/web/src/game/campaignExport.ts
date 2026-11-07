@@ -38,6 +38,17 @@ export function chronicleMarkdown(meta: ChronicleMeta, now = new Date()): string
     );
   }
   lines.push('');
+  const incomeTotals = new Map<string, number>();
+  for (const r of meta.history) {
+    for (const income of r.incomes ?? []) {
+      incomeTotals.set(income.name, (incomeTotals.get(income.name) ?? 0) + income.net);
+    }
+  }
+  const earners = [...incomeTotals.entries()].filter(([, net]) => net > 0).sort((a, b) => b[1] - a[1]);
+  if (earners.length > 0) {
+    lines.push(`谁赚到了钱：${earners.map(([name, net]) => `${name} ${gold(net)}`).join(' · ')}`);
+    lines.push('');
+  }
   const totalTax = meta.history.reduce((sum, r) => sum + (r.tax ?? 0), 0);
   lines.push(`累计税：${gold(totalTax)} · 记录轮数：${meta.history.length}`);
   lines.push('');

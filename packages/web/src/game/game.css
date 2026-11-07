@@ -3587,3 +3587,9 @@
   display: flex;
   gap: 7px;
 }
+
+.g-history-income {
+  margin: -6px 0 10px;
+  color: var(--g-muted);
+  font-size: var(--g-fs-micro);
+}

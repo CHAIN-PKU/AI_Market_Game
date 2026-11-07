@@ -117,6 +117,7 @@ type RoundHistory = {
   abilityBefore: number | null;
   abilityAfter: number | null;
   walletAfter: number | null;
+  incomes: { name: string; net: number }[];
   treasuryAfter: number;
 };
 type CampaignRecord = { campaign: BidDemoCampaign; fixture: DemoFixture; history: RoundHistory[] };
@@ -124,6 +125,18 @@ type CampaignRecord = { campaign: BidDemoCampaign; fixture: DemoFixture; history
 function summarizeFixture(fixture: DemoFixture): RoundHistory {
   const winner = fixture.winner;
   const skill = fixture.skillPurchase[0];
+  const paid = new Map<string, number>();
+  for (const event of fixture.rawEvents) {
+    if (event.kind !== 'tax_collected') continue;
+    const payload = (event.payload ?? {}) as Record<string, unknown>;
+    const agentId = String(payload.agentId ?? '');
+    const net = Number(payload.net ?? 0);
+    if (agentId) paid.set(agentId, (paid.get(agentId) ?? 0) + net);
+  }
+  const incomes = fixture.agents.map((agent) => ({
+    name: agent.displayName,
+    net: paid.get(agent.id) ?? 0,
+  }));
   return {
     round: fixture.demoRound,
     domain: fixture.scenario.domain,
@@ -137,6 +150,7 @@ function summarizeFixture(fixture: DemoFixture): RoundHistory {
     abilityBefore: skill?.abilityBefore ?? fixture.nextRound.abilityBefore ?? null,
     abilityAfter: skill?.abilityAfter ?? fixture.nextRound.abilityAfter ?? null,
     walletAfter: fixture.settlement?.walletAfter ?? null,
+    incomes,
     treasuryAfter: fixture.civilization.treasuryAfter,
   };
 }

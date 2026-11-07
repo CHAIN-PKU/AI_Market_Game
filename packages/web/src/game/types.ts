@@ -191,6 +191,7 @@ export type RoundHistory = {
   abilityBefore?: number | null;
   abilityAfter?: number | null;
   walletAfter?: number | null;
+  incomes?: { name: string; net: number }[];
   treasuryAfter: number;
 };
 

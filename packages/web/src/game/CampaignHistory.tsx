@@ -46,6 +46,14 @@ export function CampaignHistory({
     return Math.max(max, r.abilityAfter - r.abilityBefore);
   }, 0);
   const lastTreasury = history[history.length - 1]?.treasuryAfter ?? null;
+  const incomeTotals = new Map<string, number>();
+  for (const r of history) {
+    for (const income of r.incomes ?? []) {
+      incomeTotals.set(income.name, (incomeTotals.get(income.name) ?? 0) + income.net);
+    }
+  }
+  const earners = [...incomeTotals.entries()].filter(([, net]) => net > 0).sort((a, b) => b[1] - a[1]);
+  const zeroEarners = [...incomeTotals.entries()].filter(([, net]) => net <= 0).length;
   const meta = { civilization, round, maxRounds, rules, history };
   const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
 
@@ -97,6 +105,17 @@ export function CampaignHistory({
               .sort((a, b) => b[1] - a[1])
               .map(([name, n]) => `${name} ${n} 次`)
               .join(' · ')}
+          </p>
+        )}
+
+        {earners.length > 0 && (
+          <p className="g-history-income">
+            谁赚到了钱：
+            {earners
+              .slice(0, 4)
+              .map(([name, net]) => `${name} ${gold(net)}`)
+              .join(' · ')}
+            {zeroEarners > 0 ? ` · 其他 ${zeroEarners} 人 0 金` : ''}
           </p>
         )}
 
