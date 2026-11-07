@@ -10,18 +10,20 @@
 
 ## 推荐：开启 ssh-agent（输一次口令，本机长期有效）
 
-### 一次性（需管理员 PowerShell）
+### 一次性（必须「以管理员身份运行」PowerShell）
+
+普通窗口执行 `Set-Service` / `Start-Service` 会 **拒绝访问**，这是正常现象。
+
+1. 开始菜单搜 **PowerShell** → 右键 → **以管理员身份运行**
+2. 执行：
 
 ```powershell
 Get-Service ssh-agent | Set-Service -StartupType Automatic
 Start-Service ssh-agent
+Get-Service ssh-agent   # Status 应为 Running
 ```
 
-确认 `Status` 为 `Running`：
-
-```powershell
-Get-Service ssh-agent
-```
+**无法用管理员时**（学校/公司机策略）：跳过本节，改用下文 **「备选：HTTPS + gh」**。
 
 ### 每次开机或重启后（普通 PowerShell，做一次）
 
@@ -45,7 +47,38 @@ ssh-add -l
 
 ---
 
-## 备选：HTTPS + 凭据（不用 SSH 口令）
+## 备选：HTTPS + gh（无管理员、最适合 Cursor 自动 push）
+
+无法启动 `ssh-agent` 时 **优先用这条**：
+
+```powershell
+cd D:\AICivilization
+git remote set-url origin https://github.com/CHAIN-PKU/AI_Market_Game.git
+```
+
+安装 GitHub CLI（未安装 `gh` 时）：
+
+```powershell
+winget install --id GitHub.cli -e --accept-source-agreements --accept-package-agreements
+# 新开一个 PowerShell，或刷新 PATH 后执行：
+& "C:\Program Files\GitHub CLI\gh.exe" --version
+```
+
+登录：
+
+```powershell
+gh auth login
+# 选 GitHub.com → HTTPS → Login with a web browser
+gh auth setup-git
+```
+
+之后在本机终端与 Cursor 里 `git push` 一般走 **缓存令牌**，不再问 SSH passphrase。创建 PR：
+
+```powershell
+gh pr create --title "..." --body "..."
+```
+
+## 备选：HTTPS + 凭据管理器（仅 Git）
 
 ```powershell
 git remote set-url origin https://github.com/CHAIN-PKU/AI_Market_Game.git
