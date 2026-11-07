@@ -3,8 +3,8 @@ import { chronicleJson, chronicleMarkdown, chronicleShareText, type ChronicleMet
 import type { RoundHistory } from './types';
 
 const history: RoundHistory[] = [
-  { round: 1, domain: 'coding', title: '修复网站登录问题', winner: 'Delta', bid: 71, tax: 8, net: 92, skill: 'Clean Code Patterns', treasuryAfter: 1032 },
-  { round: 2, domain: 'research', title: '整理竞品研究报告', winner: 'Echo', bid: 82, tax: 9, net: 101, skill: null, treasuryAfter: 1050 },
+  { round: 1, domain: 'coding', title: '修复网站登录问题', winner: 'Delta', bid: 71, tax: 8, net: 92, skill: 'Clean Code Patterns', abilityBefore: 40, abilityAfter: 48, treasuryAfter: 1032 },
+  { round: 2, domain: 'research', title: '整理竞品研究报告', winner: 'Echo', bid: 82, tax: 9, net: 101, skill: null, abilityBefore: 40, abilityAfter: 40, treasuryAfter: 1050 },
 ];
 
 const meta: ChronicleMeta = {
@@ -21,6 +21,8 @@ describe('chronicle export', () => {
     expect(md).toContain('# 晨曦文明 · 文明编年史');
     expect(md).toContain('| 1 | 写程序 · 修复网站登录问题 | Delta | 71 | 8 / 92 |');
     expect(md).toContain('| 2 | 做研究 · 整理竞品研究报告 | Echo | 82 | 9 / 101 |');
+    expect(md).toContain('| 40 → 48 |');
+    expect(md).toContain('| 1,032 |');
     expect(md).toContain('累计税：17');
     expect(md).toContain('导出于 2026-11-08');
   });

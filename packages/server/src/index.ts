@@ -113,6 +113,9 @@ type RoundHistory = {
   tax: number | null;
   net: number | null;
   skill: string | null;
+  abilityBefore: number | null;
+  abilityAfter: number | null;
+  walletAfter: number | null;
   treasuryAfter: number;
 };
 type CampaignRecord = { campaign: BidDemoCampaign; fixture: DemoFixture; history: RoundHistory[] };
@@ -129,6 +132,9 @@ function summarizeFixture(fixture: DemoFixture): RoundHistory {
     tax: fixture.settlement?.tax ?? null,
     net: fixture.settlement?.net ?? null,
     skill: skill?.name ?? null,
+    abilityBefore: skill?.abilityBefore ?? fixture.nextRound.abilityBefore ?? null,
+    abilityAfter: skill?.abilityAfter ?? fixture.nextRound.abilityAfter ?? null,
+    walletAfter: fixture.settlement?.walletAfter ?? null,
     treasuryAfter: fixture.civilization.treasuryAfter,
   };
 }

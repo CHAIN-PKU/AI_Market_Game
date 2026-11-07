@@ -12,6 +12,12 @@ function gold(n: number | null): string {
   return n === null ? '—' : Math.round(n).toLocaleString('en-US');
 }
 
+function ability(r: RoundHistory): string {
+  if (r.abilityBefore === null || r.abilityBefore === undefined) return '—';
+  if (r.abilityAfter === null || r.abilityAfter === undefined) return String(r.abilityBefore);
+  return r.abilityBefore === r.abilityAfter ? String(r.abilityBefore) : `${r.abilityBefore} → ${r.abilityAfter}`;
+}
+
 function dateStamp(now: Date): string {
   const p = (n: number) => String(n).padStart(2, '0');
   return `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())} ${p(now.getHours())}:${p(now.getMinutes())}`;
@@ -23,12 +29,12 @@ export function chronicleMarkdown(meta: ChronicleMeta, now = new Date()): string
   lines.push('');
   lines.push(`> 第 ${meta.round}/${meta.maxRounds} 轮 · ${meta.rules.name}（税率 ${Math.round(meta.rules.taxRate * 100)}%） · 导出于 ${dateStamp(now)}`);
   lines.push('');
-  lines.push('| 轮 | 任务 | 中标 | 报价 | 税 / 到手 | 技能 | 国库 |');
-  lines.push('|---|---|---|---|---|---|---|');
+  lines.push('| 轮 | 任务 | 中标 | 报价 | 税 / 到手 | 技能 | 本事 | 国库 |');
+  lines.push('|---|---|---|---|---|---|---|---|');
   for (const r of meta.history) {
     const domain = DOMAIN_LABEL[r.domain as keyof typeof DOMAIN_LABEL] ?? r.domain;
     lines.push(
-      `| ${r.round} | ${domain} · ${r.title.replace(/\|/g, '\\|')} | ${r.winner ?? '流标'} | ${gold(r.bid)} | ${gold(r.tax)} / ${gold(r.net)} | ${r.skill ?? '—'} | ${gold(r.treasuryAfter)} |`,
+      `| ${r.round} | ${domain} · ${r.title.replace(/\|/g, '\\|')} | ${r.winner ?? '流标'} | ${gold(r.bid)} | ${gold(r.tax)} / ${gold(r.net)} | ${r.skill ?? '—'} | ${ability(r)} | ${gold(r.treasuryAfter)} |`,
     );
   }
   lines.push('');

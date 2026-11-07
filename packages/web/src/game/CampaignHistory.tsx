@@ -80,6 +80,7 @@ export function CampaignHistory({
                   <th>报价</th>
                   <th>税 / 到手</th>
                   <th>买了什么</th>
+                  <th>本事</th>
                   <th>国库</th>
                 </tr>
               </thead>
@@ -97,6 +98,15 @@ export function CampaignHistory({
                     <td>{r.bid === null ? '—' : gold(r.bid)}</td>
                     <td>{r.tax === null ? '—' : `${gold(r.tax)} / ${gold(r.net ?? 0)}`}</td>
                     <td>{r.skill ?? '—'}</td>
+                    <td>
+                      {r.abilityBefore === null || r.abilityBefore === undefined
+                        ? '—'
+                        : r.abilityAfter === null || r.abilityAfter === undefined
+                          ? r.abilityBefore
+                          : r.abilityBefore === r.abilityAfter
+                            ? r.abilityBefore
+                            : `${r.abilityBefore} → ${r.abilityAfter}`}
+                    </td>
                     <td>{gold(r.treasuryAfter)}</td>
                   </tr>
                 ))}

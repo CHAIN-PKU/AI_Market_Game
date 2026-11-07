@@ -468,6 +468,7 @@ export function GamePage() {
         focusNumber={focusNumber}
         compare={compare}
         onStart={startDemo}
+        onOpenRules={() => setShowInstitutions(true)}
       />
 
       <AgentPanel fixture={fixture} derived={derived} selectedId={selectedId} onClose={() => setSelectedId(null)} />

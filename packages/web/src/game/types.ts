@@ -187,6 +187,9 @@ export type RoundHistory = {
   tax: number | null;
   net: number | null;
   skill: string | null;
+  abilityBefore?: number | null;
+  abilityAfter?: number | null;
+  walletAfter?: number | null;
   treasuryAfter: number;
 };
 

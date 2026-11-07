@@ -238,6 +238,7 @@ export function LeftPanel({
   focusNumber,
   compare,
   onStart,
+  onOpenRules,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
@@ -245,6 +246,7 @@ export function LeftPanel({
   focusNumber: number | null;
   compare: RuleCompare | null;
   onStart: () => void;
+  onOpenRules: () => void;
 }) {
   const posted = derived.posted;
   const showBids = derived.bidsOpen;
@@ -295,7 +297,12 @@ export function LeftPanel({
 
         {!posted && compare && (
           <div className="g-compare">
-            <div className="g-compare-head">上次改规则 · 同一批人，结果变了</div>
+            <div className="g-compare-head">
+              <span>上次改规则 · 同一批人，结果变了</span>
+              <button type="button" className="g-compare-retry" onClick={onOpenRules}>
+                再改一次
+              </button>
+            </div>
             <div className="g-compare-row">
               <span>中标</span>
               <b>{compare.beforeWinner} → {compare.afterWinner}</b>
