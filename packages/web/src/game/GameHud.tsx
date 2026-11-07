@@ -98,6 +98,7 @@ export function TopBar({
   campaignBusy,
   onStartCampaign,
   onNextCampaign,
+  onOpenHistory,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
@@ -107,6 +108,7 @@ export function TopBar({
   campaignBusy: boolean;
   onStartCampaign: () => void;
   onNextCampaign: () => void;
+  onOpenHistory: () => void;
 }) {
   return (
     <header className="g-top">
@@ -151,9 +153,9 @@ export function TopBar({
         )}
         {campaign ? (
           <>
-            <span className="g-campaign-chip">
+            <button type="button" className="g-campaign-chip" onClick={onOpenHistory} title="查看文明编年史">
               文明 {campaign.round}/{campaign.maxRounds}
-            </span>
+            </button>
             <button
               type="button"
               className="g-btn g-btn--primary g-campaign-btn"

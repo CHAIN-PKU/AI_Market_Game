@@ -177,3 +177,15 @@ export const PERSONALITY_TONE: Record<PersonalityId, string> = {
   balanced: '平衡',
   observer: '观察',
 };
+
+export type RoundHistory = {
+  round: number;
+  domain: string;
+  title: string;
+  winner: string | null;
+  bid: number | null;
+  tax: number | null;
+  net: number | null;
+  skill: string | null;
+  treasuryAfter: number;
+};

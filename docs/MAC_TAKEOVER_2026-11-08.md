@@ -3,7 +3,7 @@
 > 接手人：DSH（Mac mini，macOS 26.6.2 arm64）
 > 仓库：`CHAIN-PKU/AI_Market_Game`，Mac 工作副本
 > 接手分支：`feat/visual-cozy-hud` @ `3a861ab`（交接文档提交）
-> 结论：**基线可复现**；本轮完成「制度实验台」、国库/税金拆解、右侧档案节奏、7 栋建筑功能剪影与 5 轮文明、Event Playback cue-by-cue、建筑状态绑定与 2.5D 视觉升级，测试 **26/26**，Web 构建通过。
+> 结论：**基线可复现**；本轮完成「制度实验台」、国库/税金拆解、右侧档案节奏、7 栋建筑功能剪影与 5 轮文明、Event Playback cue-by-cue、建筑状态绑定、2.5D 视觉升级与文明编年史，测试 **26/26**，Web 构建通过。
 
 ---
 
@@ -49,6 +49,13 @@
 - 点击「用这套制度重跑」→ `POST /api/demo/round` → **simulation 引擎重新计算**竞价/中标/税/技能 → 返回一整套 fixture → 前端回到 `idle` 重新播放。
 - API 失败时红条阻断并提示启动 `npm run dev:server`，**不静默回退**。
 - 高税场景下，界面明确显示「Delta 税后剩 65 金，买不起 80 金的 Clean Code Patterns；能力停在 40」——制度直接改变消费与下一轮能力。
+
+### 3.11 文明编年史
+
+- 5 轮文明每轮记录：任务域/标题、中标者、报价、税/到手、技能、国库。
+- 顶栏「文明 N/5」点开表格；第 5 轮自动打开；刷新恢复后仍可看。
+- history 随 campaign 落盘，服务端从 fixture 汇总，动画不参与。
+- 截图：`docs/screenshots/campaign/history-1920.png`
 
 ### 3.10 2.5D 视觉升级（回应「像原神一点、人物更清晰」）
 
@@ -153,8 +160,8 @@
 1. **`/game` 接 `createGame` / `advance` 与事件队列**（跳过动画不改 `GameState` 的契约测试）。
 2. **5–7 轮连续实验**：每轮沿用上一轮的钱包/能力，制度对比才完整。
 3. 接 `/api/games` 的 createGame/advance 协议。
-4. 角色描边 / 可选 Bloom + 画质档（DPR/阴影）。
-5. 更精细的角色资产与建筑材质分层。
+4. 更精细的角色资产与建筑材质分层。
+5. 文明编年史导出（Markdown/JSON）。
 
 ---
 

@@ -104,7 +104,34 @@ app.get('/api/meta', async () => ({
 }));
 
 type DemoFixture = ReturnType<typeof buildBidDemoFixture>;
-type CampaignRecord = { campaign: BidDemoCampaign; fixture: DemoFixture };
+type RoundHistory = {
+  round: number;
+  domain: string;
+  title: string;
+  winner: string | null;
+  bid: number | null;
+  tax: number | null;
+  net: number | null;
+  skill: string | null;
+  treasuryAfter: number;
+};
+type CampaignRecord = { campaign: BidDemoCampaign; fixture: DemoFixture; history: RoundHistory[] };
+
+function summarizeFixture(fixture: DemoFixture): RoundHistory {
+  const winner = fixture.winner;
+  const skill = fixture.skillPurchase[0];
+  return {
+    round: fixture.demoRound,
+    domain: fixture.scenario.domain,
+    title: fixture.scenario.title,
+    winner: winner?.displayName ?? null,
+    bid: winner?.bidAmount ?? null,
+    tax: fixture.settlement?.tax ?? null,
+    net: fixture.settlement?.net ?? null,
+    skill: skill?.name ?? null,
+    treasuryAfter: fixture.civilization.treasuryAfter,
+  };
+}
 
 const campaigns = new Map<string, CampaignRecord>();
 const CAMPAIGN_DIR = path.join(cfg.repoRoot, 'runtime', 'campaigns');
@@ -124,6 +151,7 @@ function saveCampaign(id: string, record: CampaignRecord): void {
       maxRounds: c.maxRounds,
       completedRounds: c.completedRounds,
       lastFixture: record.fixture,
+      history: record.history,
     };
     fs.writeFileSync(path.join(CAMPAIGN_DIR, `${id}.json`), JSON.stringify(data));
   } catch (err) {
@@ -146,6 +174,7 @@ function loadCampaign(id: string): CampaignRecord | null {
       maxRounds: number;
       completedRounds: number;
       lastFixture: DemoFixture;
+      history?: RoundHistory[];
     };
     const civ = data.state.civilizations[0];
     if (!civ) return null;
@@ -161,7 +190,11 @@ function loadCampaign(id: string): CampaignRecord | null {
       maxRounds: data.maxRounds,
       completedRounds: data.completedRounds,
     };
-    return { campaign, fixture: data.lastFixture };
+    return {
+      campaign,
+      fixture: data.lastFixture,
+      history: data.history ?? [summarizeFixture(data.lastFixture)],
+    };
   } catch (err) {
     console.error('failed to load campaign', id, err);
     return null;
@@ -206,10 +239,15 @@ app.post<{
   });
   const { fixture } = advanceBidDemoCampaign(campaign);
   const id = randomUUID();
-  const record = { campaign, fixture };
+  const record = { campaign, fixture, history: [summarizeFixture(fixture)] };
   campaigns.set(id, record);
   saveCampaign(id, record);
-  return { id, fixture, campaign: campaignMeta(campaign), meta: { engine: 'deterministic-mock' } };
+  return {
+    id,
+    fixture,
+    campaign: { ...campaignMeta(campaign), history: record.history },
+    meta: { engine: 'deterministic-mock' },
+  };
 });
 
 app.post<{ Params: { id: string } }>('/api/campaign/:id/next', async (req, reply) => {
@@ -221,14 +259,24 @@ app.post<{ Params: { id: string } }>('/api/campaign/:id/next', async (req, reply
   }
   const { fixture } = advanceBidDemoCampaign(campaign);
   record.fixture = fixture;
+  record.history.push(summarizeFixture(fixture));
   saveCampaign(req.params.id, record);
-  return { id: req.params.id, fixture, campaign: campaignMeta(campaign), meta: { engine: 'deterministic-mock' } };
+  return {
+    id: req.params.id,
+    fixture,
+    campaign: { ...campaignMeta(campaign), history: record.history },
+    meta: { engine: 'deterministic-mock' },
+  };
 });
 
 app.get<{ Params: { id: string } }>('/api/campaign/:id', async (req, reply) => {
   const record = getCampaign(req.params.id);
   if (!record) return reply.code(404).send({ error: 'not_found' });
-  return { id: req.params.id, campaign: campaignMeta(record.campaign), fixture: record.fixture };
+  return {
+    id: req.params.id,
+    campaign: { ...campaignMeta(record.campaign), history: record.history },
+    fixture: record.fixture,
+  };
 });
 
 app.post<{

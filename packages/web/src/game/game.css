@@ -3240,3 +3240,123 @@
   border-radius: 0 0 6px 6px;
   transform: translateX(-50%);
 }
+
+/* ---------- campaign chronicle ---------- */
+
+.g-history {
+  width: min(880px, 100%);
+  max-height: min(86vh, 760px);
+  overflow-y: auto;
+  padding: 22px 24px 18px;
+  border-radius: 20px;
+  border: 1px solid var(--g-line-strong);
+  background: var(--g-panel);
+  box-shadow: 0 30px 80px rgb(30 24 12 / 0.35);
+}
+
+.g-history-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.g-history-head h2 {
+  margin: 0 0 4px;
+  font-size: 22px;
+}
+
+.g-history-head p {
+  margin: 0;
+  color: var(--g-muted);
+  font-size: var(--g-fs-small);
+}
+
+.g-history-stats {
+  display: flex;
+  gap: 18px;
+  margin: 16px 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--g-panel-2);
+  border: 1px solid var(--g-line);
+  color: var(--g-muted);
+  font-size: var(--g-fs-small);
+}
+
+.g-history-stats b {
+  color: var(--g-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.g-history-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--g-line);
+  border-radius: 12px;
+}
+
+.g-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--g-fs-small);
+}
+
+.g-history-table th {
+  text-align: left;
+  padding: 9px 10px;
+  background: #f6eedf;
+  color: var(--g-muted);
+  font-size: 11px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.g-history-table td {
+  padding: 8px 10px;
+  border-top: 1px solid var(--g-line);
+  color: var(--g-ink);
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.g-history-table tr.is-latest td {
+  background: #f3faf5;
+}
+
+.g-history-domain {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  background: #e6f1f4;
+  color: #2f6f75;
+}
+
+.g-history-domain--research {
+  background: #f0ebf8;
+  color: #6d5aa6;
+}
+
+.g-history-domain--design {
+  background: #fbece5;
+  color: #a95a37;
+}
+
+.g-history-empty {
+  margin: 18px 0;
+  color: var(--g-muted);
+}
+
+.g-history-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.g-campaign-chip {
+  cursor: pointer;
+}

@@ -42,6 +42,15 @@ POST /api/campaign/:id/next
 
 ---
 
+## 2.5 文明编年史
+
+- 顶栏 `文明 N/5` 现在是按钮，点开「文明编年史」。
+- 表格：轮次、任务域/标题、中标者、报价、税/到手、技能、国库。
+- 顶部汇总：已记录轮数、有中标的轮数、累计税。
+- 第 5 轮结束自动打开；刷新恢复 campaign 后也能查看。
+- 历史由服务端从每轮 fixture 汇总并落盘，动画不会改写。
+- 截图：`docs/screenshots/campaign/history-1920.png`
+
 ## 3. API
 
 `POST /api/campaign`
@@ -51,12 +60,12 @@ POST /api/campaign/:id/next
   "rules": { "name": "自由市场", "taxRate": 0.08, "publicResearchShare": 0.1, "skillOwnership": "private" } }
 ```
 
-返回 `{ id, fixture, campaign: { round, maxRounds, done, seed, rules } }`。
+返回 `{ id, fixture, campaign: { round, maxRounds, done, seed, rules, history } }`。
 
 `POST /api/campaign/:id/next`（空 body，不要带 `Content-Type: application/json`）
 返回同样结构；跑满后返回 `409 campaign_finished`。
 
-`GET /api/campaign/:id` 只返回进度，不返回完整状态。
+`GET /api/campaign/:id` 返回进度 + history + 最近一轮 fixture。
 
 ---
 

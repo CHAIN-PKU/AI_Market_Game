@@ -4,6 +4,7 @@ import { Html } from '@react-three/drei';
 import { Component, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import fixtureJson from '../demo/bid-demo.fixture.json';
 import { GameScene } from './GameScene';
+import { CampaignHistory } from './CampaignHistory';
 import { InstitutionPanel, summarizeRun } from './InstitutionPanel';
 import { QUALITY, readQuality, writeQuality, type Quality } from './quality';
 import {
@@ -24,7 +25,7 @@ import {
   focusNumberForStep,
   type StepId,
 } from './playback';
-import type { BidDemoFixture } from './types';
+import type { BidDemoFixture, RoundHistory } from './types';
 import { CloseIcon } from './icons';
 import './game.css';
 
@@ -110,7 +111,14 @@ export function GamePage() {
   const [showDebug, setShowDebug] = useState(false);
   const [showInstitutions, setShowInstitutions] = useState(false);
   const [labelsHidden, setLabelsHidden] = useState(false);
-  const [campaign, setCampaign] = useState<{ id: string; round: number; maxRounds: number; done: boolean } | null>(null);
+  const [campaign, setCampaign] = useState<{
+    id: string;
+    round: number;
+    maxRounds: number;
+    done: boolean;
+    history: RoundHistory[];
+  } | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
   const [campaignBusy, setCampaignBusy] = useState(false);
   const [quality, setQuality] = useState<Quality>(() => readQuality());
   const [notice, setNotice] = useState<string | null>(null);
@@ -267,13 +275,14 @@ export function GamePage() {
     (
       id: string,
       next: BidDemoFixture,
-      meta: { round: number; maxRounds: number; done: boolean },
+      meta: { round: number; maxRounds: number; done: boolean; history: RoundHistory[] },
       autoplay = true,
     ) => {
       setSelectedId(null);
       setFixture(next);
       setShowInstitutions(false);
       setCampaign({ id, ...meta });
+      if (meta.done) setShowHistory(true);
       setNotice(`文明 ${meta.round}/${meta.maxRounds} · ${summarizeRun(next)}`);
       setPlaying(false);
       if (autoplay) {
@@ -299,7 +308,7 @@ export function GamePage() {
         return (await res.json()) as {
           id: string;
           fixture: BidDemoFixture;
-          campaign: { round: number; maxRounds: number; done: boolean };
+          campaign: { round: number; maxRounds: number; done: boolean; history: RoundHistory[] };
         };
       })
       .then((data) => {
@@ -340,7 +349,7 @@ export function GamePage() {
       const data = (await res.json()) as {
         id: string;
         fixture: BidDemoFixture;
-        campaign: { round: number; maxRounds: number; done: boolean };
+        campaign: { round: number; maxRounds: number; done: boolean; history: RoundHistory[] };
       };
       localStorage.setItem('dsh-campaign-id', data.id);
       applyCampaign(data.id, data.fixture, data.campaign);
@@ -363,7 +372,7 @@ export function GamePage() {
       const data = (await res.json()) as {
         id: string;
         fixture: BidDemoFixture;
-        campaign: { round: number; maxRounds: number; done: boolean };
+        campaign: { round: number; maxRounds: number; done: boolean; history: RoundHistory[] };
       };
       localStorage.setItem('dsh-campaign-id', data.id);
       applyCampaign(data.id, data.fixture, data.campaign);
@@ -385,6 +394,7 @@ export function GamePage() {
         campaignBusy={campaignBusy}
         onStartCampaign={startCampaign}
         onNextCampaign={nextCampaign}
+        onOpenHistory={() => setShowHistory(true)}
       />
 
       <main className={`g-stage ${view === '2d' ? 'g-stage--2d' : ''}`}>
@@ -460,6 +470,15 @@ export function GamePage() {
 
       {showInstitutions && (
         <InstitutionPanel fixture={fixture} onClose={() => setShowInstitutions(false)} onApplied={applyRound} />
+      )}
+
+      {showHistory && campaign && (
+        <CampaignHistory
+          round={campaign.round}
+          maxRounds={campaign.maxRounds}
+          history={campaign.history}
+          onClose={() => setShowHistory(false)}
+        />
       )}
 
       {showEvents && <EventDrawer fixture={fixture} step={step} onClose={() => setShowEvents(false)} />}
