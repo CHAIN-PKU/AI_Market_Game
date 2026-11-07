@@ -47,10 +47,8 @@ export function CampaignHistory({
       <section className="g-history" role="dialog" aria-modal="true" aria-labelledby="g-history-title">
         <header className="g-history-head">
           <div>
-            <h2 id="g-history-title">文明编年史</h2>
-            <p>
-              第 {round}/{maxRounds} 轮 · 同一批居民，制度与市场共同写下的记录
-            </p>
+            <h2 id="g-history-title">这 5 轮发生了什么</h2>
+            <p>第 {round}/{maxRounds} 轮 · 同一批居民自己走出来的结果</p>
           </div>
           <button type="button" className="g-icon-btn" onClick={onClose} aria-label="关闭编年史">
             <CloseIcon size={16} />
@@ -59,13 +57,13 @@ export function CampaignHistory({
 
         <div className="g-history-stats">
           <span>
-            已记录 <b>{history.length}</b> 轮
+            跑了 <b>{history.length}</b> 轮
           </span>
           <span>
-            有中标 <b>{wins}</b> 轮
+            有人接单 <b>{wins}</b> 轮
           </span>
           <span>
-            累计税 <b>{gold(totalTax)}</b>
+            税钱 <b>{gold(totalTax)}</b>
           </span>
         </div>
 
@@ -76,12 +74,12 @@ export function CampaignHistory({
             <table className="g-history-table">
               <thead>
                 <tr>
-                  <th>轮</th>
+                  <th>第几轮</th>
                   <th>任务</th>
-                  <th>中标</th>
+                  <th>谁接的</th>
                   <th>报价</th>
                   <th>税 / 到手</th>
-                  <th>技能</th>
+                  <th>买了什么</th>
                   <th>国库</th>
                 </tr>
               </thead>
@@ -108,21 +106,21 @@ export function CampaignHistory({
         )}
 
         <footer className="g-history-foot">
-          <span className="g-muted">历史只记录引擎结果，不由动画改写。</span>
+          <span className="g-muted">只记引擎算出来的结果，动画改不了。</span>
           <div className="g-history-actions">
             <button
               type="button"
               className="g-btn g-btn--ghost"
               onClick={() => download(`ai-civ-chronicle-${stamp}.md`, chronicleMarkdown(meta), 'text/markdown')}
             >
-              导出 Markdown
+              存成 Markdown
             </button>
             <button
               type="button"
               className="g-btn g-btn--ghost"
               onClick={() => download(`ai-civ-chronicle-${stamp}.json`, chronicleJson(meta), 'application/json')}
             >
-              导出 JSON
+              存成 JSON
             </button>
             <button type="button" className="g-btn g-btn--ghost" onClick={copyShare}>
               {copied ? '已复制' : '复制分享文案'}

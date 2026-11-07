@@ -412,7 +412,7 @@ function NoticeBoard({ fixture, step, onPublish }: { fixture: BidDemoFixture; st
           <span className="notice-title">市集公告板</span>
           {idle ? (
             <button type="button" className="notice-action" onClick={onPublish}>
-              发布第一笔任务
+              发布任务
             </button>
           ) : (
             <div className="notice-task">

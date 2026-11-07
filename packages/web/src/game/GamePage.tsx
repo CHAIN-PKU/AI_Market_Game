@@ -32,31 +32,31 @@ import './game.css';
 const bundledFixture = fixtureJson as BidDemoFixture;
 
 const STATUS_LABEL: Record<StepId, string> = {
-  idle: '待发布',
-  posted: '任务已公示',
-  focus_astra: 'Astra 正在评估',
-  focus_delta: 'Delta 正在评估',
-  focus_grove: 'Grove 正在评估',
-  bids: '公开报价中',
-  assigned: '已选出中标者',
-  working: '任务执行中',
-  settled: '任务已结算',
-  skill: '自主投资能力',
-  next: '本轮结束',
+  idle: '等你发任务',
+  posted: '任务挂出来了',
+  focus_astra: 'Astra 在盘算',
+  focus_delta: 'Delta 在盘算',
+  focus_grove: 'Grove 在盘算',
+  bids: '大家报价',
+  assigned: '有人接了',
+  working: '正在干活',
+  settled: '钱到账了',
+  skill: '它想买技能',
+  next: '这轮结束',
 };
 
 const STEP_HINT: Record<StepId, string> = {
-  idle: '点击市集公告板，发布第一笔任务',
-  posted: '市集把任务挂了出来，三位重点居民开始盘算',
-  focus_astra: '谨慎型先看成功率是否过自己的安全线',
-  focus_delta: '积极型在算：差多少金币能买新技能',
-  focus_grove: '稳健型看长期能力，而不是最低价',
-  bids: '有人报价、有人放弃；所有理由都来自公开决策记录',
-  assigned: '系统按「质量预测 × 报价」选出中标者，落标者会复盘',
-  working: '中标者走向程序坊，开始干活',
-  settled: '奖励入账，税金进入国库',
-  skill: '赚到钱后，它决定把钱花在能力上',
-  next: '能力变化会带进下一轮竞争',
+  idle: '点市集公告板上的「发布任务」',
+  posted: '8 个居民开始盘算',
+  focus_astra: 'Astra 先算风险：这单值不值得接',
+  focus_delta: 'Delta 想买技能，愿意低价抢',
+  focus_grove: 'Grove 看长期，不抢最低价',
+  bids: '想接的人报价，不想接的人说理由',
+  assigned: '按「靠不靠谱 × 报价」选出一个人',
+  working: '中标的人去干活',
+  settled: '钱到账，税进国库',
+  skill: '赚到钱后，它自己决定买不买技能',
+  next: '能力变了，下一轮竞争会不一样',
 };
 
 class SceneBoundary extends Component<{ children: ReactNode; onRetry: () => void }, { error: string | null }> {

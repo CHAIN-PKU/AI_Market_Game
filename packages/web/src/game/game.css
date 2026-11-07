@@ -3368,3 +3368,26 @@
   flex-wrap: wrap;
   justify-content: flex-end;
 }
+
+.g-mission {
+  margin: 0 0 12px;
+  padding: 11px 13px;
+  border-radius: 14px;
+  border: 1px solid #cfe4d8;
+  background: #eef7f1;
+  color: #375a49;
+  font-size: var(--g-fs-small);
+  line-height: 1.5;
+}
+
+.g-mission strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: var(--g-fs-body);
+  color: var(--g-ink);
+}
+
+.g-mission p {
+  margin: 0;
+  color: #4f6d5b;
+}

@@ -83,10 +83,10 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
       <section className="g-lab" role="dialog" aria-modal="true" aria-labelledby="g-rules-title">
         <header className="g-rules-head">
           <div>
-            <h2 id="g-rules-title">制度实验台</h2>
-            <p>同一个种子、同一批居民，只改规则，让引擎重新跑一回合。</p>
+            <h2 id="g-rules-title">改规则，看变化</h2>
+            <p>同一批居民，换个规则再跑一轮。</p>
           </div>
-          <button type="button" className="g-icon-btn" onClick={onClose} aria-label="关闭制度实验台">
+          <button type="button" className="g-icon-btn" onClick={onClose} aria-label="关闭改规则">
             <CloseIcon size={16} />
           </button>
         </header>
@@ -103,7 +103,7 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
 
         <label className="g-rule-field">
           <span className="g-rule-label">
-            <b>税率</b>
+            <b>税</b>
             <em>{taxPct}%</em>
           </span>
           <input
@@ -114,12 +114,12 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
             value={taxPct}
             onChange={(e) => setTaxPct(Number(e.target.value))}
           />
-          <small>任务报酬里进入国库的比例；税后收入决定居民还能不能买技能。</small>
+          <small>每单收入里交多少税。税太高，居民可能就买不起技能了。</small>
         </label>
 
         <label className="g-rule-field">
           <span className="g-rule-label">
-            <b>公共研发份额</b>
+            <b>税里拿多少做公共研发</b>
             <em>{sharePct}%</em>
           </span>
           <input
@@ -130,12 +130,12 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
             value={sharePct}
             onChange={(e) => setSharePct(Number(e.target.value))}
           />
-          <small>税收里划入公共研发池的比例；技能共享制度下会改变谁能受益。</small>
+          <small>收来的税，拿多少放进公共研发。</small>
         </label>
 
         <div className="g-rule-field">
           <span className="g-rule-label">
-            <b>技能归属</b>
+            <b>技能归谁</b>
             <em>{ownership === 'private' ? '私人所有' : '文明共享'}</em>
           </span>
           <div className="g-seg">
@@ -154,12 +154,12 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
               文明共享
             </button>
           </div>
-          <small>私人所有：谁买的技能只提升谁；文明共享：买的技能进入公共池。</small>
+          <small>私人：谁买谁用。共享：买了大家都能用。</small>
         </div>
 
         <div className="g-rule-seed">
           <label htmlFor="g-seed">
-            <b>随机种子</b>
+            <b>换一批任务</b>
           </label>
           <input
             id="g-seed"
@@ -170,12 +170,12 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
             onChange={(e) => setSeed(e.target.value)}
           />
           <button type="button" className="g-btn g-btn--ghost" onClick={() => setSeed(String(Math.floor(Math.random() * 9999) + 1))}>
-            换一个
+            换一批
           </button>
         </div>
 
         <p className="g-rules-note">
-          <SkillIcon size={14} /> 竞价、中标、税金、技能购买全部由 simulation 引擎重算；动画只负责播放结果，不参与结算。
+          <SkillIcon size={14} /> 报价、中标、税、买技能都由引擎重新算；动画只负责播，不改结果。
         </p>
 
         {error && (
@@ -185,13 +185,13 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
         )}
 
         <footer className="g-rules-foot">
-          <span className="g-muted">同一批角色，不同制度 → 不同历史。</span>
+          <span className="g-muted">同一批角色，换个规则，结果就不一样。</span>
           <div>
             <button type="button" className="g-btn g-btn--ghost" onClick={onClose} disabled={running}>
-              取消
+              算了
             </button>
             <button type="button" className="g-btn g-btn--primary" onClick={runRound} disabled={running}>
-              {running ? '引擎计算中…' : '用这套制度重跑'}
+              {running ? '正在算…' : '用这套规则再跑一轮'}
             </button>
           </div>
         </footer>
