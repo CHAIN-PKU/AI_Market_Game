@@ -3,7 +3,7 @@
 > 接手人：DSH（Mac mini，macOS 26.6.2 arm64）
 > 仓库：`CHAIN-PKU/AI_Market_Game`，Mac 工作副本
 > 接手分支：`feat/visual-cozy-hud` @ `3a861ab`（交接文档提交）
-> 结论：**基线可复现**；本轮完成「制度实验台」、国库/税金拆解、右侧档案节奏、7 栋建筑功能剪影与 5 轮文明、Event Playback cue-by-cue，测试 **25/25**，Web 构建通过。
+> 结论：**基线可复现**；本轮完成「制度实验台」、国库/税金拆解、右侧档案节奏、7 栋建筑功能剪影与 5 轮文明、Event Playback cue-by-cue 与建筑状态绑定，测试 **25/25**，Web 构建通过。
 
 ---
 
@@ -49,6 +49,13 @@
 - 点击「用这套制度重跑」→ `POST /api/demo/round` → **simulation 引擎重新计算**竞价/中标/税/技能 → 返回一整套 fixture → 前端回到 `idle` 重新播放。
 - API 失败时红条阻断并提示启动 `npm run dev:server`，**不静默回退**。
 - 高税场景下，界面明确显示「Delta 税后剩 65 金，买不起 80 金的 Clean Code Patterns；能力停在 40」——制度直接改变消费与下一轮能力。
+
+### 3.9 建筑状态绑定
+
+- 市集结算后出现金币；技能铺在购买技能后亮灯；程序坊 LED 在执行中变亮；公研仓共享旗按私人/共享变色；居民里结算后灯笼亮。
+- 状态来自 `fixture + step`，不改经济；截图：`docs/screenshots/buildings/state-*.png`
+- 文档：`docs/BUILDING_STATE.md`
+- 边界：当前任务固定 coding，research/design 分支未实机截图。
 
 ### 3.8 Campaign 持久化
 
@@ -136,8 +143,8 @@
 1. **`/game` 接 `createGame` / `advance` 与事件队列**（跳过动画不改 `GameState` 的契约测试）。
 2. **5–7 轮连续实验**：每轮沿用上一轮的钱包/能力，制度对比才完整。
 3. 接 `/api/games` 的 createGame/advance 协议。
-4. SQLite/JSON 存档版本化与导出。
-5. 建筑状态与事件绑定（技能铺亮灯、市集成交）。
+4. 每轮任务类型轮换（coding / research / design），让研究所/设计屋状态可见。
+5. SQLite/JSON 存档版本化与导出。
 
 ---
 

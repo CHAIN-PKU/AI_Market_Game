@@ -81,12 +81,14 @@ function Box({
   color,
   rotation,
   emissive,
+  emissiveIntensity,
 }: {
   size: [number, number, number];
   position: [number, number, number];
   color: string;
   rotation?: [number, number, number];
   emissive?: string;
+  emissiveIntensity?: number;
 }) {
   return (
     <mesh castShadow receiveShadow position={position} rotation={rotation}>
@@ -96,7 +98,7 @@ function Box({
         roughness={0.82}
         metalness={0.04}
         emissive={emissive ?? '#000000'}
-        emissiveIntensity={emissive ? 0.55 : 0}
+        emissiveIntensity={emissive ? (emissiveIntensity ?? 0.55) : 0}
       />
     </mesh>
   );
@@ -111,7 +113,7 @@ function Post({ x, z, height = 1.55, color = '#8b5e3c' }: { x: number; z: number
   );
 }
 
-function MarketStall() {
+function MarketStall({ sold }: { sold: boolean }) {
   return (
     <group position={[4.8, 0, 3.25]} rotation={[0, -0.18, 0]}>
       {[-1.05, 1.05].map((x) =>
@@ -134,31 +136,44 @@ function MarketStall() {
           <meshStandardMaterial color={['#e0a94f', '#d97a52', '#7cbf7a', '#e0a94f'][i]} roughness={0.7} />
         </mesh>
       ))}
+      {sold && (
+        <group position={[0.55, 1.06, 0.35]}>
+          {[0, 1, 2].map((i) => (
+            <mesh key={`coin-${i}`} castShadow position={[0, i * 0.05, 0]}>
+              <cylinderGeometry args={[0.13, 0.13, 0.035, 10]} />
+              <meshStandardMaterial color="#e0a94f" metalness={0.45} roughness={0.35} emissive="#b8842f" emissiveIntensity={0.3} />
+            </mesh>
+          ))}
+        </group>
+      )}
     </group>
   );
 }
 
-function SkillDisplay() {
+function SkillDisplay({ lit }: { lit: boolean }) {
   return (
     <group position={[0, 0, 2.05]}>
       <Box size={[1.9, 1.55, 0.18]} position={[0, 0.9, 0]} color="#fbf4e6" />
-      <Box size={[1.58, 1.22, 0.06]} position={[0, 0.9, 0.12]} color="#a9dcd6" emissive="#3f8f96" />
+      <Box size={[1.58, 1.22, 0.06]} position={[0, 0.9, 0.12]} color={lit ? '#d9f3ea' : '#a9dcd6'} emissive="#3f8f96" emissiveIntensity={lit ? 1.15 : 0.35} />
       {[-0.46, 0, 0.46].map((x, i) => (
         <Box
           key={`card-${i}`}
           size={[0.34, 0.46, 0.04]}
           position={[x, 0.95, 0.18]}
           color={['#e0a94f', '#d97a52', '#8f7cc9'][i]!}
+          emissive={lit ? '#e0a94f' : undefined}
+          emissiveIntensity={lit ? 0.9 : 0}
         />
       ))}
       <Box size={[2.25, 0.1, 0.85]} position={[0, 1.82, 0.14]} color="#3f8f96" rotation={[0.1, 0, 0]} />
       <Post x={-0.95} z={0.35} height={1.8} color="#3f8f96" />
       <Post x={0.95} z={0.35} height={1.8} color="#3f8f96" />
+      {lit && <pointLight position={[0, 1.3, 0.9]} intensity={2.1} distance={4.5} color="#ffd98a" />}
     </group>
   );
 }
 
-function CodingServers() {
+function CodingServers({ active }: { active: boolean }) {
   return (
     <group position={[1.35, 0, 1.65]}>
       <Box size={[0.78, 1.9, 0.72]} position={[0, 0.95, 0]} color="#3c4a48" />
@@ -169,6 +184,7 @@ function CodingServers() {
           position={[0, y, 0.38]}
           color={i % 2 === 0 ? '#7cbf7a' : '#e0a94f'}
           emissive={i % 2 === 0 ? '#4c9a4a' : '#b8842f'}
+          emissiveIntensity={active ? 1.6 : 0.3}
         />
       ))}
       <Box size={[0.85, 0.1, 0.8]} position={[0, 1.94, 0]} color="#5b6b67" />
@@ -177,7 +193,7 @@ function CodingServers() {
   );
 }
 
-function ResearchDome() {
+function ResearchDome({ active }: { active: boolean }) {
   return (
     <group position={[0, 0, 1.85]}>
       <mesh castShadow receiveShadow position={[0, 0.22, 0]}>
@@ -186,7 +202,7 @@ function ResearchDome() {
       </mesh>
       <mesh castShadow position={[0, 0.44, 0]}>
         <sphereGeometry args={[0.82, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2]} />
-        <meshStandardMaterial color="#b7e3da" roughness={0.3} metalness={0.18} />
+        <meshStandardMaterial color="#b7e3da" roughness={0.3} metalness={0.18} emissive="#3f8f96" emissiveIntensity={active ? 0.35 : 0} />
       </mesh>
       <mesh castShadow position={[0.95, 0.8, -0.15]}>
         <cylinderGeometry args={[0.035, 0.05, 1.6, 6]} />
@@ -204,6 +220,7 @@ function ResearchDome() {
         <cylinderGeometry args={[0.16, 0.16, 0.12, 10]} />
         <meshStandardMaterial color="#e8d8b8" roughness={0.5} />
       </mesh>
+      {active && <pointLight position={[0, 1.4, 0.4]} intensity={1.8} distance={4} color="#9fe5df" />}
     </group>
   );
 }
@@ -239,14 +256,14 @@ function DesignEasel() {
   );
 }
 
-function PublicFlag() {
+function PublicFlag({ shared }: { shared: boolean }) {
   return (
     <group position={[-1.25, 0, 1.55]}>
       <mesh castShadow position={[0, 2.2, 0]}>
         <cylinderGeometry args={[0.05, 0.07, 4.4, 6]} />
         <meshStandardMaterial color="#6d7d76" roughness={0.85} />
       </mesh>
-      <Box size={[1.45, 0.8, 0.04]} position={[0.76, 4.0, 0]} color="#d97a52" />
+      <Box size={[1.45, 0.8, 0.04]} position={[0.76, 4.0, 0]} color={shared ? '#3f8f96' : '#d97a52'} />
       <Box size={[1.25, 0.09, 0.05]} position={[0.76, 4.0, 0.03]} color="#e0a94f" />
       <mesh castShadow position={[0, 0.12, 0]}>
         <cylinderGeometry args={[0.26, 0.32, 0.24, 8]} />
@@ -258,7 +275,7 @@ function PublicFlag() {
   );
 }
 
-function HomesTerrace() {
+function HomesTerrace({ lit }: { lit: boolean }) {
   return (
     <group position={[0, 0, 2.8]}>
       <Box size={[2.3, 0.12, 1.35]} position={[0, 0.06, 0]} color="#b98d60" />
@@ -284,20 +301,37 @@ function HomesTerrace() {
       {[-0.65, 0.65].map((x, i) => (
         <Box key={`chair-${i}`} size={[0.35, 0.35, 0.35]} position={[x, 0.24, -0.15]} color="#d97a52" />
       ))}
+      <mesh castShadow position={[0, 1.52, 0.5]}>
+        <boxGeometry args={[0.12, 0.2, 0.12]} />
+        <meshStandardMaterial color={lit ? '#ffd98a' : '#8b5e3c'} emissive={lit ? '#e0a94f' : '#000000'} emissiveIntensity={lit ? 1.4 : 0} />
+      </mesh>
+      {lit && <pointLight position={[0, 1.45, 0.55]} intensity={1.6} distance={3.8} color="#ffd98a" />}
     </group>
   );
 }
 
-function BuildingProps({ slot }: { slot: BuildingSlot }) {
+function BuildingProps({
+  slot,
+  fixture,
+  step,
+}: {
+  slot: BuildingSlot;
+  fixture: BidDemoFixture;
+  step: StepId;
+}) {
+  const purchased = fixture.skillPurchase.length > 0;
+  const working = step === 'working' && Boolean(fixture.winner);
+  const settled = atLeast(step, 'settled');
+  const activeDomain = working ? fixture.scenario.domain : null;
   return (
     <group position={slot.position} rotation={[0, slot.rotationY, 0]}>
-      {slot.role === 'market' && <MarketStall />}
-      {slot.role === 'skill' && <SkillDisplay />}
-      {slot.role === 'coding' && <CodingServers />}
-      {slot.role === 'research' && <ResearchDome />}
+      {slot.role === 'market' && <MarketStall sold={settled} />}
+      {slot.role === 'skill' && <SkillDisplay lit={purchased && atLeast(step, 'skill')} />}
+      {slot.role === 'coding' && <CodingServers active={activeDomain === 'coding'} />}
+      {slot.role === 'research' && <ResearchDome active={activeDomain === 'research'} />}
       {slot.role === 'design' && <DesignEasel />}
-      {slot.role === 'public-rd' && <PublicFlag />}
-      {slot.role === 'homes' && <HomesTerrace />}
+      {slot.role === 'public-rd' && <PublicFlag shared={fixture.civilization.rules.skillOwnership === 'shared'} />}
+      {slot.role === 'homes' && <HomesTerrace lit={settled} />}
     </group>
   );
 }
@@ -425,7 +459,7 @@ export function GameScene({
               rotation={[0, slot.rotationY, 0]}
               scale={scale}
             />
-            <BuildingProps slot={slot} />
+            <BuildingProps slot={slot} fixture={fixture} step={step} />
             <BuildingLabel x={slot.position[0]} z={slot.position[2]} label={slot.label} role={slot.role} height={height} />
           </group>
         );
