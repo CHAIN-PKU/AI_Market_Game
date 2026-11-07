@@ -63,7 +63,7 @@
 | 编年史里的本事变化 | `docs/screenshots/plain-ui/history-ability-1920.png` |
 | 5 轮结束小结 | `docs/screenshots/plain-ui/history-summary-1920.png` |
 | 事件抽屉中文化 | `docs/screenshots/plain-ui/events-cn-1920.png` |
-| 47 秒 MP4 | `docs/recordings/ai-civ-demo-2026-11-08.mp4` |
+| 53 秒 MP4 | `docs/recordings/ai-civ-demo-2026-11-08.mp4` |
 
 ---
 
