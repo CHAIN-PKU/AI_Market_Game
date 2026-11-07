@@ -1165,3 +1165,140 @@ body {
   max-width: 28rem;
   margin: 0 auto;
 }
+
+/* —— /play-3d Walking Skeleton —— */
+.play3d-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #e8f4fc 0%, var(--color-bg) 35%);
+}
+
+.play3d-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  padding: 0.75rem 1rem;
+  background: rgb(255 250 243 / 0.95);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.play3d-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.play3d-sub {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.play3d-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.play3d-nav {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.play3d-error {
+  margin: 0.5rem 1rem;
+  padding: 0.6rem 0.75rem;
+  background: #fdeaea;
+  color: var(--color-danger);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.play3d-hint {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  padding: 0.5rem;
+}
+
+.play3d-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr min(320px, 38vw);
+  gap: 0;
+  min-height: 0;
+}
+
+.play3d-canvas-wrap {
+  min-height: 60vh;
+  height: calc(100vh - 7rem);
+  position: relative;
+}
+
+.play3d-canvas-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.play3d-canvas-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-muted);
+}
+
+.play3d-detail {
+  border-left: 1px solid var(--color-border);
+  background: var(--color-surface);
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.play3d-detail-empty {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.play3d-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.play3d-detail-head h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.play3d-detail-kicker {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin-bottom: 0.75rem;
+}
+
+.play3d-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  font-size: 0.85rem;
+}
+
+.play3d-detail-grid dt {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.play3d-detail-grid dd {
+  font-weight: 600;
+}
+
+.play3d-foot {
+  text-align: center;
+  padding: 0.35rem 1rem 0.75rem;
+}
