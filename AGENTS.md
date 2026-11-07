@@ -2,6 +2,7 @@
 
 > **产品：** AI Market Game（工程目录 `D:\AICivilization`）  
 > **决策源：** `docs/DECISIONS.md`（优先于本文件冲突处）  
+> **经验库：** `AGENTS_experience.md`（验收反馈、视觉顺序、玩家文案纪律）  
 > **远程：** https://github.com/CHAIN-PKU/AI_Market_Game
 
 ---
@@ -56,12 +57,12 @@
 
 ### 第 2 组 — 3D Walking Skeleton（代码）
 
-- [ ] 安装 `three@0.187.0` `@react-three/fiber@9.8.2` `@react-three/drei@10.7.9`
-- [ ] 路由 `/play-3d`，保留 `/classic`
-- [ ] 场景：地形+光+影+相机约束（`SCENE_DESIGN_v1`）
-- [ ] 6 建筑占位 + 8 Agent 可点击
-- [ ] 右侧详情绑定 `GameState`（单文明门面 API）
-- [ ] 全屏截图提交视觉里程碑 **#1**
+- [x] 安装 `three@0.187.0` `@react-three/fiber@9.8.2` `@react-three/drei@10.7.9`
+- [x] 路由 `/`、`/play-3d`，保留 `/classic`
+- [x] 场景：地形+光+影+相机约束（`SCENE_DESIGN_v1`）
+- [x] 7 建筑占位 + 8 Agent 可点击
+- [x] 右侧详情绑定 `GameState`（`createGame` 文明 A）
+- [ ] 全屏截图提交视觉里程碑 **#1**（产品方）
 
 ### 第 3 组 — Event Playback
 

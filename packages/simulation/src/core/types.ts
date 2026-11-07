@@ -23,6 +23,8 @@ export interface CivilizationRules {
 export interface AgentTraits {
   riskTolerance: number;
   investAggression: number;
+  /** Reserved for future collaboration mechanics; not used in MVP decisions. */
+  cooperationPreference?: number;
   /** Preferred domain for tie-breaking (0–1 weights). */
   domainAffinity: Record<TaskDomain, number>;
 }
@@ -88,6 +90,7 @@ export type GameEventKind =
   | 'round_started'
   | 'task_posted'
   | 'bid_placed'
+  | 'bid_declined'
   | 'task_assigned'
   | 'task_completed'
   | 'task_failed'

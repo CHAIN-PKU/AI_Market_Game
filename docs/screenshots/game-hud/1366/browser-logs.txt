@@ -1,0 +1,4 @@
+[console] Attempted to synchronously unmount a root while React was already rendering. React cannot finish unmounting the root until the current render has completed, which may lead to a race condition.
+[http 404] http://127.0.0.1:5180/favicon.ico
+[console] Failed to load resource: the server responded with a status of 404 (Not Found)
+[pageerror] NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.

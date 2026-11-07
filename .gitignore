@@ -6,5 +6,12 @@ dist/
 .env.local
 .DS_Store
 coverage/
+*.tsbuildinfo
 *.log
 runtime/handoff/
+# DSH harness workspace plugin staging (not project source)
+dsh-plugins/
+# DSH session skills / runtime artifacts
+.dsh/
+# local npm cache during builds
+.npm-cache/

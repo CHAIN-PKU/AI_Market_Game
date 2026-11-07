@@ -1,7 +1,9 @@
-import type { Bid } from '../market/bidding.js';
+import type { Bid, BidDecline } from '../market/bidding.js';
 
 export interface AgentDecision {
   bids: Bid[];
+  /** Tasks this resident evaluated and chose not to bid on (public decision record). */
+  declines?: BidDecline[];
   /** Skill id to buy after work phase, if affordable. */
   skillPurchaseId?: string;
 }

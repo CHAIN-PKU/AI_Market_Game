@@ -10,7 +10,7 @@
 |------------|---------------|-------------|---------|
 | `task_posted` | `SHOW_TASK_CARD` | 新活儿来了！ | 卡飞向市场 |
 | `bid_placed` | `AGENT_BID` | 我想试试这单 | Agent→市场 |
-| *(待增)* `bid_declined` | `AGENT_PASS` | 这单风险高，算了 | 摇头/停留 |
+| `bid_declined` | `AGENT_PASS` | 这单风险高，算了 | 摇头/停留 |
 | `task_assigned` | `BID_WON` | 中标！ | 高亮 winner |
 | `task_completed` | `TASK_SUCCESS` | 交差了！ | 工坊动画 |
 | `task_failed` | `TASK_FAIL` | 搞砸了… | 沮丧状态 |
@@ -19,6 +19,25 @@
 | `rules_updated` | `RULES_FLASH` | 制度更新了 | 法典 UI |
 
 `story`：仅 HUD 文本，无强制 3D。
+
+### 公开决策字段（Explanation Layer 输入，2026-11-07 起）
+
+`bid_placed` / `bid_declined` payload 必须携带同一套公开因子，UI 只能读取这些字段：
+
+| 字段 | 含义 |
+|------|------|
+| `agentId` / `taskId` / `bidAmount?` | 谁、哪单、报价 |
+| `expectedQuality` | 该居民对交付质量的预测 |
+| `successProbability` | 由能力 / 难度 / 最低能力共同决定 |
+| `riskComfortFloor` | 个人风险安全线（由 `riskTolerance` 决定） |
+| `expectedReward` / `expectedValue` | 奖励与风险调整后的价值 |
+| `personalGoalId` / `personalGoalLabel` | 当前目标（如攒钱买某 Skill） |
+| `observedCompetitors` | 仅公开履历（更强同行人数、累计收入最高者） |
+| `reasonFactors` | 结构化因子数组 `{ key, label, value }` |
+| `reasonCode`（仅 declined） | `risk_above_comfort` \| `too_little_upside` \| `lower_priority` |
+
+**约束：** Presentation Layer 只能把这些字段转成短对白/气泡；不得改写报价、结算、金币或 Skill；
+不得解释未被观察到的信息；不得用随机文案替代真实决策。
 
 ---
 

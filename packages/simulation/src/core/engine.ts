@@ -60,6 +60,31 @@ export function runSingleRound(
           agentId: agent.id,
           bidAmount: bid.bidAmount,
           decisionSource: 'mock',
+          expectedQuality: bid.expectedQuality,
+          successProbability: bid.successProbability,
+          riskComfortFloor: bid.riskComfortFloor,
+          expectedReward: bid.expectedReward,
+          expectedValue: bid.expectedValue,
+          personalGoalId: bid.personalGoalId,
+          personalGoalLabel: bid.personalGoalLabel,
+          observedCompetitors: bid.observedCompetitors,
+          reasonFactors: bid.reasonFactors,
+        });
+      }
+      for (const decline of decision.declines ?? []) {
+        pushEvent(state, 'bid_declined', `${agent.displayName} passed on ${decline.taskId}`, {
+          taskId: decline.taskId,
+          agentId: agent.id,
+          reasonCode: decline.reasonCode,
+          successProbability: decline.successProbability,
+          expectedQuality: decline.expectedQuality,
+          riskComfortFloor: decline.riskComfortFloor,
+          expectedReward: decline.expectedReward,
+          expectedValue: decline.expectedValue,
+          personalGoalId: decline.personalGoalId,
+          personalGoalLabel: decline.personalGoalLabel,
+          observedCompetitors: decline.observedCompetitors,
+          reasonFactors: decline.reasonFactors,
         });
       }
     }

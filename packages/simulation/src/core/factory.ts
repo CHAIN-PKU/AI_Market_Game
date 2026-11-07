@@ -97,6 +97,7 @@ function createAgent(civilizationId: string, index: number, initialAbility: numb
     traits: {
       riskTolerance: 0.3 + (index % 5) * 0.12,
       investAggression: 0.25 + (index % 4) * 0.15,
+      cooperationPreference: 0.35 + (index % 4) * 0.12,
       domainAffinity: aff,
     },
     stats: {
