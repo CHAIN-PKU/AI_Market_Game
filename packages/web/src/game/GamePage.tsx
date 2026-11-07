@@ -260,16 +260,30 @@ export function GamePage() {
     };
   }, [step, winnerId, winnerAgent, skill, fixture]);
 
-  const applyRound = useCallback((next: BidDemoFixture, summary: string) => {
-    setPlaying(false);
-    setCueIndex(0);
-    setSelectedId(null);
-    setFixture(next);
-    setShowInstitutions(false);
-    setCampaign(null);
-    localStorage.removeItem('dsh-campaign-id');
-    setNotice(summary);
-  }, []);
+  const applyRound = useCallback(
+    (next: BidDemoFixture, summary: string) => {
+      const beforeWinner = fixture.winner?.displayName ?? '没人';
+      const beforeNet = fixture.settlement?.net;
+      const beforeSkill = fixture.skillPurchase[0]?.name;
+      const afterWinner = next.winner?.displayName ?? '没人';
+      const afterNet = next.settlement?.net;
+      const afterSkill = next.skillPurchase[0]?.name;
+      const compare =
+        beforeNet !== undefined && afterNet !== undefined
+          ? `改规则后：${beforeWinner} → ${afterWinner} · 到手 ${beforeNet} → ${afterNet} · 技能 ${beforeSkill ? '买了' : '没买'} → ${afterSkill ? '买了' : '没买'}`
+          : summary;
+
+      setPlaying(false);
+      setCueIndex(0);
+      setSelectedId(null);
+      setFixture(next);
+      setShowInstitutions(false);
+      setCampaign(null);
+      localStorage.removeItem('dsh-campaign-id');
+      setNotice(compare);
+    },
+    [fixture],
+  );
 
   const applyCampaign = useCallback(
     (
@@ -440,6 +454,7 @@ export function GamePage() {
         derived={derived}
         focusAgent={focusAgent}
         focusNumber={focusNumber}
+        onStart={startDemo}
       />
 
       <AgentPanel fixture={fixture} derived={derived} selectedId={selectedId} onClose={() => setSelectedId(null)} />

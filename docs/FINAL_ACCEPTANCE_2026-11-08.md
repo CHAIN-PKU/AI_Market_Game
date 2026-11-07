@@ -12,7 +12,7 @@
 
 `/game` 已经能完整演出一轮 AI 经济，并支持 **5 轮文明、制度实验、逐事件播放、落盘恢复、文明编年史与导出**。
 
-- 测试：**29/29**（simulation 19 + web 10）
+- 测试：**31/31**（simulation 19 + web 12）
 - 构建：simulation / server / web 全部通过
 - 视觉：Quaternius 角色 + toon + 描边 + 决策特写 + 高/中/低画质档
 - 证据：1920 / 1366 / 3840×2160 截图、事件 JSON、编年史导出
@@ -27,7 +27,7 @@ P0 五项均有可运行版本，**最后一项 `/game`→`createGame/advance` �
 cd <repo>
 npm install --cache "$PWD/.npm-cache"
 npm run build -w @ai-civ/simulation
-npm test                              # 29/29
+npm test                              # 31/31
 npm run build -w @ai-civ/web
 npm run dev -w @ai-civ/server         # API 3001
 npm run dev -w @ai-civ/web -- --port 5180 --strictPort

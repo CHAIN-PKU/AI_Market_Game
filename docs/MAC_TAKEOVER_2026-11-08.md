@@ -3,7 +3,7 @@
 > 接手人：DSH（Mac mini，macOS 26.6.2 arm64）
 > 仓库：`CHAIN-PKU/AI_Market_Game`，Mac 工作副本
 > 接手分支：`feat/visual-cozy-hud` @ `3a861ab`（交接文档提交）
-> 结论：**基线可复现**；本轮完成「制度实验台」、国库/税金拆解、右侧档案节奏、7 栋建筑功能剪影与 5 轮文明、Event Playback cue-by-cue、建筑状态绑定、2.5D 视觉升级、文明编年史与编年史导出，测试 **29/29**，Web 构建通过。
+> 结论：**基线可复现**；本轮完成「制度实验台」、国库/税金拆解、右侧档案节奏、7 栋建筑功能剪影与 5 轮文明、Event Playback cue-by-cue、建筑状态绑定、2.5D 视觉升级、文明编年史与编年史导出、大白话 UI，测试 **31/31**，Web 构建通过。
 
 ---
 
@@ -33,7 +33,7 @@
 |---|---|---|
 | `npm install` | 通过（273 packages，本地 cache） | — |
 | `npm run build -w @ai-civ/simulation` | 通过 | — |
-| `npm test` | **29/29**（simulation 19 + web 10） | `packages/simulation/tests/bid-demo.test.ts` |
+| `npm test` | **31/31**（simulation 19 + web 12） | `packages/simulation/tests/bid-demo.test.ts` |
 | `npm run build -w @ai-civ/web` | 通过（1,458.63 kB / gzip 407.05 kB） | 仅有 >500 kB 既有警告 |
 | `/game` 1920×1080 | 通过：公告→三性格→报价→决标→结算→技能→下一轮 | `docs/screenshots/mac-verify/2026-11-08-game-1920.png` |
 | `/game` 1366×768 | 通过，布局不溢出；右栏为按需打开 | `docs/screenshots/mac-verify/2026-11-08-game-1366.png` |
@@ -192,7 +192,7 @@
 cd <repo>
 npm install --cache "$PWD/.npm-cache"
 npm run build -w @ai-civ/simulation
-npm test                                # 29/29
+npm test                                # 31/31
 npm run build -w @ai-civ/web
 npm run dev -w @ai-civ/server           # API 3001
 npm run dev -w @ai-civ/web -- --port 5180 --strictPort

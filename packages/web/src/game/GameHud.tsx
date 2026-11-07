@@ -2,6 +2,7 @@ import type { BidDemoFixture, DemoAgent } from './types';
 import { DOMAIN_LABEL, ROLE_KEY, ROLE_LABEL } from './types';
 import { QUALITY, type Quality } from './quality';
 import { STEP_INDEX, TIMELINE, buildPlaybackCues, type StepId } from './playback';
+import { eventText } from './eventText';
 import {
   decisionBadge,
   decisionHeadline,
@@ -235,11 +236,13 @@ export function LeftPanel({
   derived,
   focusAgent,
   focusNumber,
+  onStart,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
   focusAgent: DemoAgent | null;
   focusNumber: number | null;
+  onStart: () => void;
 }) {
   const posted = derived.posted;
   const showBids = derived.bidsOpen;
@@ -256,6 +259,14 @@ export function LeftPanel({
         <div className="g-mission">
           <strong>你是制度设计师</strong>
           <p>改规则，看 8 个 AI 自己接单、赚钱、买技能、变强。</p>
+          <ol className="g-mission-steps">
+            <li>发任务</li>
+            <li>看 AI 抢单</li>
+            <li>改规则</li>
+          </ol>
+          <button type="button" className="g-btn g-btn--primary g-mission-btn" onClick={onStart}>
+            先看一轮
+          </button>
         </div>
       )}
       <section className="g-card g-task">
@@ -781,9 +792,8 @@ export function EventDrawer({ fixture, step, onClose }: { fixture: BidDemoFixtur
       <ol className="g-events">
         {fixture.rawEvents.map((e) => (
           <li key={e.id} className={focusKinds.has(e.kind) ? 'g-event is-focus' : 'g-event'}>
-            <span className={`g-event-kind g-event-kind--${e.kind}`}>{EVENT_LABEL[e.kind] ?? e.kind}</span>
-            <span className="g-event-msg">{e.message}</span>
-            {typeof e.payload?.reasonCode === 'string' && <em className="g-event-tag">{e.payload.reasonCode}</em>}
+            <span className={`g-event-kind g-event-kind--${e.kind}`}>{EVENT_LABEL[e.kind] ?? e.kind}</span>{' '}
+            <span className="g-event-msg">{eventText(e, fixture)}</span>
           </li>
         ))}
       </ol>
