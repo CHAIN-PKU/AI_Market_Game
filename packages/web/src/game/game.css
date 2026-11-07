@@ -3432,3 +3432,32 @@
   padding: 0 13px;
   font-size: var(--g-fs-small);
 }
+
+.g-compare {
+  margin: 10px 0 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #e6d6b8;
+  background: #fdf7e9;
+  font-size: var(--g-fs-micro);
+}
+
+.g-compare-head {
+  margin-bottom: 6px;
+  color: #8a6a3a;
+  font-weight: 800;
+}
+
+.g-compare-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0;
+  color: var(--g-muted);
+}
+
+.g-compare-row b {
+  color: var(--g-ink);
+  font-variant-numeric: tabular-nums;
+}

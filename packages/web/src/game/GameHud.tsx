@@ -1,5 +1,5 @@
 import type { BidDemoFixture, DemoAgent } from './types';
-import { DOMAIN_LABEL, ROLE_KEY, ROLE_LABEL } from './types';
+import { DOMAIN_LABEL, ROLE_KEY, ROLE_LABEL, type RuleCompare } from './types';
 import { QUALITY, type Quality } from './quality';
 import { STEP_INDEX, TIMELINE, buildPlaybackCues, type StepId } from './playback';
 import { eventText } from './eventText';
@@ -236,12 +236,14 @@ export function LeftPanel({
   derived,
   focusAgent,
   focusNumber,
+  compare,
   onStart,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
   focusAgent: DemoAgent | null;
   focusNumber: number | null;
+  compare: RuleCompare | null;
   onStart: () => void;
 }) {
   const posted = derived.posted;
@@ -291,6 +293,23 @@ export function LeftPanel({
           </div>
         </div>
 
+        {!posted && compare && (
+          <div className="g-compare">
+            <div className="g-compare-head">上次改规则 · 同一批人，结果变了</div>
+            <div className="g-compare-row">
+              <span>中标</span>
+              <b>{compare.beforeWinner} → {compare.afterWinner}</b>
+            </div>
+            <div className="g-compare-row">
+              <span>到手</span>
+              <b>{gold(compare.beforeNet ?? 0)} → {gold(compare.afterNet ?? 0)}</b>
+            </div>
+            <div className="g-compare-row">
+              <span>技能</span>
+              <b>{compare.beforeSkill ? '买了' : '没买'} → {compare.afterSkill ? '买了' : '没买'}</b>
+            </div>
+          </div>
+        )}
         {!posted ? (
           <p className="g-board-hint">
             市集还空着。点公告板上的「发布任务」，让居民自己来抢。

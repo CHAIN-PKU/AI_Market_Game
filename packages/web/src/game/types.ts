@@ -189,3 +189,12 @@ export type RoundHistory = {
   skill: string | null;
   treasuryAfter: number;
 };
+
+export type RuleCompare = {
+  beforeWinner: string;
+  afterWinner: string;
+  beforeNet: number | null;
+  afterNet: number | null;
+  beforeSkill: string | null;
+  afterSkill: string | null;
+};

@@ -58,7 +58,8 @@
 | 改规则面板 | `docs/screenshots/plain-ui/rules-1920.png` |
 | 高税后买不起技能 | `docs/screenshots/plain-ui/high-tax-no-skill-1920.png` |
 | 这 5 轮发生了什么 | `docs/screenshots/plain-ui/history-1920.png` |
-| 改规则前后对比 | `docs/screenshots/plain-ui/compare-1920.png` |
+| 改规则前后对比（toast） | `docs/screenshots/plain-ui/compare-1920.png` |
+| 改规则前后对比（左栏常驻） | `docs/screenshots/plain-ui/compare-card-1920.png` |
 | 事件抽屉中文化 | `docs/screenshots/plain-ui/events-cn-1920.png` |
 | 47 秒 MP4 | `docs/recordings/ai-civ-demo-2026-11-08.mp4` |
 
@@ -76,5 +77,5 @@
 ## 5. 下一步
 
 1. 首屏 30 秒引导再收敛成一次性的 3 步气泡。
-2. 把「改规则前后对比」做成左栏常驻，而不是只靠 toast。
-3. 5 轮编年史增加每个居民的收入/能力变化。
+2. 5 轮编年史增加每个居民的收入/能力变化。
+3. 首屏 / 改规则后的结果做成可分享的对比卡。

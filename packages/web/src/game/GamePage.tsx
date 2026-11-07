@@ -25,7 +25,7 @@ import {
   focusNumberForStep,
   type StepId,
 } from './playback';
-import type { BidDemoFixture, RoundHistory } from './types';
+import type { BidDemoFixture, RoundHistory, RuleCompare } from './types';
 import { CloseIcon } from './icons';
 import './game.css';
 
@@ -120,6 +120,7 @@ export function GamePage() {
   } | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [campaignBusy, setCampaignBusy] = useState(false);
+  const [compare, setCompare] = useState<RuleCompare | null>(null);
   const [quality, setQuality] = useState<Quality>(() => readQuality());
   const [notice, setNotice] = useState<string | null>(null);
   const [autoStart, setAutoStart] = useState(false);
@@ -268,10 +269,20 @@ export function GamePage() {
       const afterWinner = next.winner?.displayName ?? '没人';
       const afterNet = next.settlement?.net;
       const afterSkill = next.skillPurchase[0]?.name;
-      const compare =
+      const compareText =
         beforeNet !== undefined && afterNet !== undefined
           ? `改规则后：${beforeWinner} → ${afterWinner} · 到手 ${beforeNet} → ${afterNet} · 技能 ${beforeSkill ? '买了' : '没买'} → ${afterSkill ? '买了' : '没买'}`
           : summary;
+      if (beforeNet !== undefined && afterNet !== undefined) {
+        setCompare({
+          beforeWinner,
+          afterWinner,
+          beforeNet,
+          afterNet,
+          beforeSkill: beforeSkill ?? null,
+          afterSkill: afterSkill ?? null,
+        });
+      }
 
       setPlaying(false);
       setCueIndex(0);
@@ -280,7 +291,7 @@ export function GamePage() {
       setShowInstitutions(false);
       setCampaign(null);
       localStorage.removeItem('dsh-campaign-id');
-      setNotice(compare);
+      setNotice(compareText);
     },
     [fixture],
   );
@@ -296,6 +307,7 @@ export function GamePage() {
       setFixture(next);
       setShowInstitutions(false);
       setCampaign({ id, ...meta });
+      setCompare(null);
       if (meta.done) setShowHistory(true);
       setNotice(`文明 ${meta.round}/${meta.maxRounds} · ${summarizeRun(next)}`);
       setPlaying(false);
@@ -454,6 +466,7 @@ export function GamePage() {
         derived={derived}
         focusAgent={focusAgent}
         focusNumber={focusNumber}
+        compare={compare}
         onStart={startDemo}
       />
 
