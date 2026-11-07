@@ -93,11 +93,19 @@ export function TopBar({
   derived,
   onToggleDebug,
   onOpenInstitutions,
+  campaign,
+  campaignBusy,
+  onStartCampaign,
+  onNextCampaign,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
   onToggleDebug: () => void;
   onOpenInstitutions: () => void;
+  campaign: { round: number; maxRounds: number; done: boolean } | null;
+  campaignBusy: boolean;
+  onStartCampaign: () => void;
+  onNextCampaign: () => void;
 }) {
   return (
     <header className="g-top">
@@ -139,6 +147,25 @@ export function TopBar({
           <span className="g-turn-label">
             步骤 <b>{STEP_INDEX[derived.step] + 1}</b> / {TIMELINE.length}
           </span>
+        )}
+        {campaign ? (
+          <>
+            <span className="g-campaign-chip">
+              文明 {campaign.round}/{campaign.maxRounds}
+            </span>
+            <button
+              type="button"
+              className="g-btn g-btn--primary g-campaign-btn"
+              onClick={onNextCampaign}
+              disabled={campaignBusy || campaign.done}
+            >
+              {campaign.done ? '本轮完成' : campaignBusy ? '推进中…' : '下一轮'}
+            </button>
+          </>
+        ) : (
+          <button type="button" className="g-btn g-btn--ghost g-campaign-btn" onClick={onStartCampaign} disabled={campaignBusy}>
+            {campaignBusy ? '创建中…' : '开 5 轮文明'}
+          </button>
         )}
         <button type="button" className="g-btn g-btn--ghost g-rules-btn" onClick={onOpenInstitutions}>
           制度实验

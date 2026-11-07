@@ -3,7 +3,7 @@ import { Html } from '@react-three/drei';
 import { Component, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import fixtureJson from '../demo/bid-demo.fixture.json';
 import { GameScene } from './GameScene';
-import { InstitutionPanel } from './InstitutionPanel';
+import { InstitutionPanel, summarizeRun } from './InstitutionPanel';
 import {
   AgentPanel,
   BidBoard2D,
@@ -108,14 +108,10 @@ export function GamePage() {
   const [showDebug, setShowDebug] = useState(false);
   const [showInstitutions, setShowInstitutions] = useState(false);
   const [labelsHidden, setLabelsHidden] = useState(false);
+  const [campaign, setCampaign] = useState<{ id: string; round: number; maxRounds: number; done: boolean } | null>(null);
+  const [campaignBusy, setCampaignBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [sceneKey, setSceneKey] = useState(0);
-
-  useEffect(() => {
-    setPlaying(false);
-    setStep('idle');
-    setSelectedId(null);
-  }, [fixture]);
 
   useEffect(() => {
     if (!notice) return;
@@ -238,8 +234,78 @@ export function GamePage() {
     setSelectedId(null);
     setFixture(next);
     setShowInstitutions(false);
+    setCampaign(null);
     setNotice(summary);
   }, []);
+
+  const applyCampaign = useCallback(
+    (id: string, next: BidDemoFixture, meta: { round: number; maxRounds: number; done: boolean }) => {
+      setSelectedId(null);
+      setFixture(next);
+      setShowInstitutions(false);
+      setCampaign({ id, ...meta });
+      setNotice(`文明 ${meta.round}/${meta.maxRounds} · ${summarizeRun(next)}`);
+      setStep('posted');
+      setPlaying(true);
+    },
+    [],
+  );
+
+  const startCampaign = useCallback(async () => {
+    setCampaignBusy(true);
+    try {
+      const r = fixture.civilization.rules;
+      const res = await fetch('/api/campaign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          seed: fixture.seed,
+          tasksPerRound: fixture.tasksPerRound,
+          initialAbility: fixture.initialAbility,
+          maxRounds: 5,
+          rules: {
+            name: r.name,
+            taxRate: r.taxRate,
+            publicResearchShare: r.publicResearchShare,
+            skillOwnership: r.skillOwnership,
+          },
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = (await res.json()) as {
+        id: string;
+        fixture: BidDemoFixture;
+        campaign: { round: number; maxRounds: number; done: boolean };
+      };
+      applyCampaign(data.id, data.fixture, data.campaign);
+    } catch (err) {
+      setNotice(`无法开始 5 轮文明：${err instanceof Error ? err.message : '引擎不可用'}（需要 API 3001）`);
+    } finally {
+      setCampaignBusy(false);
+    }
+  }, [applyCampaign, fixture]);
+
+  const nextCampaign = useCallback(async () => {
+    if (!campaign || campaign.done) return;
+    setCampaignBusy(true);
+    try {
+      const res = await fetch(`/api/campaign/${campaign.id}/next`, { method: 'POST' });
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status}${text ? `：${text.slice(0, 100)}` : ''}`);
+      }
+      const data = (await res.json()) as {
+        id: string;
+        fixture: BidDemoFixture;
+        campaign: { round: number; maxRounds: number; done: boolean };
+      };
+      applyCampaign(data.id, data.fixture, data.campaign);
+    } catch (err) {
+      setNotice(`推进下一轮失败：${err instanceof Error ? err.message : '引擎不可用'}`);
+    } finally {
+      setCampaignBusy(false);
+    }
+  }, [applyCampaign, campaign]);
 
   return (
     <div className={[view === '2d' ? 'g-shell is-2d' : 'g-shell', labelsHidden ? 'hide-labels' : ''].join(' ')}>
@@ -248,6 +314,10 @@ export function GamePage() {
         derived={derived}
         onToggleDebug={() => setShowDebug((v) => !v)}
         onOpenInstitutions={() => setShowInstitutions(true)}
+        campaign={campaign}
+        campaignBusy={campaignBusy}
+        onStartCampaign={startCampaign}
+        onNextCampaign={nextCampaign}
       />
 
       <main className={`g-stage ${view === '2d' ? 'g-stage--2d' : ''}`}>

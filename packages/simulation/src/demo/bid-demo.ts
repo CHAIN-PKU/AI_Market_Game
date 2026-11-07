@@ -20,7 +20,7 @@ import {
   riskComfortFloor,
 } from '../market/bidding.js';
 import { postPlayerTask } from '../market/player-task.js';
-import type { AgentState, GameEvent, TaskDomain } from '../core/types.js';
+import type { AgentState, CivilizationState, GameEvent, GameState, MarketTask, TaskDomain } from '../core/types.js';
 
 const SCENARIO = {
   title: '修复网站登录问题',
@@ -137,21 +137,22 @@ export interface BuildBidDemoOptions {
   rules?: RulesPatch;
   /** Optional task override (kept stable for institution comparisons). */
   scenario?: { title?: string; domain?: TaskDomain; reward?: number };
+  /** Engine round cap; campaigns pass their own. */
+  totalRounds?: number;
 }
 
-export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
+type ResolvedScenario = { title: string; titleEn: string; domain: TaskDomain; reward: number };
+
+function createBidDemoState(options: BuildBidDemoOptions = {}) {
   const seed = options.seed ?? 12;
   const tasksPerRound = options.tasksPerRound ?? 3;
-  const warmupRounds = options.warmupRounds ?? 0;
   const initialAbility = options.initialAbility ?? 28;
-  const scenario = {
-    ...SCENARIO,
-    ...options.scenario,
-  };
+  const scenario = { ...SCENARIO, ...options.scenario } as ResolvedScenario;
   const rules = clampRules(createFreeMarketRules('自由市场'), options.rules ?? {});
+  const totalRounds = Math.max(30, options.totalRounds ?? 30);
 
   const state = createDualCivilizationGame(
-    { seed, totalRounds: Math.max(8, warmupRounds + 2), tasksPerRound, initialAgentAbility: initialAbility },
+    { seed, totalRounds, tasksPerRound, initialAgentAbility: initialAbility },
     rules,
   );
   const civ = state.civilizations[0]!;
@@ -166,20 +167,37 @@ export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
     agent.traits.cooperationPreference = profile.cooperation;
   });
 
-  for (let i = 0; i < warmupRounds; i += 1) runSingleRound(state);
+  return { state, civ, seed, tasksPerRound, initialAbility, scenario, rules };
+}
 
-  const before = structuredClone(civ.agents);
-  const demoRound = state.round + 1;
+function snapshotBidDemo(input: {
+  state: GameState;
+  civ: CivilizationState;
+  task: MarketTask;
+  before: AgentState[];
+  scenario: ResolvedScenario;
+  treasuryStart: number;
+  demoRound: number;
+  seed: number;
+  tasksPerRound: number;
+  warmupRounds: number;
+  initialAbility: number;
+}) {
+  const {
+    state,
+    civ,
+    task,
+    before,
+    scenario,
+    treasuryStart,
+    demoRound,
+    seed,
+    tasksPerRound,
+    warmupRounds,
+    initialAbility,
+  } = input;
 
-  const task = postPlayerTask(state, {
-    title: scenario.title,
-    domain: scenario.domain,
-    reward: scenario.reward,
-  });
-
-  runSingleRound(state);
-
-  const roundEvents = state.events.filter((e) => e.round === demoRound);
+  const roundEvents: GameEvent[] = state.events.filter((e) => e.round === demoRound);
   const focusEvents = roundEvents.filter((e) => (e.payload as Payload | undefined)?.taskId === task.id);
   const bidEvents = focusEvents.filter((e) => e.kind === 'bid_placed');
   const declineEvents = focusEvents.filter((e) => e.kind === 'bid_declined');
@@ -342,7 +360,7 @@ export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
   const taxEvent = completed ? focusEvents.find((e) => e.kind === 'tax_collected') : undefined;
 
   // Treasury reconciliation: all completed tasks in this round, not only the demo task.
-  const taxEvents = roundEvents.filter((e) => e.kind === 'tax_collected');
+  const taxEvents: GameEvent[] = roundEvents.filter((e) => e.kind === 'tax_collected');
   const totalTax = taxEvents.reduce((sum, e) => sum + ((payloadOf(e)?.tax as number | undefined) ?? 0), 0);
   const mainTaskTax = taxEvents
     .filter((e) => payloadOf(e)?.taskId === task.id)
@@ -353,7 +371,6 @@ export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
     0,
   );
   const toTreasury = totalTax - publicResearch;
-  const treasuryStart = state.config.initialTreasury;
   const treasuryEnd = civ.treasury;
   const treasuryBreakdown = {
     start: treasuryStart,
@@ -391,14 +408,14 @@ export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
       id: civ.id,
       name: '晨曦文明',
       rules: civ.rules,
-      treasuryStart: state.config.initialTreasury,
+      treasuryStart,
       treasuryAfter: civ.treasury,
     },
     treasuryBreakdown,
     focusAgentIds: [agents[0]!.id, agents[3]!.id, agents[6]!.id],
     agents,
     bids,
-    declines: declineEvents.map((e) => ({
+    declines: declineEvents.map((e: GameEvent) => ({
       agentId: payloadOf(e)!.agentId as string,
       reasonCode: payloadOf(e)!.reasonCode as string,
     })),
@@ -422,7 +439,7 @@ export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
         }
       : null,
     skillPurchase: purchased.length
-      ? purchased.map((e) => {
+      ? purchased.map((e: GameEvent) => {
           const payload = payloadOf(e)!;
           const skill = getSkillById(payload.skillId as string);
           return {
@@ -446,3 +463,80 @@ export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
   };
 }
 
+export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
+  const { state, civ, seed, tasksPerRound, initialAbility, scenario } = createBidDemoState(options);
+  const warmupRounds = options.warmupRounds ?? 0;
+
+  for (let i = 0; i < warmupRounds; i += 1) runSingleRound(state);
+
+  const before = structuredClone(civ.agents);
+  const treasuryStart = civ.treasury;
+  const demoRound = state.round + 1;
+
+  const task = postPlayerTask(state, {
+    title: scenario.title,
+    domain: scenario.domain,
+    reward: scenario.reward,
+  });
+
+  runSingleRound(state);
+
+  return snapshotBidDemo({
+    state,
+    civ,
+    task,
+    before,
+    scenario,
+    treasuryStart,
+    demoRound,
+    seed,
+    tasksPerRound,
+    warmupRounds,
+    initialAbility,
+  });
+}
+
+export type BidDemoCampaign = ReturnType<typeof createBidDemoCampaign>;
+
+export function createBidDemoCampaign(options: BuildBidDemoOptions & { maxRounds?: number } = {}) {
+  const maxRounds = options.maxRounds ?? 5;
+  const base = createBidDemoState({ ...options, totalRounds: Math.max(30, maxRounds + 1) });
+  return { ...base, maxRounds, completedRounds: 0 };
+}
+
+/** Advance the campaign by one real engine round; state (wallets, skills) is preserved. */
+export function advanceBidDemoCampaign(campaign: BidDemoCampaign) {
+  if (campaign.completedRounds >= campaign.maxRounds) {
+    throw new Error(`campaign finished (${campaign.completedRounds}/${campaign.maxRounds})`);
+  }
+
+  const { state, civ, scenario, seed, tasksPerRound, initialAbility } = campaign;
+  const before = structuredClone(civ.agents);
+  const treasuryStart = civ.treasury;
+  const demoRound = state.round + 1;
+
+  const task = postPlayerTask(state, {
+    title: scenario.title,
+    domain: scenario.domain,
+    reward: scenario.reward,
+  });
+
+  runSingleRound(state);
+  campaign.completedRounds = state.round;
+
+  const fixture = snapshotBidDemo({
+    state,
+    civ,
+    task,
+    before,
+    scenario,
+    treasuryStart,
+    demoRound,
+    seed,
+    tasksPerRound,
+    warmupRounds: 0,
+    initialAbility,
+  });
+
+  return { fixture, campaign };
+}

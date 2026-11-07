@@ -1,6 +1,13 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import { buildBidDemoFixture, type RulesPatch } from '@ai-civ/simulation';
+import {
+  advanceBidDemoCampaign,
+  buildBidDemoFixture,
+  createBidDemoCampaign,
+  type BidDemoCampaign,
+  type RulesPatch,
+} from '@ai-civ/simulation';
+import { randomUUID } from 'node:crypto';
 import { playerBrainLabel, readServerConfig } from './config.js';
 import { GameStore } from './game-store.js';
 import { createAsyncProvider } from './agent-factory.js';
@@ -93,6 +100,58 @@ app.get('/api/meta', async () => ({
   httpOnly: true,
   hint: metaHint(),
 }));
+
+const campaigns = new Map<string, BidDemoCampaign>();
+
+function campaignMeta(campaign: BidDemoCampaign) {
+  return {
+    round: campaign.completedRounds,
+    maxRounds: campaign.maxRounds,
+    done: campaign.completedRounds >= campaign.maxRounds,
+    seed: campaign.seed,
+    rules: campaign.rules,
+  };
+}
+
+app.post<{
+  Body: {
+    seed?: number;
+    maxRounds?: number;
+    tasksPerRound?: number;
+    initialAbility?: number;
+    rules?: RulesPatch;
+  };
+}>('/api/campaign', async (req) => {
+  const body = req.body ?? {};
+  const maxRounds = Math.min(10, Math.max(1, Math.round(body.maxRounds ?? 5)));
+  const campaign = createBidDemoCampaign({
+    seed: body.seed,
+    tasksPerRound: body.tasksPerRound ?? 2,
+    initialAbility: body.initialAbility ?? 28,
+    rules: body.rules,
+    maxRounds,
+  });
+  const { fixture } = advanceBidDemoCampaign(campaign);
+  const id = randomUUID();
+  campaigns.set(id, campaign);
+  return { id, fixture, campaign: campaignMeta(campaign), meta: { engine: 'deterministic-mock' } };
+});
+
+app.post<{ Params: { id: string } }>('/api/campaign/:id/next', async (req, reply) => {
+  const campaign = campaigns.get(req.params.id);
+  if (!campaign) return reply.code(404).send({ error: 'not_found' });
+  if (campaign.completedRounds >= campaign.maxRounds) {
+    return reply.code(409).send({ error: 'campaign_finished', campaign: campaignMeta(campaign) });
+  }
+  const { fixture } = advanceBidDemoCampaign(campaign);
+  return { id: req.params.id, fixture, campaign: campaignMeta(campaign), meta: { engine: 'deterministic-mock' } };
+});
+
+app.get<{ Params: { id: string } }>('/api/campaign/:id', async (req, reply) => {
+  const campaign = campaigns.get(req.params.id);
+  if (!campaign) return reply.code(404).send({ error: 'not_found' });
+  return { id: req.params.id, campaign: campaignMeta(campaign) };
+});
 
 app.post<{
   Body: {

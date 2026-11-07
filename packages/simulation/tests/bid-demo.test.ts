@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildBidDemoFixture } from '../src/index.js';
+import { advanceBidDemoCampaign, buildBidDemoFixture, createBidDemoCampaign } from '../src/index.js';
 
 const BASE = { seed: 20, tasksPerRound: 2, warmupRounds: 0, initialAbility: 28 };
 
@@ -70,5 +70,32 @@ describe('bid-demo fixture builder (engine truth)', () => {
     expect(f.civilization.rules.taxRate).toBe(0.45);
     expect(f.civilization.rules.publicResearchShare).toBe(0);
     expect(f.civilization.rules.skillOwnership).toBe('shared');
+  });
+});
+
+describe('multi-round campaign (state preserved by the engine)', () => {
+  it('carries wallets/treasury across rounds and keeps round fixtures consistent', () => {
+    const campaign = createBidDemoCampaign({ seed: 20, tasksPerRound: 2, maxRounds: 5 });
+    const r1 = advanceBidDemoCampaign(campaign).fixture;
+    const r2 = advanceBidDemoCampaign(campaign).fixture;
+    const r3 = advanceBidDemoCampaign(campaign).fixture;
+
+    expect([r1.demoRound, r2.demoRound, r3.demoRound]).toEqual([1, 2, 3]);
+    expect(r2.civilization.treasuryStart).toBe(r1.civilization.treasuryAfter);
+    expect(r3.civilization.treasuryStart).toBe(r2.civilization.treasuryAfter);
+    expect(r2.agents[3]!.walletBefore).toBe(r1.agents[3]!.walletAfter);
+    expect(r3.agents[3]!.walletBefore).toBe(r2.agents[3]!.walletAfter);
+    for (const f of [r1, r2, r3]) {
+      expect(f.treasuryBreakdown.consistent).toBe(true);
+      expect(f.civilization.treasuryAfter).toBeGreaterThanOrEqual(f.civilization.treasuryStart);
+    }
+  });
+
+  it('stops at maxRounds', () => {
+    const campaign = createBidDemoCampaign({ seed: 20, maxRounds: 2 });
+    advanceBidDemoCampaign(campaign);
+    advanceBidDemoCampaign(campaign);
+    expect(campaign.completedRounds).toBe(2);
+    expect(() => advanceBidDemoCampaign(campaign)).toThrow(/campaign finished/);
   });
 });

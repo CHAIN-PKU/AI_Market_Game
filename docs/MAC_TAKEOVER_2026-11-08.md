@@ -3,7 +3,7 @@
 > 接手人：DSH（Mac mini，macOS 26.6.2 arm64）
 > 仓库：`CHAIN-PKU/AI_Market_Game`，Mac 工作副本
 > 接手分支：`feat/visual-cozy-hud` @ `3a861ab`（交接文档提交）
-> 结论：**基线可复现**；本轮完成「制度实验台」、国库/税金拆解、右侧档案节奏与 7 栋建筑功能剪影，测试 **16/16**，Web 构建通过。
+> 结论：**基线可复现**；本轮完成「制度实验台」、国库/税金拆解、右侧档案节奏、7 栋建筑功能剪影与 5 轮文明，测试 **18/18**，Web 构建通过。
 
 ---
 
@@ -33,7 +33,7 @@
 |---|---|---|
 | `npm install` | 通过（273 packages，本地 cache） | — |
 | `npm run build -w @ai-civ/simulation` | 通过 | — |
-| `npm test` | **16/16**（原 11 + 新增 5） | `packages/simulation/tests/bid-demo.test.ts` |
+| `npm test` | **18/18**（原 11 + 新增 7） | `packages/simulation/tests/bid-demo.test.ts` |
 | `npm run build -w @ai-civ/web` | 通过（1,458.63 kB / gzip 407.05 kB） | 仅有 >500 kB 既有警告 |
 | `/game` 1920×1080 | 通过：公告→三性格→报价→决标→结算→技能→下一轮 | `docs/screenshots/mac-verify/2026-11-08-game-1920.png` |
 | `/game` 1366×768 | 通过，布局不溢出；右栏为按需打开 | `docs/screenshots/mac-verify/2026-11-08-game-1366.png` |
@@ -49,6 +49,14 @@
 - 点击「用这套制度重跑」→ `POST /api/demo/round` → **simulation 引擎重新计算**竞价/中标/税/技能 → 返回一整套 fixture → 前端回到 `idle` 重新播放。
 - API 失败时红条阻断并提示启动 `npm run dev:server`，**不静默回退**。
 - 高税场景下，界面明确显示「Delta 税后剩 65 金，买不起 80 金的 Clean Code Patterns；能力停在 40」——制度直接改变消费与下一轮能力。
+
+### 3.6 5 轮文明（真实引擎多轮）
+
+- 顶栏「开 5 轮文明」→ 同一个 `GameState` 连跑 5 轮，钱包/技能/国库累积。
+- 第 2 轮起会因上一轮结果换人中标（seed=20 实测：Delta → Grove → Delta → Grove → Grove）。
+- fixture 的 `treasuryStart` 改为本轮开始值，跨轮国库不再从 1,000 重算。
+- 文档：`docs/CAMPAIGN.md`；截图：`docs/screenshots/campaign/`
+- 边界：状态在 API 内存，不是 `/api/games` 的 `createGame/advance`，也没有存档。
 
 ### 3.5 建筑功能剪影（隐藏文字可辨）
 
@@ -100,7 +108,7 @@
 - 国库跳变已拆解：结算状态卡显示「本任务税 / 其他任务税 / 公共研发」；详见 `INSTITUTION_LAB.md` §5。
 - 右侧居民档案已把「公开决策记录」提到性格参数之前，1080 高度下决策因子、目标、能力、履历一屏可见（`docs/screenshots/mac-verify/2026-11-08-panel-order-1920.png`）。
 - 三个既有问题未处理：drei portal `removeChild` 警告、404 资源、三套调色板未统一。
-- 5–7 轮闭环、`createGame/advance` 完整 Event Playback 仍未做。
+- 5 轮文明已跑通，但仍是内存 campaign，不是持久化 `createGame/advance`；Event Playback 队列仍未做。
 
 ---
 
@@ -108,8 +116,8 @@
 
 1. **`/game` 接 `createGame` / `advance` 与事件队列**（跳过动画不改 `GameState` 的契约测试）。
 2. **5–7 轮连续实验**：每轮沿用上一轮的钱包/能力，制度对比才完整。
-3. 完整 Event Playback + 跳过动画契约测试。
-4. `createGame` / `advance` 多轮与存档。
+3. Event Playback 队列（rawEvents 驱动）+ 跳过动画契约测试。
+4. campaign 持久化与刷新恢复。
 5. 建筑状态与事件绑定（技能铺亮灯、市集成交）。
 
 ---
@@ -120,7 +128,7 @@
 cd <repo>
 npm install --cache "$PWD/.npm-cache"
 npm run build -w @ai-civ/simulation
-npm test                                # 16/16
+npm test                                # 18/18
 npm run build -w @ai-civ/web
 npm run dev -w @ai-civ/server           # API 3001
 npm run dev -w @ai-civ/web -- --port 5180 --strictPort

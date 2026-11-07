@@ -3150,3 +3150,27 @@
 .g-shell.hide-labels .bld-sign {
   display: none !important;
 }
+
+/* ---------- campaign ---------- */
+
+.g-campaign-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: #eaf4ef;
+  border: 1px solid #cfe4d8;
+  color: var(--g-teal-deep);
+  font-size: var(--g-fs-micro);
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.g-campaign-btn {
+  height: 34px;
+  padding: 0 13px;
+  font-size: var(--g-fs-small);
+  white-space: nowrap;
+}
