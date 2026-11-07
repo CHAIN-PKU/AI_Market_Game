@@ -1,6 +1,7 @@
 import { ContactShadows, Html, Sky, SoftShadows, Sparkles } from '@react-three/drei';
-import { useThree } from '@react-three/fiber';
-import { useEffect } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import { useRef } from 'react';
+import { MathUtils, Vector3, type PerspectiveCamera } from 'three';
 import { AGENT_SLOTS, BUILDING_SLOTS, TREE_SLOTS, type BuildingSlot } from '../visual-lab/islandLayout';
 import { KENNEY_BUILDINGS, KENNEY_TREES } from '../visual-lab/assetUrls';
 import { GlbInstance } from '../visual-lab/GlbInstance';
@@ -11,17 +12,48 @@ import { GridIcon, MarketIcon, PeopleIcon, RoleIcon, SkillIcon } from './icons';
 import { atLeast, type StepId } from './playback';
 import { gold } from './presentation';
 import type { BidDemoFixture } from './types';
-function FixedCamera() {
-  const camera = useThree((s) => s.camera);
+function CameraRig({
+  fixture,
+  step,
+  focusAgentId,
+}: {
+  fixture: BidDemoFixture;
+  step: StepId;
+  focusAgentId: string | null;
+}) {
+  const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const size = useThree((s) => s.size);
-  useEffect(() => {
+  const look = useRef(new Vector3(0, 1, 0));
+  const focusIndex = focusAgentId ? fixture.agents.findIndex((a) => a.id === focusAgentId) : -1;
+  const focusSlot = focusIndex >= 0 ? AGENT_SLOTS[focusIndex]?.position : null;
+  const closeUp = step.startsWith('focus_') && !!focusSlot;
+
+  useFrame((_, dt) => {
     const aspect = size.width / Math.max(1, size.height);
-    // Narrow stages (1366 with both side panels) need a little more distance
-    // so the island stays fully in frame.
     const pull = Math.max(1, 1.14 / aspect);
-    camera.position.set(0, 15.4 * pull, 20.8 * pull);
-    camera.lookAt(0, 1, 0);
-  }, [camera, size]);
+    const targetPos = new Vector3(0, 15.4 * pull, 20.8 * pull);
+    const targetLook = new Vector3(0, 1, 0);
+    let targetFov = 40;
+
+    if (closeUp && focusSlot) {
+      const p = new Vector3(focusSlot[0] * 0.72, 0, focusSlot[2] * 0.72);
+      // Characters face roughly +Z (small per-index yaw), so put the camera
+      // in front of the resident rather than toward the island center.
+      const faceY = (focusIndex >= 0 ? focusIndex : 0) * 0.08;
+      const front = new Vector3(Math.sin(faceY), 0, Math.cos(faceY));
+      targetPos.copy(p).add(front.multiplyScalar(4.8));
+      targetPos.y = 2.1;
+      targetLook.copy(p).add(new Vector3(0, 1.18, 0));
+      targetFov = 34;
+    }
+
+    const k = 1 - Math.exp(-dt * 4.2);
+    camera.position.lerp(targetPos, k);
+    look.current.lerp(targetLook, k);
+    camera.lookAt(look.current);
+    camera.fov = MathUtils.damp(camera.fov, targetFov, 4, dt);
+    camera.updateProjectionMatrix();
+  });
   return null;
 }
 
@@ -426,7 +458,7 @@ export function GameScene({
 }) {
   return (
     <>
-      <FixedCamera />
+      <CameraRig fixture={fixture} step={step} focusAgentId={focusAgentId} />
       <Sky sunPosition={[60, 30, 40]} turbidity={0.45} rayleigh={0.32} />
       <fog attach="fog" args={['#d8edf0', 42, 92]} />
       <SoftShadows size={28} samples={16} focus={0.8} />

@@ -164,7 +164,7 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
       }}
     >
       <primitive object={clone} scale={scale} position={[0, 0.004, 0]} />
-      <Html center position={[0, 1.13, 0.05]} zIndexRange={[18, 0]} style={{ pointerEvents: 'none' }}>
+      <Html center position={[0, 1.25, 0.05]} distanceFactor={10} zIndexRange={[18, 0]} style={{ pointerEvents: 'none' }}>
         <div className="ga-face" aria-hidden>
           <i />
           <i />

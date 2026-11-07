@@ -12,7 +12,7 @@
 - 角色从 Kenney mini-figure 换成 **Quaternius casual / worker**（自带 Idle / Walk 动画，人体比例更接近角色而非积木）。
 - 按材质名重上色：肤色、发色、按职业（coding / research / design）区分衣服颜色。
 - 角色材质换成 **3 阶 toon ramp**（硬边卡通明暗），保留面部与衣服的清晰色块。
-- 加简单眼睛/嘴的 HTML 面部贴片，远看能读出「有脸」；不再是无脸人偶。
+- 加按距离缩放的眼睛/嘴贴片（distanceFactor），默认视角是小点，聚焦特写时放大，近看能读出表情。
 - 角色高度 1.68，镜头拉近；1366 下按舞台宽高比自动拉远，避免岛屿被裁。
 
 ### 渲染
@@ -20,7 +20,7 @@
 - Canvas：`dpr=[1.5, 2]`、antialias、`ACESFilmicToneMapping`、exposure 1.08。
 - 光照：暖色 key + 冷色 fill + 青色 rim light，`SoftShadows`、`ContactShadows`、4096 shadow map。
 - 环境：`Sparkles` 微光粒子、雾、天空；CSS vignette + 右上暖光叠加。
-- 相机：默认更近（15.4 / 20.8，fov 40），窄舞台自动拉远。
+- 相机：默认更近（15.4 / 20.8，fov 40），窄舞台自动拉远；三性格决策步骤自动切到角色正面特写（fov 34），说完再回岛屿。
 
 ### 分辨率
 
@@ -37,6 +37,7 @@
 | 升级后 1366 | `docs/screenshots/visual-hq/after-1366.png` |
 | 升级后 3840×2160 | `docs/screenshots/visual-hq/after-2x-3840.png` |
 | 角色 2x 近景 | `docs/screenshots/visual-hq/characters-2x.png` |
+| 决策特写（Astra） | `docs/screenshots/visual-hq/focus-astra-2x.png` |
 | 升级前（Kenney 低模） | `docs/screenshots/mac-verify/2026-11-08-game-1920.png` |
 
 ---

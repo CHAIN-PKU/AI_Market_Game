@@ -3217,14 +3217,14 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 15px;
-  height: 10px;
+  width: 22px;
+  height: 14px;
 }
 
 .ga-face i {
   display: block;
-  width: 2.6px;
-  height: 3.6px;
+  width: 5px;
+  height: 7px;
   border-radius: 50%;
   background: #2a1d18;
   box-shadow: none;
@@ -3234,9 +3234,9 @@
   position: absolute;
   left: 50%;
   bottom: 0;
-  width: 5px;
-  height: 1.5px;
-  border-bottom: 1px solid #8a4a3a;
+  width: 8px;
+  height: 2px;
+  border-bottom: 1.2px solid #8a4a3a;
   border-radius: 0 0 6px 6px;
   transform: translateX(-50%);
 }
