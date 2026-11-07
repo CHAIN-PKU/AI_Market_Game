@@ -1,18 +1,37 @@
-/** Terrain + water only — no procedural buildings. */
+import { ISLAND } from './islandLayout';
+
+/** Diorama terrain: soil thickness + grass top + plaza road ring + water. No procedural buildings. */
 export function IslandBase() {
   return (
     <group>
-      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]}>
-        <circleGeometry args={[11, 64]} />
-        <meshStandardMaterial color="#79ae87" roughness={0.92} />
+      {/* soil side — gives the island a table-top model thickness */}
+      <mesh position={[0, -ISLAND.grassHeight / 2, 0]} receiveShadow castShadow>
+        <cylinderGeometry args={[ISLAND.grassRadius, ISLAND.grassRadius * 0.92, ISLAND.grassHeight, 64]} />
+        <meshStandardMaterial color="#8a6a4b" roughness={1} />
       </mesh>
-      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
-        <ringGeometry args={[5.2, 6.1, 48]} />
-        <meshStandardMaterial color="#e8dcc4" roughness={0.95} />
+
+      {/* grass top */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+        <circleGeometry args={[ISLAND.grassRadius, 64]} />
+        <meshStandardMaterial color="#7cbf7a" roughness={0.95} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.35, 0]}>
-        <circleGeometry args={[15.5, 64]} />
-        <meshStandardMaterial color="#4c9fa8" transparent opacity={0.88} roughness={0.3} />
+
+      {/* plaza road ring (shared by both schemes) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]} receiveShadow>
+        <ringGeometry args={[ISLAND.plazaInner, ISLAND.plazaOuter, 72]} />
+        <meshStandardMaterial color="#e6d6b5" roughness={0.95} />
+      </mesh>
+
+      {/* central plaza slab */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]} receiveShadow>
+        <circleGeometry args={[ISLAND.plazaInner, 72]} />
+        <meshStandardMaterial color="#d9c69d" roughness={0.95} />
+      </mesh>
+
+      {/* water plane */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, ISLAND.waterY, 0]} receiveShadow>
+        <circleGeometry args={[ISLAND.waterRadius, 80]} />
+        <meshStandardMaterial color="#63b6c4" transparent opacity={0.9} roughness={0.25} />
       </mesh>
     </group>
   );

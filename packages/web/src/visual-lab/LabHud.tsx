@@ -1,4 +1,5 @@
 import type { VisualScheme } from './types';
+import type { ViewPreset } from './islandLayout';
 
 const AGENT_NAMES = [
   'Helix',
@@ -11,12 +12,22 @@ const AGENT_NAMES = [
   'Ember',
 ];
 
+const VIEW_LABELS: Record<ViewPreset, string> = {
+  default: '默认',
+  topdown: '俯视',
+  closeup: '近景',
+};
+
 export function LabHud({
   scheme,
   onSchemeChange,
+  view,
+  onViewChange,
 }: {
   scheme: VisualScheme;
   onSchemeChange: (s: VisualScheme) => void;
+  view: ViewPreset;
+  onViewChange: (v: ViewPreset) => void;
 }) {
   return (
     <>
@@ -24,7 +35,7 @@ export function LabHud({
         <div>
           <h1 className="vlab-title">AI Market Game · Visual Lab</h1>
           <p className="vlab-sub">
-            方案 {scheme === 'kenney' ? 'A · Kenney' : 'B · Quaternius'} · 不接 Simulation
+            方案 {scheme === 'kenney' ? 'A · Kenney' : 'B · Quaternius'} · 静态视觉对照（数据为示意）
           </p>
         </div>
         <div className="vlab-stats tabular-nums">
@@ -83,17 +94,29 @@ export function LabHud({
             <dd>2 项</dd>
           </div>
         </dl>
-        <p className="vlab-footnote">HUD 为策略游戏占位，数据为静态示意。</p>
+        <p className="vlab-footnote">本页只做视觉对照，不接经济引擎；数值为静态示意。</p>
       </aside>
 
       <footer className="vlab-dock">
-        <button type="button" className="vlab-dock-btn">
+        <span className="vlab-sub">镜头</span>
+        {(Object.keys(VIEW_LABELS) as ViewPreset[]).map((v) => (
+          <button
+            key={v}
+            type="button"
+            className={view === v ? 'vlab-tab vlab-tab--on' : 'vlab-tab'}
+            onClick={() => onViewChange(v)}
+          >
+            {VIEW_LABELS[v]}
+          </button>
+        ))}
+        <span aria-hidden style={{ width: '0.75rem' }} />
+        <button type="button" className="vlab-dock-btn" disabled>
           发布任务
         </button>
-        <button type="button" className="vlab-dock-btn vlab-dock-btn--ghost">
+        <button type="button" className="vlab-dock-btn vlab-dock-btn--ghost" disabled>
           制度
         </button>
-        <button type="button" className="vlab-dock-btn vlab-dock-btn--ghost">
+        <button type="button" className="vlab-dock-btn vlab-dock-btn--ghost" disabled>
           技能铺
         </button>
         <button type="button" className="vlab-dock-btn" disabled>
