@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.sqlite
+*.sqlite-journal
+.env
+.env.local
+.DS_Store
+coverage/
+*.log
+runtime/handoff/

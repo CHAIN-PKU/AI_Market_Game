@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "project": "AI Market Game",
+  "defaultScaleMeters": 1,
+  "assets": [
+    {
+      "id": "terrain-grass",
+      "status": "planned",
+      "source": "procedural",
+      "license": "procedural-placeholder",
+      "path": null,
+      "usedBy": ["play-3d:ground"],
+      "notes": "Walking Skeleton plane with thickness edges"
+    },
+    {
+      "id": "bld-market",
+      "status": "planned",
+      "source": "https://kenney.nl/assets",
+      "license": "CC0",
+      "path": null,
+      "usedBy": ["play-3d:market"],
+      "notes": "Select Kenney city/commercial kit after skeleton passes"
+    },
+    {
+      "id": "char-agent-base",
+      "status": "planned",
+      "source": "https://quaternius.com/",
+      "license": "CC0",
+      "path": null,
+      "usedBy": ["play-3d:agents"],
+      "notes": "Single rig; attachments per profession in code"
+    }
+  ]
+}

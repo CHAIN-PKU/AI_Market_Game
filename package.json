@@ -1,0 +1,28 @@
+{
+  "name": "ai-civilization",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AI Civilization MVP — local economic simulation prototype",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @ai-civ/simulation",
+    "test": "npm run test -w @ai-civ/simulation",
+    "sim": "npm run sim -w @ai-civ/simulation",
+    "sim:dual": "npm run sim:dual -w @ai-civ/simulation",
+    "sim:agents": "npm run sim:agents -w @ai-civ/simulation",
+    "dev:server": "npm run dev -w @ai-civ/server",
+    "dev:web": "npm run dev -w @ai-civ/web",
+    "cursor:play": "npm run cursor:play -w @ai-civ/server",
+    "civ:advance": "npm run civ:advance -w @ai-civ/server",
+    "dev": "npm run build -w @ai-civ/simulation && concurrently -n server,web -c blue,magenta \"npm run dev:server\" \"npm run dev:web\"",
+    "test:all": "npm run build -w @ai-civ/simulation && npm test && npm test -w @ai-civ/server"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

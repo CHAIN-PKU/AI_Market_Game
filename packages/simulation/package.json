@@ -1,0 +1,30 @@
+{
+  "name": "@ai-civ/simulation",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "ai-civ-sim": "./dist/cli/run-dual.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "sim": "tsx src/cli/run-dual.ts",
+    "sim:dual": "tsx src/cli/run-dual.ts --rounds 30",
+    "sim:agents": "tsx src/cli/run-dual.ts --agents"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.3"
+  }
+}
