@@ -12,6 +12,7 @@
     "titleEn": "Fix the website login bug",
     "domain": "coding",
     "domainLabel": "Coding",
+    "description": "客户网站的登录入口一直报错，需要在今天内修好。",
     "reward": 100,
     "difficulty": 40,
     "minAbility": 25,

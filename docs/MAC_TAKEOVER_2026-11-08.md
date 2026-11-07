@@ -3,7 +3,7 @@
 > 接手人：DSH（Mac mini，macOS 26.6.2 arm64）
 > 仓库：`CHAIN-PKU/AI_Market_Game`，Mac 工作副本
 > 接手分支：`feat/visual-cozy-hud` @ `3a861ab`（交接文档提交）
-> 结论：**基线可复现**；本轮完成「制度实验台」、国库/税金拆解、右侧档案节奏、7 栋建筑功能剪影与 5 轮文明、Event Playback cue-by-cue 与建筑状态绑定，测试 **25/25**，Web 构建通过。
+> 结论：**基线可复现**；本轮完成「制度实验台」、国库/税金拆解、右侧档案节奏、7 栋建筑功能剪影与 5 轮文明、Event Playback cue-by-cue、建筑状态绑定与 2.5D 视觉升级，测试 **26/26**，Web 构建通过。
 
 ---
 
@@ -33,7 +33,7 @@
 |---|---|---|
 | `npm install` | 通过（273 packages，本地 cache） | — |
 | `npm run build -w @ai-civ/simulation` | 通过 | — |
-| `npm test` | **25/25**（simulation 18 + playback 7） | `packages/simulation/tests/bid-demo.test.ts` |
+| `npm test` | **26/26**（simulation 19 + playback 7） | `packages/simulation/tests/bid-demo.test.ts` |
 | `npm run build -w @ai-civ/web` | 通过（1,458.63 kB / gzip 407.05 kB） | 仅有 >500 kB 既有警告 |
 | `/game` 1920×1080 | 通过：公告→三性格→报价→决标→结算→技能→下一轮 | `docs/screenshots/mac-verify/2026-11-08-game-1920.png` |
 | `/game` 1366×768 | 通过，布局不溢出；右栏为按需打开 | `docs/screenshots/mac-verify/2026-11-08-game-1366.png` |
@@ -49,6 +49,14 @@
 - 点击「用这套制度重跑」→ `POST /api/demo/round` → **simulation 引擎重新计算**竞价/中标/税/技能 → 返回一整套 fixture → 前端回到 `idle` 重新播放。
 - API 失败时红条阻断并提示启动 `npm run dev:server`，**不静默回退**。
 - 高税场景下，界面明确显示「Delta 税后剩 65 金，买不起 80 金的 Clean Code Patterns；能力停在 40」——制度直接改变消费与下一轮能力。
+
+### 3.10 2.5D 视觉升级（回应「像原神一点、人物更清晰」）
+
+- 角色换 Quaternius（带 Idle/Walk），按职业/肤色/发色重上色，3 阶 toon 材质 + 简单面部。
+- DPR 2、ACES tone mapping、暖 key + 冷 fill + 青色 rim、SoftShadows/ContactShadows、4096 阴影。
+- 相机更近且按舞台宽高比自适应；1366 不再裁掉岛屿。
+- 3840×2160 实际截图：`docs/screenshots/visual-hq/after-2x-3840.png`
+- 取舍与边界：`docs/VISUAL_QUALITY_2026-11-08.md`（Bloom 在 1366/2560 下不稳定，已移除）
 
 ### 3.9 建筑状态绑定
 
@@ -143,8 +151,8 @@
 1. **`/game` 接 `createGame` / `advance` 与事件队列**（跳过动画不改 `GameState` 的契约测试）。
 2. **5–7 轮连续实验**：每轮沿用上一轮的钱包/能力，制度对比才完整。
 3. 接 `/api/games` 的 createGame/advance 协议。
-4. 每轮任务类型轮换（coding / research / design），让研究所/设计屋状态可见。
-5. SQLite/JSON 存档版本化与导出。
+4. 角色描边 / 可选 Bloom + 画质档（DPR/阴影）。
+5. 更精细的角色资产与建筑材质分层。
 
 ---
 
@@ -154,7 +162,7 @@
 cd <repo>
 npm install --cache "$PWD/.npm-cache"
 npm run build -w @ai-civ/simulation
-npm test                                # 25/25
+npm test                                # 26/26
 npm run build -w @ai-civ/web
 npm run dev -w @ai-civ/server           # API 3001
 npm run dev -w @ai-civ/web -- --port 5180 --strictPort

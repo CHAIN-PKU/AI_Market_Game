@@ -10,7 +10,7 @@ import type { BuildingRole } from './islandLayout';
 /** Cozy-diorama world units. Camera presets are tuned for 1920×1080. */
 export const WORLD = {
   /** Head-to-toe height of a resident. */
-  agentHeight: 1.35,
+  agentHeight: 1.68,
   /** Target height per building role (market stays low & wide, R&D is taller). */
   buildingByRole: {
     market: 2.7,

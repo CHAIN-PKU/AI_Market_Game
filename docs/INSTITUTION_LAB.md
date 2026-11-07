@@ -84,7 +84,7 @@ InstitutionPanel
 
 关键结论：**竞价不变，税后消费改变，下一轮能力随之分叉。** 这正是 MVP 要验证的「玩家能看懂为什么、能影响」。
 
-测试：`packages/simulation/tests/bid-demo.test.ts`（18/18 中的 7 条）。
+测试：`packages/simulation/tests/bid-demo.test.ts`（26/26 中的 7 条）。
 
 ---
 

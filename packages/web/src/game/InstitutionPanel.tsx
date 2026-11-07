@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { BidDemoFixture } from './types';
+import { DOMAIN_LABEL, type BidDemoFixture } from './types';
 import { CloseIcon, CoinIcon, PeopleIcon, SkillIcon } from './icons';
 
 type Props = {
@@ -17,7 +17,7 @@ export function summarizeRun(fixture: BidDemoFixture): string {
   }
   const skill = fixture.skillPurchase[0];
   if (skill) {
-    parts.push(`买「${skill.name}」写程序 ${skill.abilityBefore} → ${skill.abilityAfter}`);
+    parts.push(`买「${skill.name}」${DOMAIN_LABEL[fixture.scenario.domain]} ${skill.abilityBefore} → ${skill.abilityAfter}`);
   } else {
     parts.push('本轮没有买技能');
   }

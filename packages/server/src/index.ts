@@ -120,6 +120,7 @@ function saveCampaign(id: string, record: CampaignRecord): void {
       tasksPerRound: c.tasksPerRound,
       initialAbility: c.initialAbility,
       rules: c.rules,
+      scenarios: c.scenarios,
       maxRounds: c.maxRounds,
       completedRounds: c.completedRounds,
       lastFixture: record.fixture,
@@ -141,6 +142,7 @@ function loadCampaign(id: string): CampaignRecord | null {
       tasksPerRound: number;
       initialAbility: number;
       rules: BidDemoCampaign['rules'];
+      scenarios?: BidDemoCampaign['scenarios'];
       maxRounds: number;
       completedRounds: number;
       lastFixture: DemoFixture;
@@ -155,6 +157,7 @@ function loadCampaign(id: string): CampaignRecord | null {
       tasksPerRound: data.tasksPerRound,
       initialAbility: data.initialAbility,
       rules: data.rules,
+      scenarios: data.scenarios ?? [data.scenario],
       maxRounds: data.maxRounds,
       completedRounds: data.completedRounds,
     };

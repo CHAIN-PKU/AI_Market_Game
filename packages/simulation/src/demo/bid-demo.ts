@@ -22,12 +22,37 @@ import {
 import { postPlayerTask } from '../market/player-task.js';
 import type { AgentState, CivilizationState, GameEvent, GameState, MarketTask, TaskDomain } from '../core/types.js';
 
-const SCENARIO = {
-  title: '修复网站登录问题',
-  titleEn: 'Fix the website login bug',
-  domain: 'coding' as TaskDomain,
-  reward: 100,
+type ScenarioSpec = {
+  title: string;
+  titleEn: string;
+  domain: TaskDomain;
+  reward: number;
+  description: string;
 };
+
+const DEMO_SCENARIOS: ScenarioSpec[] = [
+  {
+    title: '修复网站登录问题',
+    titleEn: 'Fix the website login bug',
+    domain: 'coding',
+    reward: 100,
+    description: '客户网站的登录入口一直报错，需要在今天内修好。',
+  },
+  {
+    title: '整理竞品研究报告',
+    titleEn: 'Competitor research brief',
+    domain: 'research',
+    reward: 110,
+    description: '运营需要一份竞品功能与定价对比，明早给结论。',
+  },
+  {
+    title: '设计品牌视觉套件',
+    titleEn: 'Brand visual kit',
+    domain: 'design',
+    reward: 120,
+    description: '新品牌要一套能直接上手的视觉规范与首屏。',
+  },
+];
 
 const ROLE_BY_DOMAIN: Record<TaskDomain, 'Coding' | 'Research' | 'Design'> = {
   coding: 'Coding',
@@ -136,18 +161,20 @@ export interface BuildBidDemoOptions {
   /** Institutions the player wants to test. Values are clamped by the engine. */
   rules?: RulesPatch;
   /** Optional task override (kept stable for institution comparisons). */
-  scenario?: { title?: string; domain?: TaskDomain; reward?: number };
+  scenario?: { title?: string; titleEn?: string; domain?: TaskDomain; reward?: number; description?: string };
+  /** Campaign task rotation; defaults to coding -> research -> design. */
+  scenarios?: Array<{ title?: string; titleEn?: string; domain?: TaskDomain; reward?: number; description?: string }>;
   /** Engine round cap; campaigns pass their own. */
   totalRounds?: number;
 }
 
-type ResolvedScenario = { title: string; titleEn: string; domain: TaskDomain; reward: number };
+type ResolvedScenario = ScenarioSpec;
 
 function createBidDemoState(options: BuildBidDemoOptions = {}) {
   const seed = options.seed ?? 12;
   const tasksPerRound = options.tasksPerRound ?? 3;
   const initialAbility = options.initialAbility ?? 28;
-  const scenario = { ...SCENARIO, ...options.scenario } as ResolvedScenario;
+  const scenario = { ...DEMO_SCENARIOS[0]!, ...options.scenario } as ResolvedScenario;
   const rules = clampRules(createFreeMarketRules('自由市场'), options.rules ?? {});
   const totalRounds = Math.max(30, options.totalRounds ?? 30);
 
@@ -341,20 +368,24 @@ function snapshotBidDemo(input: {
     payload: e.payload ?? null,
   }));
 
-  // Next-round feedback: same task difficulty, winner's post-skill odds.
+  // Skill feedback is domain-aware: a coding skill bought on a research task
+  // improves coding, not the research success rate for this task.
+  const firstPurchase = purchased.length ? payloadOf(purchased[0]) : null;
+  const purchasedSkill = firstPurchase ? getSkillById(firstPurchase.skillId as string) : undefined;
+  const skillDomain = purchasedSkill?.domain ?? scenario.domain;
   const winnerCodingAfter = winnerAfter
     ? effectiveAbility(
         winnerAfter.abilities,
         winnerAfter.skills.map((s) => s.skillId),
         [],
-      )[scenario.domain]
+      )[skillDomain]
     : null;
   const winnerCodingBefore = winnerBefore
     ? effectiveAbility(
         winnerBefore.abilities,
         winnerBefore.skills.map((s) => s.skillId),
         [],
-      )[scenario.domain]
+      )[skillDomain]
     : null;
 
   const taxEvent = completed ? focusEvents.find((e) => e.kind === 'tax_collected') : undefined;
@@ -399,6 +430,7 @@ function snapshotBidDemo(input: {
       titleEn: scenario.titleEn,
       domain: scenario.domain,
       domainLabel: ROLE_BY_DOMAIN[scenario.domain],
+      description: scenario.description,
       reward: task.reward,
       difficulty: task.requirements.difficulty,
       minAbility: task.requirements.minAbility,
@@ -445,6 +477,7 @@ function snapshotBidDemo(input: {
           return {
             skillId: payload.skillId as string,
             name: skill?.name ?? (payload.skillId as string),
+            domain: skill?.domain ?? scenario.domain,
             price: payload.price as number,
             abilityBefore: winnerCodingBefore,
             abilityAfter: winnerCodingAfter,
@@ -452,7 +485,7 @@ function snapshotBidDemo(input: {
         })
       : [],
     nextRound: {
-      domain: scenario.domain,
+      domain: skillDomain,
       abilityBefore: winnerCodingBefore,
       abilityAfter: winnerCodingAfter,
       successBefore: winnerCodingBefore === null ? null : successForAbility(winnerCodingBefore, task),
@@ -500,8 +533,15 @@ export type BidDemoCampaign = ReturnType<typeof createBidDemoCampaign>;
 
 export function createBidDemoCampaign(options: BuildBidDemoOptions & { maxRounds?: number } = {}) {
   const maxRounds = options.maxRounds ?? 5;
-  const base = createBidDemoState({ ...options, totalRounds: Math.max(30, maxRounds + 1) });
-  return { ...base, maxRounds, completedRounds: 0 };
+  const scenarios = (options.scenarios?.length
+    ? options.scenarios.map((s) => ({ ...DEMO_SCENARIOS[0]!, ...s }))
+    : DEMO_SCENARIOS) as ResolvedScenario[];
+  const base = createBidDemoState({
+    ...options,
+    scenario: scenarios[0],
+    totalRounds: Math.max(30, maxRounds + 1),
+  });
+  return { ...base, scenarios, maxRounds, completedRounds: 0 };
 }
 
 /** Advance the campaign by one real engine round; state (wallets, skills) is preserved. */
@@ -510,7 +550,8 @@ export function advanceBidDemoCampaign(campaign: BidDemoCampaign) {
     throw new Error(`campaign finished (${campaign.completedRounds}/${campaign.maxRounds})`);
   }
 
-  const { state, civ, scenario, seed, tasksPerRound, initialAbility } = campaign;
+  const { state, civ, seed, tasksPerRound, initialAbility } = campaign;
+  const scenario = campaign.scenarios[campaign.completedRounds % campaign.scenarios.length]!;
   const before = structuredClone(civ.agents);
   const treasuryStart = civ.treasury;
   const demoRound = state.round + 1;

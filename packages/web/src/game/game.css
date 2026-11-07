@@ -3187,3 +3187,56 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+
+.g-domain--research {
+  background: #f0ebf8;
+  color: #6d5aa6;
+}
+
+.g-domain--design {
+  background: #fbece5;
+  color: #a95a37;
+}
+
+/* cinematic vignette + soft sun wash for the 2.5D stage */
+.g-canvas-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 42% at 72% 4%, rgb(255 244 205 / 0.34), transparent 62%),
+    radial-gradient(120% 92% at 50% 42%, transparent 56%, rgb(33 54 48 / 0.2) 100%);
+  mix-blend-mode: multiply;
+  z-index: 2;
+}
+
+.ga-face {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 15px;
+  height: 10px;
+}
+
+.ga-face i {
+  display: block;
+  width: 2.6px;
+  height: 3.6px;
+  border-radius: 50%;
+  background: #2a1d18;
+  box-shadow: none;
+}
+
+.ga-face b {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 5px;
+  height: 1.5px;
+  border-bottom: 1px solid #8a4a3a;
+  border-radius: 0 0 6px 6px;
+  transform: translateX(-50%);
+}

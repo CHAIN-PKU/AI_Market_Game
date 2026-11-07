@@ -1,4 +1,4 @@
-import { Html, Sky } from '@react-three/drei';
+import { ContactShadows, Html, Sky, SoftShadows, Sparkles } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
 import { AGENT_SLOTS, BUILDING_SLOTS, TREE_SLOTS, type BuildingSlot } from '../visual-lab/islandLayout';
@@ -13,10 +13,15 @@ import { gold } from './presentation';
 import type { BidDemoFixture } from './types';
 function FixedCamera() {
   const camera = useThree((s) => s.camera);
+  const size = useThree((s) => s.size);
   useEffect(() => {
-    camera.position.set(0, 19, 25);
+    const aspect = size.width / Math.max(1, size.height);
+    // Narrow stages (1366 with both side panels) need a little more distance
+    // so the island stays fully in frame.
+    const pull = Math.max(1, 1.14 / aspect);
+    camera.position.set(0, 15.4 * pull, 20.8 * pull);
     camera.lookAt(0, 1, 0);
-  }, [camera]);
+  }, [camera, size]);
   return null;
 }
 
@@ -422,23 +427,36 @@ export function GameScene({
   return (
     <>
       <FixedCamera />
-      <Sky sunPosition={[60, 30, 40]} turbidity={0.6} rayleigh={0.4} />
-      <fog attach="fog" args={['#cfe8ec', 40, 82]} />
-      <ambientLight intensity={0.6} color="#fff9ed" />
-      <hemisphereLight intensity={0.45} color="#b8e8ff" groundColor="#7cbf7a" />
+      <Sky sunPosition={[60, 30, 40]} turbidity={0.45} rayleigh={0.32} />
+      <fog attach="fog" args={['#d8edf0', 42, 92]} />
+      <SoftShadows size={28} samples={16} focus={0.8} />
+      <ambientLight intensity={0.5} color="#fff9ed" />
+      <hemisphereLight intensity={0.65} color="#c9efff" groundColor="#86c083" />
       <directionalLight
         castShadow
         position={[16, 26, 14]}
-        intensity={1.45}
-        color="#fff3d0"
-        shadow-mapSize={[2048, 2048]}
-        shadow-bias={-0.0004}
-        shadow-camera-far={70}
-        shadow-camera-left={-22}
-        shadow-camera-right={22}
-        shadow-camera-top={22}
-        shadow-camera-bottom={-22}
+        intensity={2.1}
+        color="#fff1d2"
+        shadow-mapSize={[4096, 4096]}
+        shadow-bias={-0.0003}
+        shadow-camera-far={80}
+        shadow-camera-left={-24}
+        shadow-camera-right={24}
+        shadow-camera-top={24}
+        shadow-camera-bottom={-24}
       />
+      <directionalLight position={[-14, 9, 10]} intensity={0.5} color="#b9ddff" />
+      <directionalLight position={[-8, 14, -18]} intensity={1.25} color="#7fe0ea" />
+      <ContactShadows
+        position={[0, 0.015, 0]}
+        opacity={0.28}
+        scale={28}
+        blur={2.6}
+        far={5}
+        resolution={1024}
+        color="#57452f"
+      />
+      <Sparkles count={38} scale={[18, 3.4, 18]} position={[0, 2.6, 0]} size={2.2} speed={0.16} opacity={0.32} color="#ffe8a8" />
       <IslandBase />
 
       {BUILDING_SLOTS.map((slot, i) => {

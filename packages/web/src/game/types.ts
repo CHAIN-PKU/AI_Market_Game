@@ -92,6 +92,7 @@ export type BidDemoFixture = {
     titleEn: string;
     domain: 'coding' | 'research' | 'design';
     domainLabel: string;
+    description: string;
     reward: number;
     difficulty: number;
     minAbility: number;

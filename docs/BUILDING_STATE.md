@@ -40,7 +40,7 @@
 
 ## 4. 边界
 
-- 当前 demo/campaign 的任务固定为 coding，所以 research/design 的分支代码**已写但本轮无实机截图**。
+- campaign 任务现在按 coding → research → design 轮换；research 穹顶状态已实机（见 campaign 截图），design 屋只有静态画架，暂无专属状态灯。
 - 没有建筑升级/成长；只是同一轮内的状态灯。
 - 不影响结算、金币、技能价格；纯展示层。
 

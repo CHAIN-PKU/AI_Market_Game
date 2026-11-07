@@ -17,6 +17,7 @@
 - 第 1 轮：`docs/screenshots/campaign/round1-1920.png`
 - 第 2 轮：`docs/screenshots/campaign/round2-1920.png`
 - 刷新恢复后继续第 2 轮：`docs/screenshots/campaign/restore-round2-1920.png`
+- 第 2 轮 research 执行中（研究所穹顶亮）：`docs/screenshots/campaign/research-working-1920.png`
 
 ---
 
@@ -63,13 +64,13 @@ POST /api/campaign/:id/next
 
 | 轮 | 中标 | 国库结束 |
 |---|---|---|
-| 1 | Delta | 1,032 |
-| 2 | Grove | 1,042 |
-| 3 | Delta | 1,060 |
-| 4 | Grove | 1,090 |
-| 5 | Grove | 1,100 |
+| 1 | coding · 修复登录 | Delta | 1,032 |
+| 2 | research · 竞品研究 | Echo | 1,050 |
+| 3 | design · 品牌视觉 | Flux | 1,071 |
+| 4 | coding · 修复登录 | Delta | 1,071 |
+| 5 | research · 竞品研究 | Boreal | 1,084 |
 
-结果不是写死的：同一批居民在第 2 轮开始因为钱包/技能变化而换人中标，这是跨轮状态真的在起作用。
+任务按 **coding → research → design** 轮换；同一批居民因钱包/技能变化而换人中标，这是跨轮状态真的在起作用。
 
 ---
 

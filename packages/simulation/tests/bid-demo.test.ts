@@ -91,6 +91,15 @@ describe('multi-round campaign (state preserved by the engine)', () => {
     }
   });
 
+  it('rotates coding -> research -> design across rounds', () => {
+    const campaign = createBidDemoCampaign({ seed: 20, maxRounds: 4 });
+    const domains = [0, 1, 2, 3].map(() => advanceBidDemoCampaign(campaign).fixture.scenario.domain);
+    expect(domains).toEqual(['coding', 'research', 'design', 'coding']);
+    const r2 = campaign.scenarios[1]!;
+    expect(r2.title.length).toBeGreaterThan(0);
+    expect(r2.description.length).toBeGreaterThan(0);
+  });
+
   it('stops at maxRounds', () => {
     const campaign = createBidDemoCampaign({ seed: 20, maxRounds: 2 });
     advanceBidDemoCampaign(campaign);

@@ -1,11 +1,29 @@
 import { Html, useAnimations, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Group, MathUtils, type AnimationAction } from 'three';
+import { Group, MathUtils, type AnimationAction, type Material } from 'three';
 import { clone as cloneWithSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
-import { KENNEY_AGENTS } from '../visual-lab/assetUrls';
+import { QUAT_AGENTS } from '../visual-lab/assetUrls';
 import { resolveGlbUrl } from '../visual-lab/GlbInstance';
 import { NATIVE, WORLD, fitScale } from '../visual-lab/assetScale';
+import { toToonMaterial } from './toon';
+
+const SKIN = ['#f4c9a4', '#e7b48c', '#c98d63', '#9a6040'];
+const HAIR = ['#2f211b', '#5a3a25', '#c08a3e', '#1f2933', '#7a4b2a', '#d9c8a0'];
+const SHIRT: Record<string, string> = { coding: '#3f8f96', research: '#8f7cc9', design: '#d97a52' };
+
+function characterColor(materialName: string, index: number, roleKey: string): string | undefined {
+  const n = materialName.toLowerCase();
+  if (n.includes('face')) return SKIN[index % SKIN.length]!;
+  if (n.includes('skin')) return SKIN[index % SKIN.length]!;
+  if (n.includes('hair')) return HAIR[index % HAIR.length]!;
+  if (n.includes('shirt')) return SHIRT[roleKey] ?? '#3f8f96';
+  if (n.includes('vest')) return '#b8842f';
+  if (n.includes('pants')) return '#3d4657';
+  if (n.includes('belt')) return '#6b4a2f';
+  if (n.includes('hat')) return '#e0a94f';
+  return undefined;
+}
 import { ROLE_KEY, ROLE_LABEL, type DemoAgent } from './types';
 import { RoleIcon } from './icons';
 
@@ -33,12 +51,19 @@ type Props = {
 };
 
 export function GameAgent({ agent, index, start, target, state, selected, focused = false, onSelect }: Props) {
-  const gltf = useGLTF(resolveGlbUrl(KENNEY_AGENTS[index]!));
+  const gltf = useGLTF(resolveGlbUrl(QUAT_AGENTS[index]!));
   const clone = useMemo(() => {
     const g = cloneWithSkeleton(gltf.scene) as Group;
     g.traverse((obj) => {
       if ('castShadow' in obj) obj.castShadow = true;
       if ('receiveShadow' in obj) obj.receiveShadow = true;
+      if ((obj as { isMesh?: boolean }).isMesh) {
+        const mesh = obj as unknown as { material: Material | Material[] };
+        const roleKey = ROLE_KEY[agent.role];
+        mesh.material = Array.isArray(mesh.material)
+          ? mesh.material.map((m) => toToonMaterial(m, characterColor(m.name, index, roleKey)))
+          : toToonMaterial(mesh.material, characterColor(mesh.material.name, index, roleKey));
+      }
     });
     return g;
   }, [gltf.scene]);
@@ -51,7 +76,7 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
   const movingRef = useRef(false);
   const groupRef = useRef<Group>(null);
 
-  const scale = fitScale(NATIVE.kenneyAgentHeight[index]!, WORLD.agentHeight);
+  const scale = fitScale(NATIVE.quatAgentHeight[index]!, WORLD.agentHeight);
   const faceY = index * 0.08;
 
   useEffect(() => {
@@ -63,6 +88,7 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
     next.reset().fadeIn(0.15).play();
     currentAction.current = next;
   }, [actions, moving, idleName, walkName]);
+
 
   useEffect(() => {
     return () => {
@@ -137,7 +163,15 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
         document.body.style.cursor = '';
       }}
     >
-      <primitive object={clone} scale={scale} />
+      <primitive object={clone} scale={scale} position={[0, 0.004, 0]} />
+      <Html center position={[0, 1.13, 0.05]} zIndexRange={[18, 0]} style={{ pointerEvents: 'none' }}>
+        <div className="ga-face" aria-hidden>
+          <i />
+          <i />
+          <b />
+        </div>
+      </Html>
+
       {selected && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]}>
           <ringGeometry args={[0.5, 0.66, 40]} />

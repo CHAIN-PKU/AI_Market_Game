@@ -1,5 +1,5 @@
 import type { BidDemoFixture, DemoAgent } from './types';
-import { ROLE_KEY, ROLE_LABEL } from './types';
+import { DOMAIN_LABEL, ROLE_KEY, ROLE_LABEL } from './types';
 import { STEP_INDEX, TIMELINE, buildPlaybackCues, type StepId } from './playback';
 import {
   cooperationLabel,
@@ -258,13 +258,13 @@ export function LeftPanel({
 
         <div className="g-task-ticket">
           <div className="g-task-meta">
-            <span className="g-domain g-domain--coding">
-              <RoleIcon role="coding" size={13} /> 写程序
+            <span className={`g-domain g-domain--${fixture.scenario.domain}`}>
+              <RoleIcon role={fixture.scenario.domain} size={13} /> {DOMAIN_LABEL[fixture.scenario.domain]}
             </span>
             <span className="g-difficulty">难度 {fixture.scenario.difficulty}</span>
           </div>
           <h3>{fixture.scenario.title}</h3>
-          <p className="g-task-desc">客户网站的登录入口一直报错，需要在今天内修好。</p>
+          <p className="g-task-desc">{fixture.scenario.description}</p>
           <div className="g-reward">
             <CoinIcon size={18} />
             <strong>{fixture.scenario.reward}</strong>
@@ -294,13 +294,13 @@ export function LeftPanel({
               fixture.skillPurchase[0] ? (
                 <span className="g-task-status-note is-good">
                   {winner.displayName} 花 {gold(fixture.skillPurchase[0].price)} 买「{fixture.skillPurchase[0].name}」，
-                  写程序 {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter}。
+                  {DOMAIN_LABEL[fixture.scenario.domain]} {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter}。
                 </span>
               ) : (
                 <span className="g-task-status-note is-warn">
                   {winner.displayName} 税后剩 {gold(fixture.settlement?.net ?? 0)}
                   {winner.goal.price ? `，买不起 ${gold(winner.goal.price)} 的「${winner.goal.skillName ?? winner.goal.label}」` : ''}
-                  ；能力停在 {winner.abilities.coding}。
+                  ；{DOMAIN_LABEL[fixture.scenario.domain]}能力停在 {winner.abilities[fixture.scenario.domain]}。
                 </span>
               )
             ) : (
@@ -428,7 +428,8 @@ export function LeftPanel({
               <p className="g-settle-miss">
                 税后 {gold(fixture.settlement.net)} 金
                 {winner.goal.price ? ` < 目标「${winner.goal.skillName ?? winner.goal.label}」${gold(winner.goal.price)} 金` : ''}
-                ：这轮买不起技能，写程序能力停在 {winner.abilities.coding}。
+                ：这轮买不起技能，{DOMAIN_LABEL[fixture.scenario.domain]}能力停在{' '}
+                {winner.abilities[fixture.scenario.domain]}。
               </p>
             )}
           </div>
@@ -442,8 +443,9 @@ export function LeftPanel({
                 {winner?.displayName} 买了「{fixture.skillPurchase[0].name}」
               </strong>
               <span>
-                {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter} 写程序能力 ·
-                下轮同难度成功率 {pct(derived.successBefore)} → {pct(derived.successAfter)}
+                {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter}{' '}
+                {DOMAIN_LABEL[fixture.scenario.domain]}能力 · 下轮同难度成功率 {pct(derived.successBefore)} →{' '}
+                {pct(derived.successAfter)}
               </span>
             </div>
           </div>
@@ -459,7 +461,7 @@ export function LeftPanel({
                 {winner.goal.price && (fixture.settlement?.net ?? 0) < winner.goal.price
                   ? `，不够买「${winner.goal.skillName ?? winner.goal.label}」（${gold(winner.goal.price)} 金）`
                   : ''}
-                ；写程序能力停在 {winner.abilities.coding}，下一轮成功率不变。
+                ；{DOMAIN_LABEL[fixture.scenario.domain]}能力停在 {winner.abilities[fixture.scenario.domain]}，下一轮成功率不变。
               </span>
             </div>
           </div>
@@ -469,12 +471,16 @@ export function LeftPanel({
   );
 }
 
-function abilityRows(agent: DemoAgent, codingOverride?: number) {
+function abilityRows(
+  agent: DemoAgent,
+  domain: 'coding' | 'research' | 'design',
+  domainOverride?: number,
+) {
   return [
-    { key: 'coding', label: '写程序', value: codingOverride ?? agent.abilities.coding },
+    { key: 'coding', label: '写程序', value: agent.abilities.coding },
     { key: 'research', label: '做研究', value: agent.abilities.research },
     { key: 'design', label: '做设计', value: agent.abilities.design },
-  ];
+  ].map((row) => (row.key === domain && domainOverride !== undefined ? { ...row, value: domainOverride } : row));
 }
 
 export function AgentPanel({
@@ -598,7 +604,7 @@ export function AgentPanel({
 
         <div className="g-abilities">
           <h3>能力</h3>
-          {abilityRows(agent, isWinner && derived.skillDone ? derived.focusAbilityAfter : undefined).map((row) => (
+          {abilityRows(agent, fixture.scenario.domain, isWinner && derived.skillDone ? derived.focusAbilityAfter : undefined).map((row) => (
             <div key={row.key} className="g-ability">
               <span>{row.label}</span>
               <div className="g-bar">
@@ -619,7 +625,8 @@ export function AgentPanel({
               新 Skill：{fixture.skillPurchase[0].name}
               <em>
                 {' '}
-                · 写程序 {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter}
+                · {DOMAIN_LABEL[fixture.scenario.domain]} {fixture.skillPurchase[0].abilityBefore} →{' '}
+                {fixture.skillPurchase[0].abilityAfter}
               </em>
             </span>
           </div>
@@ -871,8 +878,9 @@ export function BidBoard2D({
   return (
     <div className="g-board2d">
       <div className="g-board2d-head">
-        <span className="g-domain g-domain--coding">
-          <RoleIcon role="coding" size={13} /> 写程序 · 难度 {fixture.scenario.difficulty}
+        <span className={`g-domain g-domain--${fixture.scenario.domain}`}>
+          <RoleIcon role={fixture.scenario.domain} size={13} /> {DOMAIN_LABEL[fixture.scenario.domain]} · 难度{' '}
+          {fixture.scenario.difficulty}
         </span>
         <h2>{fixture.scenario.title}</h2>
         <span className="g-board2d-reward">
@@ -949,7 +957,7 @@ export function BidBoard2D({
             </span>
             {derived.skillDone && fixture.skillPurchase[0] && (
               <span className="g-board2d-skill">
-                <SkillIcon size={14} /> 买「{fixture.skillPurchase[0].name}」：写程序{' '}
+                <SkillIcon size={14} /> 买「{fixture.skillPurchase[0].name}」：{DOMAIN_LABEL[fixture.scenario.domain]}{' '}
                 {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter}
               </span>
             )}
