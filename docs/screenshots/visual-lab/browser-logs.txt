@@ -1,0 +1,3 @@
+[http 404] http://127.0.0.1:5176/favicon.ico
+[error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[console-url] http://127.0.0.1:5176/favicon.ico

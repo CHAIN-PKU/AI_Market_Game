@@ -10,8 +10,11 @@ export function HomePage() {
         制定制度，让 AI 自己打工、攒钱、进化。
       </p>
       <div className="flex flex-wrap gap-3 justify-center">
-        <Link to="/play-3d" className="btn-primary px-8 py-3">
-          3D 沙盘（Walking Skeleton）
+        <Link to="/visual-lab" className="btn-primary px-8 py-3">
+          Visual Lab（GLB 双风格对比）
+        </Link>
+        <Link to="/play-3d" className="btn-secondary px-8 py-3">
+          3D 沙盘（程序化参考）
         </Link>
         <Link to="/classic" className="btn-secondary px-8 py-3">
           Classic 2D UI

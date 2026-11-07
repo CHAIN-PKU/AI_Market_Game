@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "project": "AI Market Game",
+  "usage": "visual-lab-v1",
+  "note": "Code MIT/GPL in other repos does not cover 3D models. Each entry must keep upstream license.",
+  "schemes": {
+    "kenney": {
+      "artDirection": "Kenney CC0 low-poly — scheme A",
+      "defaultScaleNote": "BUILDING ~1.35, agent ~0.85 — tune in KenneyLabScene",
+      "assets": [
+        {
+          "id": "kenney-bld-a",
+          "file": "building-type-a.glb",
+          "pack": "City Kit Suburban",
+          "source": "https://kenney.nl/assets/city-kit-suburban",
+          "mirror": "https://github.com/Hidencod/tge-assets",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-bld-b",
+          "file": "building-type-b.glb",
+          "pack": "City Kit Suburban",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-bld-c",
+          "file": "building-type-c.glb",
+          "pack": "City Kit Suburban",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-bld-d",
+          "file": "building-type-d.glb",
+          "pack": "City Kit Suburban",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-bld-e",
+          "file": "building-type-e.glb",
+          "pack": "City Kit Suburban",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-bld-f",
+          "file": "building-type-f.glb",
+          "pack": "City Kit Suburban",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-bld-g",
+          "file": "building-type-g.glb",
+          "pack": "City Kit Suburban",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-road-straight",
+          "file": "road-straight.glb",
+          "pack": "City Kit Roads",
+          "source": "https://kenney.nl/assets/city-kit-roads",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-road-cross",
+          "file": "road-crossroad.glb",
+          "pack": "City Kit Roads",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-road-bend",
+          "file": "road-bend.glb",
+          "pack": "City Kit Roads",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-tree-small",
+          "file": "tree-small.glb",
+          "pack": "City Kit Suburban",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-tree-large",
+          "file": "tree-large.glb",
+          "pack": "City Kit Suburban",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-tree-tall",
+          "file": "tree-tall.glb",
+          "pack": "Nature Kit",
+          "source": "https://kenney.nl/assets/nature-kit",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-char-male-a",
+          "file": "character-male-a.glb",
+          "pack": "Mini Characters",
+          "source": "https://kenney.nl/assets/mini-characters",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-char-male-b",
+          "file": "character-male-b.glb",
+          "pack": "Mini Characters",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-char-male-c",
+          "file": "character-male-c.glb",
+          "pack": "Mini Characters",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-char-male-d",
+          "file": "character-male-d.glb",
+          "pack": "Mini Characters",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-char-female-a",
+          "file": "character-female-a.glb",
+          "pack": "Mini Characters",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-char-female-b",
+          "file": "character-female-b.glb",
+          "pack": "Mini Characters",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-char-female-c",
+          "file": "character-female-c.glb",
+          "pack": "Mini Characters",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "kenney-char-female-d",
+          "file": "character-female-d.glb",
+          "pack": "Mini Characters",
+          "license": "CC0-1.0"
+        }
+      ]
+    },
+    "quaternius": {
+      "artDirection": "Quaternius CC0 — scheme B",
+      "defaultScaleNote": "BUILDING ~0.42, agent ~0.55 — tune in QuaterniusLabScene",
+      "assets": [
+        {
+          "id": "quat-bld-1",
+          "file": "Building1_Small.glb",
+          "pack": "Ultimate Textured Buildings",
+          "source": "https://quaternius.com/packs/ultimatetexturedbuildings.html",
+          "mirror": "https://github.com/trebeljahr/quaternius-showcase/tree/main/public/glb/buildings_pack_2",
+          "license": "CC0-1.0",
+          "author": "Quaternius"
+        },
+        {
+          "id": "quat-bld-2",
+          "file": "Building2_Small.glb",
+          "pack": "Ultimate Textured Buildings",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-bld-3",
+          "file": "Building3_Small.glb",
+          "pack": "Ultimate Textured Buildings",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-bld-4",
+          "file": "Building4.glb",
+          "pack": "Ultimate Textured Buildings",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-house-1",
+          "file": "House1.glb",
+          "pack": "Ultimate Textured Buildings",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-house-2",
+          "file": "House2.glb",
+          "pack": "Ultimate Textured Buildings",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-bld-large",
+          "file": "Building2_Large.glb",
+          "pack": "Ultimate Textured Buildings",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-char-casual-m",
+          "file": "casual_male.glb",
+          "pack": "Ultimate Animated Character Pack",
+          "processedBy": "robertguss/treehouse",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-char-casual-f",
+          "file": "casual_female.glb",
+          "pack": "Ultimate Animated Character Pack",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-char-casual2-m",
+          "file": "casual2_male.glb",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-char-casual2-f",
+          "file": "casual2_female.glb",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-char-casual3-m",
+          "file": "casual3_male.glb",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-char-casual3-f",
+          "file": "casual3_female.glb",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-char-worker-m",
+          "file": "worker_male.glb",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-char-worker-f",
+          "file": "worker_female.glb",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-tree-1",
+          "file": "tree_1.glb",
+          "pack": "Ultimate Nature Pack",
+          "source": "https://quaternius.com/packs/ultimatenature.html",
+          "processedBy": "robertguss/treehouse",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-tree-2",
+          "file": "tree_2.glb",
+          "pack": "Ultimate Nature Pack",
+          "license": "CC0-1.0"
+        },
+        {
+          "id": "quat-rock-1",
+          "file": "rock_1.glb",
+          "pack": "Ultimate Nature Pack",
+          "license": "CC0-1.0"
+        }
+      ]
+    }
+  }
+}
