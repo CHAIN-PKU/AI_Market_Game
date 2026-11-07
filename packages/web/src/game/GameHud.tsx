@@ -92,10 +92,12 @@ export function TopBar({
   fixture,
   derived,
   onToggleDebug,
+  onOpenInstitutions,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
   onToggleDebug: () => void;
+  onOpenInstitutions: () => void;
 }) {
   return (
     <header className="g-top">
@@ -138,6 +140,9 @@ export function TopBar({
             步骤 <b>{STEP_INDEX[derived.step] + 1}</b> / {TIMELINE.length}
           </span>
         )}
+        <button type="button" className="g-btn g-btn--ghost g-rules-btn" onClick={onOpenInstitutions}>
+          制度实验
+        </button>
         <button type="button" className="g-icon-btn" title="帮助与开发者信息" onClick={onToggleDebug}>
           <GearIcon size={16} />
         </button>
@@ -247,7 +252,22 @@ export function LeftPanel({
         ) : (
           <div className="g-task-status">
             <span className="g-task-status-label">{derived.statusLabel}</span>
-            <span className="g-muted">{derived.hint}</span>
+            {derived.step === 'skill' && derived.skillDone && winner ? (
+              fixture.skillPurchase[0] ? (
+                <span className="g-task-status-note is-good">
+                  {winner.displayName} 花 {gold(fixture.skillPurchase[0].price)} 买「{fixture.skillPurchase[0].name}」，
+                  写程序 {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter}。
+                </span>
+              ) : (
+                <span className="g-task-status-note is-warn">
+                  {winner.displayName} 税后剩 {gold(fixture.settlement?.net ?? 0)}
+                  {winner.goal.price ? `，买不起 ${gold(winner.goal.price)} 的「${winner.goal.skillName ?? winner.goal.label}」` : ''}
+                  ；能力停在 {winner.abilities.coding}。
+                </span>
+              )
+            ) : (
+              <span className="g-muted">{derived.hint}</span>
+            )}
           </div>
         )}
 
@@ -332,6 +352,13 @@ export function LeftPanel({
               <span>{winner?.displayName} 到手</span>
               <b>+{gold(fixture.settlement.net)}</b>
             </div>
+            {derived.skillDone && !fixture.skillPurchase[0] && winner && (
+              <p className="g-settle-miss">
+                税后 {gold(fixture.settlement.net)} 金
+                {winner.goal.price ? ` < 目标「${winner.goal.skillName ?? winner.goal.label}」${gold(winner.goal.price)} 金` : ''}
+                ：这轮买不起技能，写程序能力停在 {winner.abilities.coding}。
+              </p>
+            )}
           </div>
         )}
 
@@ -345,6 +372,22 @@ export function LeftPanel({
               <span>
                 {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter} 写程序能力 ·
                 下轮同难度成功率 {pct(derived.successBefore)} → {pct(derived.successAfter)}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {derived.skillDone && !fixture.skillPurchase[0] && winner && (
+          <div className="g-skill-note is-muted">
+            <SkillIcon size={16} />
+            <div>
+              <strong>{winner.displayName} 这轮没有买技能</strong>
+              <span>
+                税后到手 {gold(fixture.settlement?.net ?? 0)}
+                {winner.goal.price && (fixture.settlement?.net ?? 0) < winner.goal.price
+                  ? `，不够买「${winner.goal.skillName ?? winner.goal.label}」（${gold(winner.goal.price)} 金）`
+                  : ''}
+                ；写程序能力停在 {winner.abilities.coding}，下一轮成功率不变。
               </span>
             </div>
           </div>

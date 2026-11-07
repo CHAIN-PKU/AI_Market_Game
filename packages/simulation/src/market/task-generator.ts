@@ -13,16 +13,9 @@ const TASK_TEMPLATES: Record<TaskDomain, string[]> = {
   design: ['Brand identity kit', 'Mobile UI flow', 'Icon set refresh'],
 };
 
-let taskCounter = 0;
-
-export function resetTaskCounter(): void {
-  taskCounter = 0;
-}
-
 export function generateTasksForRound(state: GameState, rng: () => number): MarketTask[] {
   const created: MarketTask[] = [];
   for (let i = 0; i < state.config.tasksPerRound; i += 1) {
-    taskCounter += 1;
     const domain = pickOne(rng, ['coding', 'research', 'design'] as const);
     const difficulty = randInt(rng, 30, 55);
     const minAbility = Math.max(20, difficulty - 15);
@@ -30,7 +23,7 @@ export function generateTasksForRound(state: GameState, rng: () => number): Mark
     const title = `${pickOne(rng, TASK_TEMPLATES[domain])} (${DOMAIN_LABELS[domain]})`;
 
     const task: MarketTask = {
-      id: `task-r${state.round + 1}-${taskCounter}`,
+      id: `task-r${state.round + 1}-${state.marketTasks.length + i + 1}`,
       roundCreated: state.round + 1,
       title,
       requirements: { domain, minAbility, difficulty },

@@ -1,16 +1,13 @@
 import { pushEvent } from '../core/events.js';
 import type { GameState, MarketTask, TaskDomain } from '../core/types.js';
 
-let playerTaskCounter = 0;
-
 export function postPlayerTask(
   state: GameState,
   input: { title: string; domain: TaskDomain; reward: number },
 ): MarketTask {
-  playerTaskCounter += 1;
   const difficulty = 40;
   const task: MarketTask = {
-    id: `player-task-${playerTaskCounter}-r${state.round}`,
+    id: `player-task-${state.marketTasks.length + 1}-r${state.round}`,
     roundCreated: state.round,
     title: input.title,
     playerTitle: input.title,

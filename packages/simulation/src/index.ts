@@ -16,3 +16,4 @@ export { createRng } from './core/rng.js';
 export { postPlayerTask } from './market/player-task.js';
 export { clampRules, type RulesPatch } from './core/rules-clamp.js';
 export { pushEvent } from './core/events.js';
+export * from './demo/bid-demo.js';

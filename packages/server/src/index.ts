@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import type { RulesPatch } from '@ai-civ/simulation';
+import { buildBidDemoFixture, type RulesPatch } from '@ai-civ/simulation';
 import { playerBrainLabel, readServerConfig } from './config.js';
 import { GameStore } from './game-store.js';
 import { createAsyncProvider } from './agent-factory.js';
@@ -44,7 +44,7 @@ function metaHint(): string {
 const app = Fastify({ logger: true });
 
 await app.register(cors, {
-  origin: ['http://127.0.0.1:5173', 'http://localhost:5173'],
+  origin: ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:5180', 'http://localhost:5180'],
 });
 
 const WEB_URL = 'http://127.0.0.1:5173';
@@ -93,6 +93,33 @@ app.get('/api/meta', async () => ({
   httpOnly: true,
   hint: metaHint(),
 }));
+
+app.post<{
+  Body: {
+    seed?: number;
+    tasksPerRound?: number;
+    warmupRounds?: number;
+    initialAbility?: number;
+    rules?: RulesPatch;
+  };
+}>('/api/demo/round', async (req) => {
+  const body = req.body ?? {};
+  const fixture = buildBidDemoFixture({
+    seed: body.seed,
+    tasksPerRound: body.tasksPerRound,
+    warmupRounds: body.warmupRounds,
+    initialAbility: body.initialAbility,
+    rules: body.rules,
+  });
+  return {
+    fixture,
+    meta: {
+      engine: 'deterministic-mock',
+      generator: 'buildBidDemoFixture',
+      rules: fixture.civilization.rules,
+    },
+  };
+});
 
 app.get('/api/active-game', async () => ({
   gameId: (await readActiveGame(cfg.repoRoot)) ?? null,

@@ -1,0 +1,111 @@
+# Mac 接手状态报告 — 2026-11-08
+
+> 接手人：DSH（Mac mini，macOS 26.6.2 arm64）
+> 仓库：`CHAIN-PKU/AI_Market_Game`，Mac 工作副本
+> 接手分支：`feat/visual-cozy-hud` @ `3a861ab`（交接文档提交）
+> 结论：**基线可复现**；本轮完成「制度实验台」最小闭环（真实引擎重跑 + 制度→行为差异可见），测试 **15/15**，Web 构建通过。
+
+---
+
+## 1. 环境与 Git
+
+| 项 | 值 |
+|---|---|
+| OS | macOS 26.6.2（25G83），arm64 |
+| Node / npm | v22.23.3 / 10.9.9 |
+| Git / gh | 2.50.1 / 2.102.0（已登录 `CHAIN-PKU`） |
+| 浏览器 | Google Chrome（Playwright 驱动，1920×1080 / 1366×768） |
+| 仓库 HEAD | `3a861ab`（与交接文档一致） |
+| 工作分支 | `feat/institution-lab`（从 `feat/visual-cozy-hud` 切出） |
+
+**与 Windows 交接的最大差异：**
+
+- Mac 上 `npm install` 默认缓存 `~/.npm` 含 root-owned 文件，直接装会 `EPERM`。本轮改用仓库内缓存：
+  `npm install --cache "$PWD/.npm-cache"`，未改全局权限。
+- 交接里的 `TMP/TEMP`、esbuild `spawn EPERM`、系统代理 7897 等问题在 Mac 上**未出现**。
+- Playwright 未装浏览器，直接复用系统 Chrome（`playwright-core` + `executablePath`），不需要下载 Chromium。
+
+---
+
+## 2. 基线验收（按交接 checklist）
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| `npm install` | 通过（273 packages，本地 cache） | — |
+| `npm run build -w @ai-civ/simulation` | 通过 | — |
+| `npm test` | **15/15**（原 11 + 新增 4） | `packages/simulation/tests/bid-demo.test.ts` |
+| `npm run build -w @ai-civ/web` | 通过（1,458.63 kB / gzip 407.05 kB） | 仅有 >500 kB 既有警告 |
+| `/game` 1920×1080 | 通过：公告→三性格→报价→决标→结算→技能→下一轮 | `docs/screenshots/mac-verify/2026-11-08-game-1920.png` |
+| `/game` 1366×768 | 通过，布局不溢出；右栏为按需打开 | `docs/screenshots/mac-verify/2026-11-08-game-1366.png` |
+| 控制台 | 仍有 drei/React `unmount` 警告与一个 404 资源；不影响演出 | 已知非阻断 |
+
+---
+
+## 3. 本轮改动（一个可独立验收的增量）
+
+### 3.1 制度实验台（`/game`）
+
+- 顶栏新增「制度实验」入口：税率、公共研发份额、技能归属、随机种子。
+- 点击「用这套制度重跑」→ `POST /api/demo/round` → **simulation 引擎重新计算**竞价/中标/税/技能 → 返回一整套 fixture → 前端回到 `idle` 重新播放。
+- API 失败时红条阻断并提示启动 `npm run dev:server`，**不静默回退**。
+- 高税场景下，界面明确显示「Delta 税后剩 65 金，买不起 80 金的 Clean Code Patterns；能力停在 40」——制度直接改变消费与下一轮能力。
+
+### 3.2 引擎/工程
+
+- 把 `scripts/gen-bid-demo.mjs` 里的 fixture 构建逻辑提取为 `packages/simulation/src/demo/bid-demo.ts`：
+  CLI、API、测试共用同一条引擎路径；同一参数输出一致。
+- 新增 `POST /api/demo/round`（Fastify），接受 `seed / tasksPerRound / warmupRounds / initialAbility / rules`，规则经 `clampRules` 约束。
+- 修复引擎 ID 的进程级全局计数器：`task` / `player-task` / `event` 改为由 `GameState` 派生，同一状态序列可复现，避免多局/多次调用串号。
+- 新增 4 条引擎测试：fixture 确定性、基线经济、**高税→买不起技能→能力停止增长**、越界规则被 clamp。
+
+---
+
+## 4. 同一批居民，不同制度（实测）
+
+| 制度 | 中标 | 税 | 到手 | 技能 | 写程序能力 | 下轮成功率 |
+|---|---|---|---|---|---|---|
+| 自由市场 8% | Delta 71 | 8 | 92 | Clean Code Patterns 80 | 40 → 48 | 35% → 55% |
+| 高税再分配 35% | Delta 71 | 35 | 65 | **未购买** | **40 → 40** | 35% → 35% |
+
+竞价完全不变（Delta 71 / Grove 79），变化发生在**税后消费**：这是「制度改变行为，而不是改写市场」的清晰证据。
+
+事件 JSON：`docs/evidence/institution-high-tax.json`
+截图：`docs/screenshots/institution-lab/`
+
+---
+
+## 5. 与交接文档的差异 / 仍需注意
+
+- 交接写 PR 分支 tip 为 `33e88f8`；实际 tip 是 `3a861ab`（多一个交接文档提交）。
+- `npm test` 从 11 条增至 15 条，不是回归。
+- 国库从 1,000 → 1,136 的跳变仍未在 HUD 拆解（含同轮另一单系统任务），仍是 P0 待办。
+- 右侧居民档案在 1080 高度下仍需要滚动；本轮未改信息节奏。
+- 三个既有问题未处理：drei portal `removeChild` 警告、404 资源、三套调色板未统一。
+- 建筑剪影、5–7 轮闭环、`createGame/advance` 完整 Event Playback 均**未做**。
+
+---
+
+## 6. 下一轮优先级
+
+1. **`/game` 接 `createGame` / `advance` 与事件队列**（跳过动画不改 `GameState` 的契约测试）。
+2. **5–7 轮连续实验**：每轮沿用上一轮的钱包/能力，制度对比才完整。
+3. 国库/税金拆解（本任务 vs 其他任务）。
+4. 右侧档案信息节奏（关键因子置顶，避免滚动）。
+5. 7 栋建筑功能剪影 + 道具。
+
+---
+
+## 7. 复现命令（Mac）
+
+```bash
+cd <repo>
+npm install --cache "$PWD/.npm-cache"
+npm run build -w @ai-civ/simulation
+npm test                                # 15/15
+npm run build -w @ai-civ/web
+npm run dev -w @ai-civ/server           # API 3001
+npm run dev -w @ai-civ/web -- --port 5180 --strictPort
+# http://127.0.0.1:5180/game
+```
+
+> `/game` 的默认 fixture 仍然离线可播；只有点「制度实验 → 重跑」才需要 API 3001。

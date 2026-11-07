@@ -3,6 +3,7 @@ import { Html } from '@react-three/drei';
 import { Component, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import fixtureJson from '../demo/bid-demo.fixture.json';
 import { GameScene } from './GameScene';
+import { InstitutionPanel } from './InstitutionPanel';
 import {
   AgentPanel,
   BidBoard2D,
@@ -25,9 +26,10 @@ import {
   type StepId,
 } from './playback';
 import type { BidDemoFixture } from './types';
+import { CloseIcon } from './icons';
 import './game.css';
 
-const fixture = fixtureJson as BidDemoFixture;
+const bundledFixture = fixtureJson as BidDemoFixture;
 
 const STATUS_LABEL: Record<StepId, string> = {
   idle: '待发布',
@@ -96,6 +98,7 @@ function SceneLoading() {
 }
 
 export function GamePage() {
+  const [fixture, setFixture] = useState<BidDemoFixture>(bundledFixture);
   const [step, setStep] = useState<StepId>('idle');
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
@@ -103,7 +106,21 @@ export function GamePage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showEvents, setShowEvents] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
+  const [showInstitutions, setShowInstitutions] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const [sceneKey, setSceneKey] = useState(0);
+
+  useEffect(() => {
+    setPlaying(false);
+    setStep('idle');
+    setSelectedId(null);
+  }, [fixture]);
+
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 9000);
+    return () => clearTimeout(timer);
+  }, [notice]);
 
   const winnerId = fixture.winner?.agentId ?? null;
   const winnerAgent = useMemo(() => fixture.agents.find((a) => a.id === winnerId) ?? null, [winnerId]);
@@ -212,11 +229,25 @@ export function GamePage() {
       statusLabel: STATUS_LABEL[step],
       hint: STEP_HINT[step],
     };
-  }, [step, winnerId, winnerAgent, skill]);
+  }, [step, winnerId, winnerAgent, skill, fixture]);
+
+  const applyRound = useCallback((next: BidDemoFixture, summary: string) => {
+    setPlaying(false);
+    setStep('idle');
+    setSelectedId(null);
+    setFixture(next);
+    setShowInstitutions(false);
+    setNotice(summary);
+  }, []);
 
   return (
     <div className={view === '2d' ? 'g-shell is-2d' : 'g-shell'}>
-      <TopBar fixture={fixture} derived={derived} onToggleDebug={() => setShowDebug((v) => !v)} />
+      <TopBar
+        fixture={fixture}
+        derived={derived}
+        onToggleDebug={() => setShowDebug((v) => !v)}
+        onOpenInstitutions={() => setShowInstitutions(true)}
+      />
 
       <main className={`g-stage ${view === '2d' ? 'g-stage--2d' : ''}`}>
         <div className="g-canvas-wrap">
@@ -269,6 +300,19 @@ export function GamePage() {
         onOpenEvents={() => setShowEvents(true)}
         onRestart={restartDemo}
       />
+
+      {notice && (
+        <div className="g-toast" role="status">
+          <span>{notice}</span>
+          <button type="button" className="g-icon-btn" onClick={() => setNotice(null)} aria-label="关闭提示">
+            <CloseIcon size={14} />
+          </button>
+        </div>
+      )}
+
+      {showInstitutions && (
+        <InstitutionPanel fixture={fixture} onClose={() => setShowInstitutions(false)} onApplied={applyRound} />
+      )}
 
       {showEvents && <EventDrawer fixture={fixture} step={step} onClose={() => setShowEvents(false)} />}
       {showDebug && (

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generatedBy": "scripts/gen-bid-demo.mjs",
+  "generatedBy": "packages/simulation/src/demo/bid-demo.ts",
   "seed": 20,
   "tasksPerRound": 2,
   "warmupRounds": 0,
@@ -1009,7 +1009,7 @@
       "kind": "task_posted",
       "message": "Brand identity kit (Design)",
       "payload": {
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "reward": 172
       }
     },
@@ -1019,7 +1019,7 @@
       "kind": "task_posted",
       "message": "Prototype material (Research)",
       "payload": {
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-3",
         "reward": 164
       }
     },
@@ -1087,9 +1087,9 @@
       "id": "evt-6",
       "round": 1,
       "kind": "bid_declined",
-      "message": "Astra passed on task-r2-1",
+      "message": "Astra passed on task-r2-2",
       "payload": {
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "agentId": "civ-a-agent-0",
         "reasonCode": "risk_above_comfort",
         "successProbability": 0.16,
@@ -1147,9 +1147,9 @@
       "id": "evt-7",
       "round": 1,
       "kind": "bid_declined",
-      "message": "Astra passed on task-r2-2",
+      "message": "Astra passed on task-r2-3",
       "payload": {
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-3",
         "agentId": "civ-a-agent-0",
         "reasonCode": "risk_above_comfort",
         "successProbability": 0.19999999999999996,
@@ -1207,9 +1207,9 @@
       "id": "evt-8",
       "round": 1,
       "kind": "bid_placed",
-      "message": "Boreal bid on task-r2-2",
+      "message": "Boreal bid on task-r2-3",
       "payload": {
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-3",
         "agentId": "civ-a-agent-1",
         "bidAmount": 126,
         "decisionSource": "mock",
@@ -1328,9 +1328,9 @@
       "id": "evt-10",
       "round": 1,
       "kind": "bid_declined",
-      "message": "Boreal passed on task-r2-1",
+      "message": "Boreal passed on task-r2-2",
       "payload": {
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "agentId": "civ-a-agent-1",
         "reasonCode": "risk_above_comfort",
         "successProbability": 0.155,
@@ -1388,9 +1388,9 @@
       "id": "evt-11",
       "round": 1,
       "kind": "bid_placed",
-      "message": "Cinder bid on task-r2-1",
+      "message": "Cinder bid on task-r2-2",
       "payload": {
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "agentId": "civ-a-agent-2",
         "bidAmount": 147,
         "decisionSource": "mock",
@@ -1509,9 +1509,9 @@
       "id": "evt-13",
       "round": 1,
       "kind": "bid_declined",
-      "message": "Cinder passed on task-r2-2",
+      "message": "Cinder passed on task-r2-3",
       "payload": {
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-3",
         "agentId": "civ-a-agent-2",
         "reasonCode": "risk_above_comfort",
         "successProbability": 0.04999999999999993,
@@ -1630,9 +1630,9 @@
       "id": "evt-15",
       "round": 1,
       "kind": "bid_declined",
-      "message": "Delta passed on task-r2-1",
+      "message": "Delta passed on task-r2-2",
       "payload": {
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "agentId": "civ-a-agent-3",
         "reasonCode": "risk_above_comfort",
         "successProbability": 0.155,
@@ -1690,9 +1690,9 @@
       "id": "evt-16",
       "round": 1,
       "kind": "bid_declined",
-      "message": "Delta passed on task-r2-2",
+      "message": "Delta passed on task-r2-3",
       "payload": {
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-3",
         "agentId": "civ-a-agent-3",
         "reasonCode": "risk_above_comfort",
         "successProbability": 0.27499999999999997,
@@ -1750,9 +1750,9 @@
       "id": "evt-17",
       "round": 1,
       "kind": "bid_placed",
-      "message": "Echo bid on task-r2-2",
+      "message": "Echo bid on task-r2-3",
       "payload": {
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-3",
         "agentId": "civ-a-agent-4",
         "bidAmount": 115,
         "decisionSource": "mock",
@@ -1871,9 +1871,9 @@
       "id": "evt-19",
       "round": 1,
       "kind": "bid_declined",
-      "message": "Echo passed on task-r2-1",
+      "message": "Echo passed on task-r2-2",
       "payload": {
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "agentId": "civ-a-agent-4",
         "reasonCode": "risk_above_comfort",
         "successProbability": 0.16,
@@ -1931,9 +1931,9 @@
       "id": "evt-20",
       "round": 1,
       "kind": "bid_placed",
-      "message": "Flux bid on task-r2-1",
+      "message": "Flux bid on task-r2-2",
       "payload": {
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "agentId": "civ-a-agent-5",
         "bidAmount": 128,
         "decisionSource": "mock",
@@ -2052,9 +2052,9 @@
       "id": "evt-22",
       "round": 1,
       "kind": "bid_declined",
-      "message": "Flux passed on task-r2-2",
+      "message": "Flux passed on task-r2-3",
       "payload": {
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-3",
         "agentId": "civ-a-agent-5",
         "reasonCode": "risk_above_comfort",
         "successProbability": 0.03,
@@ -2173,9 +2173,9 @@
       "id": "evt-24",
       "round": 1,
       "kind": "bid_declined",
-      "message": "Grove passed on task-r2-1",
+      "message": "Grove passed on task-r2-2",
       "payload": {
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "agentId": "civ-a-agent-6",
         "reasonCode": "risk_above_comfort",
         "successProbability": 0.16,
@@ -2233,9 +2233,9 @@
       "id": "evt-25",
       "round": 1,
       "kind": "bid_declined",
-      "message": "Grove passed on task-r2-2",
+      "message": "Grove passed on task-r2-3",
       "payload": {
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-3",
         "agentId": "civ-a-agent-6",
         "reasonCode": "risk_above_comfort",
         "successProbability": 0.24999999999999997,
@@ -2293,9 +2293,9 @@
       "id": "evt-26",
       "round": 1,
       "kind": "bid_placed",
-      "message": "Helix bid on task-r2-2",
+      "message": "Helix bid on task-r2-3",
       "payload": {
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-3",
         "agentId": "civ-a-agent-7",
         "bidAmount": 118,
         "decisionSource": "mock",
@@ -2414,9 +2414,9 @@
       "id": "evt-28",
       "round": 1,
       "kind": "bid_declined",
-      "message": "Helix passed on task-r2-1",
+      "message": "Helix passed on task-r2-2",
       "payload": {
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "agentId": "civ-a-agent-7",
         "reasonCode": "risk_above_comfort",
         "successProbability": 0.155,
@@ -2476,7 +2476,7 @@
       "kind": "task_assigned",
       "message": "civ-a-agent-5 assigned Brand identity kit (Design)",
       "payload": {
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "agentId": "civ-a-agent-5"
       }
     },
@@ -2486,7 +2486,7 @@
       "kind": "task_assigned",
       "message": "civ-a-agent-4 assigned Prototype material (Research)",
       "payload": {
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-3",
         "agentId": "civ-a-agent-4"
       }
     },
@@ -2531,7 +2531,7 @@
       "payload": {
         "agentId": "civ-a-agent-5",
         "civilizationId": "civ-a",
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "tax": 14,
         "net": 158
       }
@@ -2542,7 +2542,7 @@
       "kind": "task_completed",
       "message": "Flux completed Brand identity kit (Design)",
       "payload": {
-        "taskId": "task-r2-1",
+        "taskId": "task-r2-2",
         "quality": 0.5892878216598183
       }
     },
@@ -2554,7 +2554,7 @@
       "payload": {
         "agentId": "civ-a-agent-4",
         "civilizationId": "civ-a",
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-3",
         "tax": 13,
         "net": 151
       }
@@ -2565,7 +2565,7 @@
       "kind": "task_completed",
       "message": "Echo completed Prototype material (Research)",
       "payload": {
-        "taskId": "task-r2-2",
+        "taskId": "task-r2-3",
         "quality": 0.7303437578398734
       }
     },
