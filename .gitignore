@@ -11,3 +11,5 @@ coverage/
 runtime/handoff/
 # DSH harness workspace plugin staging (not project source)
 dsh-plugins/
+# DSH session skills / runtime artifacts
+.dsh/

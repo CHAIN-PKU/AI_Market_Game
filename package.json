@@ -18,7 +18,8 @@
     "civ:advance": "npm run civ:advance -w @ai-civ/server",
     "dev": "npm run build -w @ai-civ/simulation && concurrently -n server,web -c blue,magenta \"npm run dev:server\" \"npm run dev:web\"",
     "test:all": "npm run build -w @ai-civ/simulation && npm test && npm test -w @ai-civ/server",
-    "assets:visual-lab": "node scripts/fetch-visual-lab-assets.mjs"
+    "assets:visual-lab": "node scripts/fetch-visual-lab-assets.mjs",
+    "demo:fixture": "node scripts/gen-bid-demo.mjs"
   },
   "engines": {
     "node": ">=20"
