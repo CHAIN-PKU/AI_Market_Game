@@ -5,6 +5,7 @@ import { Component, Suspense, useCallback, useEffect, useMemo, useState, type Re
 import fixtureJson from '../demo/bid-demo.fixture.json';
 import { GameScene } from './GameScene';
 import { InstitutionPanel, summarizeRun } from './InstitutionPanel';
+import { QUALITY, readQuality, writeQuality, type Quality } from './quality';
 import {
   AgentPanel,
   BidBoard2D,
@@ -111,6 +112,7 @@ export function GamePage() {
   const [labelsHidden, setLabelsHidden] = useState(false);
   const [campaign, setCampaign] = useState<{ id: string; round: number; maxRounds: number; done: boolean } | null>(null);
   const [campaignBusy, setCampaignBusy] = useState(false);
+  const [quality, setQuality] = useState<Quality>(() => readQuality());
   const [notice, setNotice] = useState<string | null>(null);
   const [autoStart, setAutoStart] = useState(false);
   const [sceneKey, setSceneKey] = useState(0);
@@ -120,6 +122,10 @@ export function GamePage() {
     const timer = setTimeout(() => setNotice(null), 9000);
     return () => clearTimeout(timer);
   }, [notice]);
+
+  useEffect(() => {
+    writeQuality(quality);
+  }, [quality]);
 
   useEffect(() => {
     if (!autoStart) return;
@@ -391,7 +397,7 @@ export function GamePage() {
             <Canvas
               key={sceneKey}
               shadows
-              dpr={[1.5, 2]}
+              dpr={QUALITY[quality].dpr}
               gl={{
                 antialias: true,
                 powerPreference: 'high-performance',
@@ -409,6 +415,7 @@ export function GamePage() {
                   focusAgentId={focusAgent?.id ?? null}
                   onSelect={setSelectedId}
                   onPublish={startDemo}
+                  quality={QUALITY[quality]}
                 />
               </Suspense>
             </Canvas>
@@ -463,6 +470,8 @@ export function GamePage() {
           onViewChange={setView}
           labelsHidden={labelsHidden}
           onToggleLabels={() => setLabelsHidden((v) => !v)}
+          quality={quality}
+          onQualityChange={setQuality}
           onClose={() => setShowDebug(false)}
         />
       )}

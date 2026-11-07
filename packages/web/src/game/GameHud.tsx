@@ -1,5 +1,6 @@
 import type { BidDemoFixture, DemoAgent } from './types';
 import { DOMAIN_LABEL, ROLE_KEY, ROLE_LABEL } from './types';
+import { QUALITY, type Quality } from './quality';
 import { STEP_INDEX, TIMELINE, buildPlaybackCues, type StepId } from './playback';
 import {
   cooperationLabel,
@@ -781,6 +782,8 @@ export function DebugPanel({
   onViewChange,
   labelsHidden,
   onToggleLabels,
+  quality,
+  onQualityChange,
   onClose,
 }: {
   fixture: BidDemoFixture;
@@ -788,6 +791,8 @@ export function DebugPanel({
   onViewChange: (v: ViewMode) => void;
   labelsHidden: boolean;
   onToggleLabels: () => void;
+  quality: Quality;
+  onQualityChange: (q: Quality) => void;
   onClose: () => void;
 }) {
   const focusEvents = fixture.rawEvents.filter(
@@ -826,6 +831,21 @@ export function DebugPanel({
         <div>
           <dt>经济结算</dt>
           <dd>仅由 simulation 引擎决定</dd>
+        </div>
+        <div>
+          <dt>画质（性能）</dt>
+          <dd className="g-debug-view">
+            {(Object.keys(QUALITY) as Quality[]).map((q) => (
+              <button
+                key={q}
+                type="button"
+                className={quality === q ? 'g-debug-chip is-on' : 'g-debug-chip'}
+                onClick={() => onQualityChange(q)}
+              >
+                {QUALITY[q].label}
+              </button>
+            ))}
+          </dd>
         </div>
         <div>
           <dt>建筑标签（剪影验收）</dt>

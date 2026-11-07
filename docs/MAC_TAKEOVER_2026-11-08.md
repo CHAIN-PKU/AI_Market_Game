@@ -56,6 +56,7 @@
 - DPR 2、ACES tone mapping、暖 key + 冷 fill + 青色 rim、SoftShadows/ContactShadows、4096 阴影。
 - 相机更近且按舞台宽高比自适应；1366 不再裁掉岛屿；三性格评估时自动切角色正面特写。
 - 角色加 inverted-hull 描边，提升轮廓可读性。
+- 开发者面板新增「高/中/低」画质档（DPR、阴影、SoftShadows、ContactShadows、Sparkles、描边），存 localStorage。
 - 3840×2160 实际截图：`docs/screenshots/visual-hq/after-2x-3840.png`
 - 取舍与边界：`docs/VISUAL_QUALITY_2026-11-08.md`（Bloom 在 1366/2560 下不稳定，已移除）
 

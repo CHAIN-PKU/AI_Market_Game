@@ -47,10 +47,11 @@ type Props = {
   state: AgentVisualState;
   selected: boolean;
   focused?: boolean;
+  outline?: boolean;
   onSelect: (id: string) => void;
 };
 
-export function GameAgent({ agent, index, start, target, state, selected, focused = false, onSelect }: Props) {
+export function GameAgent({ agent, index, start, target, state, selected, focused = false, outline = true, onSelect }: Props) {
   const gltf = useGLTF(resolveGlbUrl(QUAT_AGENTS[index]!));
   const clone = useMemo(() => {
     const g = cloneWithSkeleton(gltf.scene) as Group;
@@ -69,7 +70,7 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
     });
 
     // Inverted hull outline: a second skinned copy with back-face material.
-    for (const mesh of skinned) {
+    for (const mesh of outline ? skinned : []) {
       const outline = new SkinnedMesh(
         mesh.geometry,
         new MeshBasicMaterial({ color: '#2a1d18', side: BackSide, toneMapped: false }),

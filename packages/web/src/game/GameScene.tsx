@@ -12,6 +12,7 @@ import { GridIcon, MarketIcon, PeopleIcon, RoleIcon, SkillIcon } from './icons';
 import { atLeast, type StepId } from './playback';
 import { gold } from './presentation';
 import type { BidDemoFixture } from './types';
+import type { QualityConfig } from './quality';
 function CameraRig({
   fixture,
   step,
@@ -448,6 +449,7 @@ export function GameScene({
   focusAgentId,
   onSelect,
   onPublish,
+  quality,
 }: {
   fixture: BidDemoFixture;
   step: StepId;
@@ -455,13 +457,14 @@ export function GameScene({
   focusAgentId: string | null;
   onSelect: (id: string) => void;
   onPublish: () => void;
+  quality: QualityConfig;
 }) {
   return (
     <>
       <CameraRig fixture={fixture} step={step} focusAgentId={focusAgentId} />
       <Sky sunPosition={[60, 30, 40]} turbidity={0.45} rayleigh={0.32} />
       <fog attach="fog" args={['#d8edf0', 42, 92]} />
-      <SoftShadows size={28} samples={16} focus={0.8} />
+      {quality.softShadows && <SoftShadows size={28} samples={16} focus={0.8} />}
       <ambientLight intensity={0.5} color="#fff9ed" />
       <hemisphereLight intensity={0.65} color="#c9efff" groundColor="#86c083" />
       <directionalLight
@@ -469,7 +472,7 @@ export function GameScene({
         position={[16, 26, 14]}
         intensity={2.1}
         color="#fff1d2"
-        shadow-mapSize={[4096, 4096]}
+        shadow-mapSize={[quality.shadowMap, quality.shadowMap]}
         shadow-bias={-0.0003}
         shadow-camera-far={80}
         shadow-camera-left={-24}
@@ -479,16 +482,20 @@ export function GameScene({
       />
       <directionalLight position={[-14, 9, 10]} intensity={0.5} color="#b9ddff" />
       <directionalLight position={[-8, 14, -18]} intensity={1.25} color="#7fe0ea" />
-      <ContactShadows
-        position={[0, 0.015, 0]}
-        opacity={0.28}
-        scale={28}
-        blur={2.6}
-        far={5}
-        resolution={1024}
-        color="#57452f"
-      />
-      <Sparkles count={38} scale={[18, 3.4, 18]} position={[0, 2.6, 0]} size={2.2} speed={0.16} opacity={0.32} color="#ffe8a8" />
+      {quality.contactShadows && (
+        <ContactShadows
+          position={[0, 0.015, 0]}
+          opacity={0.28}
+          scale={28}
+          blur={2.6}
+          far={5}
+          resolution={1024}
+          color="#57452f"
+        />
+      )}
+      {quality.sparkles && (
+        <Sparkles count={38} scale={[18, 3.4, 18]} position={[0, 2.6, 0]} size={2.2} speed={0.16} opacity={0.32} color="#ffe8a8" />
+      )}
       <IslandBase />
 
       {BUILDING_SLOTS.map((slot, i) => {
@@ -542,6 +549,7 @@ export function GameScene({
           selected={selectedId === agent.id}
           focused={focusAgentId === agent.id}
           onSelect={onSelect}
+          outline={quality.outlines}
         />
       ))}
 
