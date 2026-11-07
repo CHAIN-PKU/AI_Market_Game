@@ -1,7 +1,7 @@
 import { Html, useAnimations, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Group, MathUtils, type AnimationAction, type Material } from 'three';
+import { BackSide, Group, MathUtils, MeshBasicMaterial, SkinnedMesh, type AnimationAction, type Material } from 'three';
 import { clone as cloneWithSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { QUAT_AGENTS } from '../visual-lab/assetUrls';
 import { resolveGlbUrl } from '../visual-lab/GlbInstance';
@@ -54,6 +54,7 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
   const gltf = useGLTF(resolveGlbUrl(QUAT_AGENTS[index]!));
   const clone = useMemo(() => {
     const g = cloneWithSkeleton(gltf.scene) as Group;
+    const skinned: SkinnedMesh[] = [];
     g.traverse((obj) => {
       if ('castShadow' in obj) obj.castShadow = true;
       if ('receiveShadow' in obj) obj.receiveShadow = true;
@@ -64,7 +65,25 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
           ? mesh.material.map((m) => toToonMaterial(m, characterColor(m.name, index, roleKey)))
           : toToonMaterial(mesh.material, characterColor(mesh.material.name, index, roleKey));
       }
+      if ((obj as SkinnedMesh).isSkinnedMesh) skinned.push(obj as SkinnedMesh);
     });
+
+    // Inverted hull outline: a second skinned copy with back-face material.
+    for (const mesh of skinned) {
+      const outline = new SkinnedMesh(
+        mesh.geometry,
+        new MeshBasicMaterial({ color: '#2a1d18', side: BackSide, toneMapped: false }),
+      );
+      outline.name = `${mesh.name || 'char'}-outline`;
+      outline.bind(mesh.skeleton, mesh.bindMatrix);
+      outline.position.copy(mesh.position);
+      outline.quaternion.copy(mesh.quaternion);
+      outline.scale.copy(mesh.scale).multiplyScalar(1.045);
+      outline.castShadow = false;
+      outline.receiveShadow = false;
+      outline.frustumCulled = false;
+      mesh.parent?.add(outline);
+    }
     return g;
   }, [gltf.scene]);
 
