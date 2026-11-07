@@ -504,6 +504,40 @@ export function AgentPanel({
           </div>
         </div>
 
+        <div className="g-public">
+          <div className="g-public-head">
+            <h3>公开决策记录</h3>
+            <span className={badge.tone === 'bid' ? 'g-focus-decision is-bid' : 'g-focus-decision is-pass'}>
+              {badge.label}
+            </span>
+          </div>
+          <div className="g-fact-grid">
+            {factorChips(agent).map((chip) => (
+              <span key={chip.label} className={chip.emphasis ? 'g-fact is-emphasis' : 'g-fact'}>
+                <em>{chip.label}</em>
+                <b>{chip.value}</b>
+              </span>
+            ))}
+          </div>
+          <p className="g-public-result">
+            结果：
+            {!derived.assigned
+              ? '待决标'
+              : agent.decision.action === 'bid'
+                ? isWinner
+                  ? `中标（${gold(agent.decision.bidAmount ?? 0)}）`
+                  : '落标'
+                : '未参与'}
+            {derived.assigned && isWinner && ' · 系统按质量 × 报价选出'}
+          </p>
+          <p className="g-public-observed">
+            可观察信息：更强同行 {agent.decision.observedCompetitors.strongerSpecialists} 人
+            {agent.decision.observedCompetitors.topEarnerName
+              ? ` · 累计收入最高 ${agent.decision.observedCompetitors.topEarnerName}`
+              : ''}
+          </p>
+        </div>
+
         <div className="g-traits">
           <h3>性格参数（影响决策）</h3>
           <div className="g-trait">
@@ -563,40 +597,6 @@ export function AgentPanel({
             </span>
           </div>
         )}
-
-        <div className="g-public">
-          <div className="g-public-head">
-            <h3>公开决策记录</h3>
-            <span className={badge.tone === 'bid' ? 'g-focus-decision is-bid' : 'g-focus-decision is-pass'}>
-              {badge.label}
-            </span>
-          </div>
-          <div className="g-fact-grid">
-            {factorChips(agent).map((chip) => (
-              <span key={chip.label} className={chip.emphasis ? 'g-fact is-emphasis' : 'g-fact'}>
-                <em>{chip.label}</em>
-                <b>{chip.value}</b>
-              </span>
-            ))}
-          </div>
-          <p className="g-public-result">
-            结果：
-            {!derived.assigned
-              ? '待决标'
-              : agent.decision.action === 'bid'
-                ? isWinner
-                  ? `中标（${gold(agent.decision.bidAmount ?? 0)}）`
-                  : '落标'
-                : '未参与'}
-            {derived.assigned && isWinner && ' · 系统按质量 × 报价选出'}
-          </p>
-          <p className="g-public-observed">
-            可观察信息：更强同行 {agent.decision.observedCompetitors.strongerSpecialists} 人
-            {agent.decision.observedCompetitors.topEarnerName
-              ? ` · 累计收入最高 ${agent.decision.observedCompetitors.topEarnerName}`
-              : ''}
-          </p>
-        </div>
 
         <div className="g-record">
           <h3>公开履历</h3>
