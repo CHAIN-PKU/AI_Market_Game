@@ -299,7 +299,11 @@ export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
   });
 
   const otherTasks = state.marketTasks
-    .filter((t) => t.id !== task.id && t.roundCreated === demoRound)
+    .filter(
+      (t) =>
+        t.id !== task.id &&
+        roundEvents.some((e) => e.kind === 'task_assigned' && payloadOf(e)?.taskId === t.id),
+    )
     .map((t) => ({
       id: t.id,
       title: t.title,
@@ -337,6 +341,33 @@ export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
 
   const taxEvent = completed ? focusEvents.find((e) => e.kind === 'tax_collected') : undefined;
 
+  // Treasury reconciliation: all completed tasks in this round, not only the demo task.
+  const taxEvents = roundEvents.filter((e) => e.kind === 'tax_collected');
+  const totalTax = taxEvents.reduce((sum, e) => sum + ((payloadOf(e)?.tax as number | undefined) ?? 0), 0);
+  const mainTaskTax = taxEvents
+    .filter((e) => payloadOf(e)?.taskId === task.id)
+    .reduce((sum, e) => sum + ((payloadOf(e)?.tax as number | undefined) ?? 0), 0);
+  const otherTaskTax = totalTax - mainTaskTax;
+  const publicResearch = taxEvents.reduce(
+    (sum, e) => sum + Math.round(((payloadOf(e)?.tax as number | undefined) ?? 0) * civ.rules.publicResearchShare),
+    0,
+  );
+  const toTreasury = totalTax - publicResearch;
+  const treasuryStart = state.config.initialTreasury;
+  const treasuryEnd = civ.treasury;
+  const treasuryBreakdown = {
+    start: treasuryStart,
+    end: treasuryEnd,
+    delta: treasuryEnd - treasuryStart,
+    mainTaskTax,
+    otherTaskTax,
+    totalTax,
+    publicResearch,
+    toTreasury,
+    completedTasks: taxEvents.length,
+    consistent: treasuryStart + toTreasury === treasuryEnd,
+  };
+
   return {
     version: 2,
     generatedBy: 'packages/simulation/src/demo/bid-demo.ts',
@@ -363,6 +394,7 @@ export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
       treasuryStart: state.config.initialTreasury,
       treasuryAfter: civ.treasury,
     },
+    treasuryBreakdown,
     focusAgentIds: [agents[0]!.id, agents[3]!.id, agents[6]!.id],
     agents,
     bids,

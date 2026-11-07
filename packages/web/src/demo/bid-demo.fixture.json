@@ -31,6 +31,18 @@
     "treasuryStart": 1000,
     "treasuryAfter": 1032
   },
+  "treasuryBreakdown": {
+    "start": 1000,
+    "end": 1032,
+    "delta": 32,
+    "mainTaskTax": 8,
+    "otherTaskTax": 27,
+    "totalTax": 35,
+    "publicResearch": 3,
+    "toTreasury": 32,
+    "completedTasks": 3,
+    "consistent": true
+  },
   "focusAgentIds": [
     "civ-a-agent-0",
     "civ-a-agent-3",
@@ -994,7 +1006,24 @@
     "successBefore": 0.35,
     "successAfter": 0.55
   },
-  "otherTasks": [],
+  "otherTasks": [
+    {
+      "id": "task-r2-2",
+      "title": "Brand identity kit (Design)",
+      "domain": "design",
+      "reward": 172,
+      "status": "completed",
+      "winnerName": "Flux"
+    },
+    {
+      "id": "task-r2-3",
+      "title": "Prototype material (Research)",
+      "domain": "research",
+      "reward": 164,
+      "status": "completed",
+      "winnerName": "Echo"
+    }
+  ],
   "rawEvents": [
     {
       "id": "evt-2",

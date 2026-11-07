@@ -111,6 +111,18 @@ export type BidDemoFixture = {
     treasuryStart: number;
     treasuryAfter: number;
   };
+  treasuryBreakdown: {
+    start: number;
+    end: number;
+    delta: number;
+    mainTaskTax: number;
+    otherTaskTax: number;
+    totalTax: number;
+    publicResearch: number;
+    toTreasury: number;
+    completedTasks: number;
+    consistent: boolean;
+  };
   focusAgentIds: string[];
   agents: DemoAgent[];
   bids: BidSummary[];

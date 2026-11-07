@@ -84,11 +84,26 @@ InstitutionPanel
 
 关键结论：**竞价不变，税后消费改变，下一轮能力随之分叉。** 这正是 MVP 要验证的「玩家能看懂为什么、能影响」。
 
-测试：`packages/simulation/tests/bid-demo.test.ts`（15/15 中的 4 条）。
+测试：`packages/simulation/tests/bid-demo.test.ts`（16/16 中的 5 条）。
 
 ---
 
-## 5. 边界（不要过度宣传）
+## 5. 国库/税金拆解
+
+结算状态卡直接显示：
+
+> 国库 1,000 金 → 1,032 金：本任务税 +8 金，其他任务 +27 金，公共研发 −3 金。
+
+fixture 新增 `treasuryBreakdown` 字段（`start / end / mainTaskTax / otherTaskTax / totalTax / publicResearch / toTreasury / completedTasks / consistent`），由引擎事件 `tax_collected` 汇总得出，并断言 `start + toTreasury === end`。
+
+- 自由市场 8%：总税 35，公共研发 3，实际入国库 32。
+- 高税 35%：总税 152，公共研发 16，实际入国库 136。
+
+这样「国库为什么从 1,000 跳到 1,032/1,136」不再需要猜。
+
+---
+
+## 6. 边界（不要过度宣传）
 
 - 目前是**单轮快照**：每次重跑从同一初始状态开始，不继承上一轮钱包/能力。
 - 不是 `createGame` / `advance` 的长局；没有存档、没有多回合状态机。
@@ -98,16 +113,17 @@ InstitutionPanel
 
 ---
 
-## 6. 证据
+## 7. 证据
 
 - 面板：`docs/screenshots/institution-lab/panel-tax35-1920.png`
 - 重跑结果 toast：`docs/screenshots/institution-lab/after-run-toast-1920.png`
 - 高税「买不起技能」：`docs/screenshots/institution-lab/high-tax-no-skill-1920.png`
+- 国库拆解：`docs/screenshots/treasury/settled-1920.png`、`docs/screenshots/treasury/settled-high-tax-1920.png`
 - 事件 JSON：`docs/evidence/institution-high-tax.json`
 
 ---
 
-## 7. 下一刀
+## 8. 下一刀
 
 1. 把单轮快照升级为 `createGame` + `advance` 的多轮状态；制度在局内可改。
 2. Event Playback 队列由 `rawEvents` 驱动，补「跳过动画不改变 `GameState`」契约测试。

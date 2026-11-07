@@ -252,7 +252,18 @@ export function LeftPanel({
         ) : (
           <div className="g-task-status">
             <span className="g-task-status-label">{derived.statusLabel}</span>
-            {derived.step === 'skill' && derived.skillDone && winner ? (
+            {derived.step === 'settled' && fixture.treasuryBreakdown ? (
+              <span className="g-task-status-note">
+                国库 {gold(fixture.treasuryBreakdown.start)} → {gold(fixture.treasuryBreakdown.end)}：
+                本任务税 +{gold(fixture.treasuryBreakdown.mainTaskTax)}
+                {fixture.treasuryBreakdown.otherTaskTax > 0
+                  ? `，其他任务 +${gold(fixture.treasuryBreakdown.otherTaskTax)}`
+                  : ''}
+                {fixture.treasuryBreakdown.publicResearch > 0
+                  ? `，公共研发 −${gold(fixture.treasuryBreakdown.publicResearch)}`
+                  : ''}
+              </span>
+            ) : derived.step === 'skill' && derived.skillDone && winner ? (
               fixture.skillPurchase[0] ? (
                 <span className="g-task-status-note is-good">
                   {winner.displayName} 花 {gold(fixture.skillPurchase[0].price)} 买「{fixture.skillPurchase[0].name}」，
@@ -352,6 +363,40 @@ export function LeftPanel({
               <span>{winner?.displayName} 到手</span>
               <b>+{gold(fixture.settlement.net)}</b>
             </div>
+            {fixture.treasuryBreakdown && (
+              <div className="g-treasury">
+                <div className="g-treasury-head">
+                  <span>国库</span>
+                  <b>
+                    {gold(fixture.treasuryBreakdown.start)} → {gold(fixture.treasuryBreakdown.end)}
+                  </b>
+                </div>
+                <div className="g-treasury-row">
+                  <span>本任务税</span>
+                  <b>+{gold(fixture.treasuryBreakdown.mainTaskTax)}</b>
+                </div>
+                {fixture.treasuryBreakdown.otherTaskTax > 0 && (
+                  <div className="g-treasury-row">
+                    <span>其他任务税</span>
+                    <b>+{gold(fixture.treasuryBreakdown.otherTaskTax)}</b>
+                  </div>
+                )}
+                <div className="g-treasury-row">
+                  <span>划入公共研发</span>
+                  <b>−{gold(fixture.treasuryBreakdown.publicResearch)}</b>
+                </div>
+                <div className="g-treasury-row is-total">
+                  <span>实际入国库</span>
+                  <b>+{gold(fixture.treasuryBreakdown.toTreasury)}</b>
+                </div>
+                {!fixture.treasuryBreakdown.consistent && (
+                  <p className="g-treasury-warn">
+                    账不平：按事件应为 +{gold(fixture.treasuryBreakdown.toTreasury)}，引擎实际
+                    +{gold(fixture.treasuryBreakdown.delta)}
+                  </p>
+                )}
+              </div>
+            )}
             {derived.skillDone && !fixture.skillPurchase[0] && winner && (
               <p className="g-settle-miss">
                 税后 {gold(fixture.settlement.net)} 金

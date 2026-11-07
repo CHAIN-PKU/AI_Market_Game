@@ -20,6 +20,7 @@ describe('bid-demo fixture builder (engine truth)', () => {
     expect(f.nextRound.abilityAfter).toBe(48);
     expect(f.nextRound.successAfter).toBeGreaterThan(f.nextRound.successBefore!);
     expect(f.declines.some((d) => d.reasonCode === 'risk_above_comfort')).toBe(true);
+    expect(f.otherTasks).toHaveLength(2);
   });
 
   it('high tax changes consumption and next-round ability (institution -> behavior)', () => {
@@ -40,6 +41,25 @@ describe('bid-demo fixture builder (engine truth)', () => {
     expect(highTax.nextRound.abilityAfter).toBe(highTax.nextRound.abilityBefore);
     expect(highTax.nextRound.successAfter).toBe(highTax.nextRound.successBefore);
     expect(highTax.civilization.rules.taxRate).toBe(0.35);
+    expect(highTax.treasuryBreakdown.consistent).toBe(true);
+    expect(highTax.treasuryBreakdown.mainTaskTax).toBe(35);
+    expect(highTax.treasuryBreakdown.end).toBe(highTax.civilization.treasuryAfter);
+  });
+
+  it('reconciles treasury from all completed tasks (not only the demo task)', () => {
+    const f = buildBidDemoFixture(BASE);
+    expect(f.treasuryBreakdown).toMatchObject({
+      start: 1000,
+      end: 1032,
+      delta: 32,
+      mainTaskTax: 8,
+      otherTaskTax: 27,
+      totalTax: 35,
+      publicResearch: 3,
+      toTreasury: 32,
+      completedTasks: 3,
+      consistent: true,
+    });
   });
 
   it('clamps out-of-range institutions instead of silently accepting them', () => {
