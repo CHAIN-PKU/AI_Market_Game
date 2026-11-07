@@ -734,11 +734,15 @@ export function DebugPanel({
   fixture,
   view,
   onViewChange,
+  labelsHidden,
+  onToggleLabels,
   onClose,
 }: {
   fixture: BidDemoFixture;
   view: ViewMode;
   onViewChange: (v: ViewMode) => void;
+  labelsHidden: boolean;
+  onToggleLabels: () => void;
   onClose: () => void;
 }) {
   const focusEvents = fixture.rawEvents.filter(
@@ -777,6 +781,14 @@ export function DebugPanel({
         <div>
           <dt>经济结算</dt>
           <dd>仅由 simulation 引擎决定</dd>
+        </div>
+        <div>
+          <dt>建筑标签（剪影验收）</dt>
+          <dd className="g-debug-view">
+            <button type="button" className="g-debug-chip" onClick={onToggleLabels}>
+              {labelsHidden ? '显示标签' : '隐藏标签'}
+            </button>
+          </dd>
         </div>
         <div>
           <dt>视图（开发对照）</dt>

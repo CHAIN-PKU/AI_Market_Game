@@ -107,6 +107,7 @@ export function GamePage() {
   const [showEvents, setShowEvents] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
   const [showInstitutions, setShowInstitutions] = useState(false);
+  const [labelsHidden, setLabelsHidden] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [sceneKey, setSceneKey] = useState(0);
 
@@ -241,7 +242,7 @@ export function GamePage() {
   }, []);
 
   return (
-    <div className={view === '2d' ? 'g-shell is-2d' : 'g-shell'}>
+    <div className={[view === '2d' ? 'g-shell is-2d' : 'g-shell', labelsHidden ? 'hide-labels' : ''].join(' ')}>
       <TopBar
         fixture={fixture}
         derived={derived}
@@ -316,7 +317,14 @@ export function GamePage() {
 
       {showEvents && <EventDrawer fixture={fixture} step={step} onClose={() => setShowEvents(false)} />}
       {showDebug && (
-        <DebugPanel fixture={fixture} view={view} onViewChange={setView} onClose={() => setShowDebug(false)} />
+        <DebugPanel
+          fixture={fixture}
+          view={view}
+          onViewChange={setView}
+          labelsHidden={labelsHidden}
+          onToggleLabels={() => setLabelsHidden((v) => !v)}
+          onClose={() => setShowDebug(false)}
+        />
       )}
     </div>
   );

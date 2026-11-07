@@ -3146,3 +3146,7 @@
   margin: 2px 0 0;
   color: #9a4526;
 }
+
+.g-shell.hide-labels .bld-sign {
+  display: none !important;
+}
