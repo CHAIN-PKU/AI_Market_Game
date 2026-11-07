@@ -9,8 +9,8 @@ import { NATIVE, WORLD, fitScale, sitOnGround } from '../visual-lab/assetScale';
 import { GameAgent, type AgentVisualState } from './GameAgent';
 import { GridIcon, MarketIcon, PeopleIcon, RoleIcon, SkillIcon } from './icons';
 import { atLeast, type StepId } from './playback';
+import { gold } from './presentation';
 import type { BidDemoFixture } from './types';
-
 function FixedCamera() {
   const camera = useThree((s) => s.camera);
   useEffect(() => {
@@ -75,21 +75,66 @@ function agentVisual(
 function BuildingLabel({ x, z, label, role, height }: { x: number; z: number; label: string; role: string; height: number }) {
   const icon =
     role === 'market' ? (
-      <MarketIcon size={12} />
+      <MarketIcon size={13} />
     ) : role === 'skill' ? (
-      <SkillIcon size={12} />
+      <SkillIcon size={13} />
     ) : role === 'public-rd' ? (
-      <GridIcon size={12} />
+      <GridIcon size={13} />
     ) : role === 'homes' ? (
-      <PeopleIcon size={12} />
+      <PeopleIcon size={13} />
     ) : (
-      <RoleIcon role={role as 'coding' | 'research' | 'design'} size={12} />
+      <RoleIcon role={role as 'coding' | 'research' | 'design'} size={13} />
     );
   return (
-    <Html center position={[x, height + 0.55, z]} zIndexRange={[10, 0]} style={{ pointerEvents: 'none' }}>
-      <div className={`bld-label bld-label--${role}`}>
-        {icon}
-        <span>{label}</span>
+    <Html center position={[x, height + 0.5, z]} zIndexRange={[10, 0]} style={{ pointerEvents: 'none' }}>
+      <div className={`bld-sign bld-sign--${role}`}>
+        <span className="bld-sign-icon">{icon}</span>
+        <span className="bld-sign-label">{label}</span>
+      </div>
+    </Html>
+  );
+}
+
+function NoticeBoard({ fixture, step, onPublish }: { fixture: BidDemoFixture; step: StepId; onPublish: () => void }) {
+  const idle = step === 'idle';
+  const posted = atLeast(step, 'posted');
+  const bidsOpen = atLeast(step, 'bids');
+  const assigned = atLeast(step, 'assigned');
+  const settled = atLeast(step, 'settled');
+  return (
+    <Html center position={[0, 2.5, -6.4]} zIndexRange={[25, 0]}>
+      <div className="notice-board">
+        <span className="notice-post notice-post--left" />
+        <span className="notice-post notice-post--right" />
+        <div className="notice-wood">
+          <span className="notice-title">市集公告板</span>
+          {idle ? (
+            <button type="button" className="notice-action" onClick={onPublish}>
+              发布第一笔任务
+            </button>
+          ) : (
+            <div className="notice-task">
+              <span className="notice-task-tag">本任务</span>
+              <strong>{fixture.scenario.title}</strong>
+              <span className="notice-task-meta">
+                {gold(fixture.scenario.reward)} · 难度 {fixture.scenario.difficulty}
+              </span>
+            </div>
+          )}
+          {posted && bidsOpen && (
+            <div className="notice-slips">
+              {fixture.bids.map((bid) => (
+                <span key={bid.agentId} className="notice-slip">
+                  {bid.displayName} {gold(bid.bidAmount)}
+                </span>
+              ))}
+            </div>
+          )}
+          {assigned && fixture.winner && <span className="notice-stamp">中标 · {fixture.winner.displayName}</span>}
+          {settled && (
+            <span className="notice-stamp is-settled">已结算 · {gold(fixture.settlement?.net ?? 0)} 到手</span>
+          )}
+        </div>
       </div>
     </Html>
   );
@@ -101,18 +146,15 @@ export function GameScene({
   selectedId,
   focusAgentId,
   onSelect,
+  onPublish,
 }: {
   fixture: BidDemoFixture;
   step: StepId;
   selectedId: string | null;
   focusAgentId: string | null;
   onSelect: (id: string) => void;
+  onPublish: () => void;
 }) {
-  const posted = atLeast(step, 'posted');
-  const bidsOpen = atLeast(step, 'bids');
-  const settled = atLeast(step, 'settled');
-  const bidders = fixture.bids.length;
-
   return (
     <>
       <FixedCamera />
@@ -188,17 +230,7 @@ export function GameScene({
         />
       ))}
 
-      {posted && (
-        <Html center position={[0, 4.1, -9]} zIndexRange={[15, 0]} style={{ pointerEvents: 'none' }}>
-          <div className={`scene-task ${bidsOpen ? 'is-hot' : ''} ${settled ? 'is-done' : ''}`}>
-            <span className="scene-task-tag">市集订单</span>
-            <strong>{fixture.scenario.title}</strong>
-            <span className="scene-task-reward">
-              {fixture.scenario.reward} 金 · {bidsOpen ? `${bidders} 人竞标` : '等待竞标'}
-            </span>
-          </div>
-        </Html>
-      )}
+      <NoticeBoard fixture={fixture} step={step} onPublish={onPublish} />
     </>
   );
 }

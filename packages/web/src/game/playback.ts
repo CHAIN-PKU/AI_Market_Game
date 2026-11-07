@@ -21,12 +21,12 @@ export type TimelineStep = {
 
 /** One deterministic playback timeline. Durations are presentation-only; economy values are fixed. */
 export const TIMELINE: TimelineStep[] = [
-  { id: 'idle', label: '等待订单', hint: '市场还没开张', duration: 0 },
-  { id: 'posted', label: '订单公告', hint: '市集挂出：修复网站登录问题', duration: 1800 },
+  { id: 'idle', label: '等待任务', hint: '市场还没开张', duration: 0 },
+  { id: 'posted', label: '任务公告', hint: '市集挂出：修复网站登录问题', duration: 1800 },
   { id: 'focus_astra', label: '居民 1/3 · Astra', hint: '谨慎型先算风险，再决定接不接', duration: 3200 },
   { id: 'focus_delta', label: '居民 2/3 · Delta', hint: '积极型在算：差多少能买新 Skill', duration: 3200 },
   { id: 'focus_grove', label: '居民 3/3 · Grove', hint: '稳健型看长期能力，而不是最低价', duration: 3200 },
-  { id: 'bids', label: '公开报价', hint: '2 人竞标，5 人观望，价格全部公开', duration: 3200 },
+  { id: 'bids', label: '公开报价', hint: '报价与放弃理由全部公开', duration: 3200 },
   { id: 'assigned', label: '决标', hint: '系统按「质量预测 × 报价」选出中标者', duration: 2800 },
   { id: 'working', label: '执行中', hint: '中标者走向程序坊，开始干活', duration: 2400 },
   { id: 'settled', label: '结算', hint: '奖励到账，税金进入国库', duration: 2600 },

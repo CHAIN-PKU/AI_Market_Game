@@ -16,15 +16,10 @@ import {
 } from './presentation';
 import {
   CheckIcon,
-  ChevronRightIcon,
   CloseIcon,
   CoinIcon,
-  CubeIcon,
   GearIcon,
-  GridIcon,
   HistoryIcon,
-  InfoIcon,
-  MarketIcon,
   PauseIcon,
   PeopleIcon,
   PlayIcon,
@@ -34,7 +29,6 @@ import {
   SkillIcon,
   SpeedIcon,
   StepIcon,
-  TaskIcon,
 } from './icons';
 
 export type ViewMode = '2.5d' | '2d';
@@ -97,71 +91,55 @@ function agentStatus(agent: DemoAgent, derived: Derived): string {
 export function TopBar({
   fixture,
   derived,
-  view,
-  onViewChange,
   onToggleDebug,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
-  view: ViewMode;
-  onViewChange: (v: ViewMode) => void;
   onToggleDebug: () => void;
 }) {
   return (
     <header className="g-top">
       <div className="g-brand">
         <div className="g-emblem" aria-hidden>
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M12 3.2 19 6v5.2c0 4.4-2.9 7.4-7 9.6-4.1-2.2-7-5.2-7-9.6V6l7-2.8Z" />
             <path d="M12 8.2v6.2M9.4 11.4h5.2" />
           </svg>
         </div>
         <div className="g-brand-text">
           <strong>{fixture.civilization.name}</strong>
-          <span className="g-rules">
-            {fixture.civilization.rules.name} · 税率 {Math.round(fixture.civilization.rules.taxRate * 100)}%
-          </span>
+          <span className="g-rules">{fixture.civilization.rules.name}</span>
         </div>
       </div>
 
       <div className="g-resources">
         <span className="g-res">
-          <RoundIcon size={16} />
+          <RoundIcon size={15} />
           <em>第 {fixture.demoRound} 轮</em>
         </span>
         <span className="g-res">
-          <CoinIcon size={16} />
-          <em>国库 {gold(derived.treasury)}</em>
+          <CoinIcon size={15} />
+          <span className="g-res-key">国库</span>
+          <em>{gold(derived.treasury)}</em>
         </span>
         <span className="g-res">
-          <PeopleIcon size={16} />
+          <PeopleIcon size={15} />
           <em>居民 {fixture.agents.length}</em>
         </span>
         <span className="g-res">
-          <TaskIcon size={16} />
-          <em>订单 1{derived.bidsOpen ? ` · 竞标 ${fixture.bids.length}` : ''}</em>
+          <span className="g-res-key">税率</span>
+          <em>{Math.round(fixture.civilization.rules.taxRate * 100)}%</em>
         </span>
       </div>
 
       <div className="g-top-actions">
-        <div className="g-seg" role="group" aria-label="视图切换">
-          <button
-            type="button"
-            className={view === '2.5d' ? 'g-seg-btn is-on' : 'g-seg-btn'}
-            onClick={() => onViewChange('2.5d')}
-          >
-            <CubeIcon size={14} /> 2.5D
-          </button>
-          <button
-            type="button"
-            className={view === '2d' ? 'g-seg-btn is-on' : 'g-seg-btn'}
-            onClick={() => onViewChange('2d')}
-          >
-            <GridIcon size={14} /> 2D
-          </button>
-        </div>
-        <button type="button" className="g-icon-btn" title="开发者信息" onClick={onToggleDebug}>
-          <GearIcon size={17} />
+        {derived.posted && (
+          <span className="g-turn-label">
+            步骤 <b>{STEP_INDEX[derived.step] + 1}</b> / {TIMELINE.length}
+          </span>
+        )}
+        <button type="button" className="g-icon-btn" title="帮助与开发者信息" onClick={onToggleDebug}>
+          <GearIcon size={16} />
         </button>
       </div>
     </header>
@@ -223,15 +201,11 @@ export function LeftPanel({
   derived,
   focusAgent,
   focusNumber,
-  onPublish,
-  onOpenEvents,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
   focusAgent: DemoAgent | null;
   focusNumber: number | null;
-  onPublish: () => void;
-  onOpenEvents: () => void;
 }) {
   const posted = derived.posted;
   const showBids = derived.bidsOpen;
@@ -267,15 +241,9 @@ export function LeftPanel({
         </div>
 
         {!posted ? (
-          <>
-            <button type="button" className="g-btn g-btn--primary g-btn--wide" onClick={onPublish}>
-              发布订单，让 AI 竞标
-              <ChevronRightIcon size={16} />
-            </button>
-            <p className="g-muted g-task-first">
-              8 位居民会各自判断：成功率、风险安全线、钱包目标。重点看 Astra / Delta / Grove 三种不同选择。
-            </p>
-          </>
+          <p className="g-board-hint">
+            市集还空着。点击场景里<b>市集公告板</b>上的「发布第一笔任务」，让居民自己来竞标。
+          </p>
         ) : (
           <div className="g-task-status">
             <span className="g-task-status-label">{derived.statusLabel}</span>
@@ -381,16 +349,10 @@ export function LeftPanel({
             </div>
           </div>
         )}
-
-        <button type="button" className="g-linkbtn" onClick={onOpenEvents}>
-          <HistoryIcon size={14} /> 查看本轮事件记录
-        </button>
       </section>
     </aside>
   );
 }
-
-/* ---------------- right panel ---------------- */
 
 function abilityRows(agent: DemoAgent, codingOverride?: number) {
   return [
@@ -404,52 +366,16 @@ export function AgentPanel({
   fixture,
   derived,
   selectedId,
-  focusAgentId,
-  onSelect,
   onClose,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
   selectedId: string | null;
-  focusAgentId: string | null;
-  onSelect: (id: string) => void;
   onClose: () => void;
 }) {
   const agent = fixture.agents.find((a) => a.id === selectedId) ?? null;
 
-  if (!agent) {
-    return (
-      <aside className="g-right">
-        <section className="g-card g-roster">
-          <div className="g-card-head">
-            <h2>居民名册</h2>
-            <span className="g-chip">{fixture.agents.length} 位</span>
-          </div>
-          <p className="g-muted g-roster-hint">
-            {focusAgentId ? '正在播放重点居民的决策；点击任意居民可查看完整档案。' : '点击场景中的居民，查看它为什么这样出价。'}
-          </p>
-          <div className="g-roster-grid">
-            {fixture.agents.map((a) => (
-              <button
-                key={a.id}
-                type="button"
-                className={`g-roster-item g-roster-item--${ROLE_KEY[a.role]} ${a.id === focusAgentId ? 'is-focus' : ''}`}
-                onClick={() => onSelect(a.id)}
-              >
-                <span className="g-roster-avatar">{roleIcon(a)}</span>
-                <span>
-                  <strong>{a.displayName}</strong>
-                  <em>
-                    {ROLE_LABEL[a.role]} · {a.personalityLabel}
-                  </em>
-                </span>
-              </button>
-            ))}
-          </div>
-        </section>
-      </aside>
-    );
-  }
+  if (!agent) return null;
 
   const isWinner = agent.id === derived.winnerId;
   const status = agentStatus(agent, derived);
@@ -632,21 +558,15 @@ export function Dock({
   onRestart: () => void;
 }) {
   const idx = STEP_INDEX[step];
+  const active = TIMELINE[idx]!;
   return (
     <footer className="g-dock">
-      <div className="g-dock-tabs">
-        <button type="button" className="g-tab is-on">
-          <MarketIcon size={16} /> 任务市场
-        </button>
-        <button type="button" className="g-tab" disabled title="下一阶段开放">
-          <SkillIcon size={16} /> 技能铺
-        </button>
-        <button type="button" className="g-tab" disabled title="下一阶段开放">
-          <InfoIcon size={16} /> 制度
-        </button>
-        <button type="button" className="g-tab" onClick={onOpenEvents}>
-          <HistoryIcon size={16} /> 事件历史
-        </button>
+      <div className="g-dock-step">
+        <span className="g-dock-step-label">{active.label}</span>
+        <span className="g-dock-step-hint">{active.hint}</span>
+        <span className="g-dock-step-count">
+          {idx + 1} / {TIMELINE.length}
+        </span>
       </div>
 
       <div className="g-playback">
@@ -658,7 +578,7 @@ export function Dock({
         </button>
         <button
           type="button"
-          className={playing ? 'g-btn g-btn--primary g-playbtn is-playing' : 'g-btn g-btn--primary g-playbtn'}
+          className={playing ? 'g-btn g-playbtn is-playing' : 'g-btn g-playbtn'}
           onClick={onTogglePlay}
         >
           {playing ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
@@ -670,19 +590,14 @@ export function Dock({
         <button type="button" className="g-speed" onClick={onSpeed} title="播放速度">
           <SpeedIcon size={15} /> {speed}x
         </button>
-        <div className="g-timeline" aria-hidden>
-          {TIMELINE.map((s, i) => (
-            <span key={s.id} className={i <= idx ? 'g-tick is-on' : 'g-tick'} title={s.label} />
-          ))}
-        </div>
       </div>
 
       <div className="g-dock-right">
-        <button type="button" className="g-btn g-btn--ghost" onClick={onRestart}>
-          <ResetIcon size={15} /> 重播演示
+        <button type="button" className="g-btn g-btn--ghost" onClick={onOpenEvents}>
+          <HistoryIcon size={15} /> 事件历史
         </button>
-        <button type="button" className="g-btn g-btn--next" disabled title="Vertical Slice 下一阶段：真实下一轮">
-          进入下一轮 <ChevronRightIcon size={15} />
+        <button type="button" className="g-btn g-btn--ghost" onClick={onRestart}>
+          <ResetIcon size={15} /> 重播
         </button>
       </div>
     </footer>
@@ -727,7 +642,17 @@ export function EventDrawer({ fixture, step, onClose }: { fixture: BidDemoFixtur
   );
 }
 
-export function DebugPanel({ fixture, view, onClose }: { fixture: BidDemoFixture; view: ViewMode; onClose: () => void }) {
+export function DebugPanel({
+  fixture,
+  view,
+  onViewChange,
+  onClose,
+}: {
+  fixture: BidDemoFixture;
+  view: ViewMode;
+  onViewChange: (v: ViewMode) => void;
+  onClose: () => void;
+}) {
   const focusEvents = fixture.rawEvents.filter(
     (e) => e.kind !== 'story' && (!e.payload?.taskId || e.payload.taskId === fixture.scenario.taskId)
   );
@@ -758,16 +683,23 @@ export function DebugPanel({ fixture, view, onClose }: { fixture: BidDemoFixture
           </dd>
         </div>
         <div>
-          <dt>视图</dt>
-          <dd>{view}</dd>
-        </div>
-        <div>
           <dt>性格 → 决策</dt>
           <dd>riskTolerance 决定安全线与报价，非文案</dd>
         </div>
         <div>
           <dt>经济结算</dt>
           <dd>仅由 simulation 引擎决定</dd>
+        </div>
+        <div>
+          <dt>视图（开发对照）</dt>
+          <dd className="g-debug-view">
+            <button type="button" className={view === '2.5d' ? 'g-debug-chip is-on' : 'g-debug-chip'} onClick={() => onViewChange('2.5d')}>
+              2.5D
+            </button>
+            <button type="button" className={view === '2d' ? 'g-debug-chip is-on' : 'g-debug-chip'} onClick={() => onViewChange('2d')}>
+              2D
+            </button>
+          </dd>
         </div>
       </dl>
       <h3>事件 JSON（重点任务）</h3>
@@ -876,7 +808,7 @@ export function BidBoard2D({
             )}
           </>
         ) : (
-          <span className="g-muted">点击播放，观看三种性格在同一订单上的不同决策。</span>
+          <span className="g-muted">点击播放，观看三种性格在同一任务上的不同决策。</span>
         )}
       </div>
     </div>

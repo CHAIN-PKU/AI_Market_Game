@@ -141,7 +141,7 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
       {selected && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]}>
           <ringGeometry args={[0.5, 0.66, 40]} />
-          <meshBasicMaterial color="#e0a94f" transparent opacity={0.85} />
+          <meshBasicMaterial color="#2f6f75" transparent opacity={0.9} />
         </mesh>
       )}
       <Html center position={[0, badgeY, 0]} zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
@@ -155,11 +155,9 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
           )}
         </div>
       </Html>
-      {bubble && (
-        <Html center position={[0, bubbleY, 0]} zIndexRange={[21, 0]} style={{ pointerEvents: 'none' }}>
-          <div className={`ga-bubble ga-bubble--${state}`}>{bubble}</div>
-        </Html>
-      )}
+      <Html center position={[0, bubbleY, 0]} zIndexRange={[21, 0]} style={{ pointerEvents: 'none' }}>
+        {bubble ? <div className={`ga-bubble ga-bubble--${state}`}>{bubble}</div> : null}
+      </Html>
     </group>
   );
 }

@@ -1,7 +1,12 @@
-# Agent 角色博弈 + 经济剧场 — 验收材料（2026-11-07 · v2）
+# Agent 角色博弈 + 经济剧场 — 验收材料（2026-11-07 · v2 / v3 设计升级）
 
 > 分支：`feat/visual-cozy-hud` · PR #2 · 演示路由：`/game`
-> 证据：`docs/screenshots/game-hud/`（1920 与 1366 各 13 张）、`docs/recordings/game-bid-demo-1280x720.mp4`
+> 证据：`docs/screenshots/game-hud/`（1920 与 1366）、`docs/recordings/game-bid-demo-1280x720.mp4`
+>
+> **v3 设计升级（world-first HUD）**：按 `frontend-design` 技能完成设计计划与渲染复盘 —
+> 全幅 3D 世界 + 浮动任务纸板 + 按需居民档案 + 单行播放坞；市集公告板成为唯一发布入口与中标/结算印章。
+> 计划见 `docs/DESIGN_PLAN_GAME_HUD_V3.md`，渲染复盘与评分见 `docs/DESIGN_REVIEW_GAME_HUD_V3.md`。
+> 本文件保留 v2 的功能与数值说明；截图已替换为 v3。
 
 ---
 
@@ -92,7 +97,9 @@
 - `07-assigned-1920x1080.png`（赢家 + 落标复盘）
 - `09-settled-1920x1080.png`（奖励 / 税 / 到手）
 - `10-skill-1920x1080.png`（买 Skill，能力 40→48）
-- `12-2d-board-1920x1080.png`（同一段竞标的 2D 信息板）
+- `12-2d-debug-1920x1080.png`（同一段竞标的 2D 信息板，仅开发面板内可切换）
+- `map-only-1920x1080.png`（隐藏 HUD 的仅地图诊断图）
+- `failure-glb-blocked-1920x1080.png`（GLB 阻断时的可见失败态 + 重试）
 - 1366×768 全套：`docs/screenshots/game-hud/1366/`
 
 ### 录屏

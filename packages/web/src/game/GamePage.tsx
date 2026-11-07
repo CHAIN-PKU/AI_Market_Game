@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Html } from '@react-three/drei';
+import { Component, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import fixtureJson from '../demo/bid-demo.fixture.json';
 import { GameScene } from './GameScene';
 import {
@@ -31,7 +31,7 @@ const fixture = fixtureJson as BidDemoFixture;
 
 const STATUS_LABEL: Record<StepId, string> = {
   idle: '待发布',
-  posted: '订单已公示',
+  posted: '任务已公示',
   focus_astra: 'Astra 正在评估',
   focus_delta: 'Delta 正在评估',
   focus_grove: 'Grove 正在评估',
@@ -44,18 +44,56 @@ const STATUS_LABEL: Record<StepId, string> = {
 };
 
 const STEP_HINT: Record<StepId, string> = {
-  idle: '发布订单，看看谁会来竞标',
-  posted: '市集把订单挂了出来，三位重点居民开始盘算',
+  idle: '点击市集公告板，发布第一笔任务',
+  posted: '市集把任务挂了出来，三位重点居民开始盘算',
   focus_astra: '谨慎型先看成功率是否过自己的安全线',
-  focus_delta: '积极型在算：差多少金币能买新 Skill',
+  focus_delta: '积极型在算：差多少金币能买新技能',
   focus_grove: '稳健型看长期能力，而不是最低价',
-  bids: '2 人报价、5 人放弃；所有理由都来自公开决策记录',
+  bids: '有人报价、有人放弃；所有理由都来自公开决策记录',
   assigned: '系统按「质量预测 × 报价」选出中标者，落标者会复盘',
   working: '中标者走向程序坊，开始干活',
   settled: '奖励入账，税金进入国库',
   skill: '赚到钱后，它决定把钱花在能力上',
   next: '能力变化会带进下一轮竞争',
 };
+
+class SceneBoundary extends Component<{ children: ReactNode; onRetry: () => void }, { error: string | null }> {
+  state: { error: string | null } = { error: null };
+
+  static getDerivedStateFromError(error: unknown) {
+    return { error: error instanceof Error ? error.message : String(error) };
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="g-scene-error" role="alert">
+          <strong>3D 场景加载失败</strong>
+          <p>{this.state.error}</p>
+          <button
+            type="button"
+            className="g-btn g-btn--ghost"
+            onClick={() => {
+              this.setState({ error: null });
+              this.props.onRetry();
+            }}
+          >
+            重试
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function SceneLoading() {
+  return (
+    <Html center position={[0, 1.8, 0]} zIndexRange={[30, 0]} style={{ pointerEvents: 'none' }}>
+      <div className="g-scene-loading">正在点亮晨曦文明…</div>
+    </Html>
+  );
+}
 
 export function GamePage() {
   const [step, setStep] = useState<StepId>('idle');
@@ -65,6 +103,7 @@ export function GamePage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showEvents, setShowEvents] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
+  const [sceneKey, setSceneKey] = useState(0);
 
   const winnerId = fixture.winner?.agentId ?? null;
   const winnerAgent = useMemo(() => fixture.agents.find((a) => a.id === winnerId) ?? null, [winnerId]);
@@ -147,14 +186,15 @@ export function GamePage() {
     const skillDone = atLeast(step, 'skill');
     const tax = fixture.settlement?.tax ?? 0;
     const publicShare = Math.round(tax * fixture.civilization.rules.publicResearchShare);
-    const treasury = settled ? fixture.civilization.treasuryStart + tax - publicShare : fixture.civilization.treasuryStart;
+    void publicShare;
+    // Treasury comes from the engine fixture (round truth), not a recomputed player-task slice.
+    const treasury = settled ? fixture.civilization.treasuryAfter : fixture.civilization.treasuryStart;
     const walletBefore = fixture.settlement?.walletBefore ?? 0;
     const net = fixture.settlement?.net ?? 0;
     const winnerWallet = settled ? walletBefore + net - (skillDone ? skill?.price ?? 0 : 0) : walletBefore;
     const successBefore = fixture.nextRound.successBefore ?? 0.35;
     const successAfter = fixture.nextRound.successAfter ?? 0.55;
-    const focusAbilityAfter =
-      fixture.nextRound.abilityAfter ?? winnerAgent?.abilities.coding ?? 40;
+    const focusAbilityAfter = fixture.nextRound.abilityAfter ?? winnerAgent?.abilities.coding ?? 40;
     return {
       step,
       posted,
@@ -174,85 +214,48 @@ export function GamePage() {
     };
   }, [step, winnerId, winnerAgent, skill]);
 
-  const stageStep = TIMELINE[STEP_INDEX[step]]!;
-
   return (
-    <div className="g-shell">
-      <TopBar
-        fixture={fixture}
-        derived={derived}
-        view={view}
-        onViewChange={setView}
-        onToggleDebug={() => setShowDebug((v) => !v)}
-      />
+    <div className={view === '2d' ? 'g-shell is-2d' : 'g-shell'}>
+      <TopBar fixture={fixture} derived={derived} onToggleDebug={() => setShowDebug((v) => !v)} />
+
+      <main className={`g-stage ${view === '2d' ? 'g-stage--2d' : ''}`}>
+        <div className="g-canvas-wrap">
+          <SceneBoundary
+            onRetry={() => {
+              setSceneKey((k) => k + 1);
+            }}
+          >
+            <Canvas
+              key={sceneKey}
+              shadows
+              dpr={[1, 1.6]}
+              camera={{ position: [0, 19, 25], fov: 45, near: 0.1, far: 140 }}
+              onPointerMissed={() => setSelectedId(null)}
+            >
+              <Suspense fallback={<SceneLoading />}>
+                <GameScene
+                  fixture={fixture}
+                  step={step}
+                  selectedId={selectedId}
+                  focusAgentId={focusAgent?.id ?? null}
+                  onSelect={setSelectedId}
+                  onPublish={startDemo}
+                />
+              </Suspense>
+            </Canvas>
+          </SceneBoundary>
+        </div>
+        {view === '2d' && <BidBoard2D fixture={fixture} derived={derived} onSelect={setSelectedId} />}
+      </main>
 
       <LeftPanel
         fixture={fixture}
         derived={derived}
         focusAgent={focusAgent}
         focusNumber={focusNumber}
-        onPublish={startDemo}
-        onOpenEvents={() => setShowEvents(true)}
       />
 
-      <main className={`g-stage ${view === '2d' ? 'g-stage--2d' : ''}`}>
-        {view === '2.5d' ? (
-          <Canvas
-            shadows
-            dpr={[1, 1.6]}
-            camera={{ position: [0, 19, 25], fov: 45, near: 0.1, far: 140 }}
-            onPointerMissed={() => setSelectedId(null)}
-          >
-            <Suspense fallback={null}>
-              <GameScene
-                fixture={fixture}
-                step={step}
-                selectedId={selectedId}
-                focusAgentId={focusAgent?.id ?? null}
-                onSelect={setSelectedId}
-              />
-            </Suspense>
-          </Canvas>
-        ) : (
-          <BidBoard2D fixture={fixture} derived={derived} onSelect={setSelectedId} />
-        )}
-
-        {step === 'idle' && (
-          <div className="g-onboarding">
-            <span className="g-onboarding-step">新玩家第一步</span>
-            <strong>发布第一笔订单</strong>
-            <p>看 Astra / Delta / Grove 三种性格，如何在同一个订单上做出不同决策。</p>
-            <button type="button" className="g-btn g-btn--primary" onClick={startDemo}>
-              发布订单演示
-            </button>
-          </div>
-        )}
-
-        {step !== 'idle' && (
-          <div className="g-step-ribbon">
-            <span className="g-step-label">
-              {stageStep.label}
-              <em>{stageStep.hint}</em>
-            </span>
-            <span className="g-step-progress">
-              {STEP_INDEX[step] + 1}/{TIMELINE.length}
-            </span>
-          </div>
-        )}
-
-        <Link to="/" className="g-home-link">
-          回到入口
-        </Link>
-      </main>
-
-      <AgentPanel
-        fixture={fixture}
-        derived={derived}
-        selectedId={selectedId}
-        focusAgentId={focusAgent?.id ?? null}
-        onSelect={setSelectedId}
-        onClose={() => setSelectedId(null)}
-      />
+      <AgentPanel fixture={fixture} derived={derived} selectedId={selectedId} onClose={() => setSelectedId(null)} />
 
       <Dock
         step={step}
@@ -268,7 +271,9 @@ export function GamePage() {
       />
 
       {showEvents && <EventDrawer fixture={fixture} step={step} onClose={() => setShowEvents(false)} />}
-      {showDebug && <DebugPanel fixture={fixture} view={view} onClose={() => setShowDebug(false)} />}
+      {showDebug && (
+        <DebugPanel fixture={fixture} view={view} onViewChange={setView} onClose={() => setShowDebug(false)} />
+      )}
     </div>
   );
 }
