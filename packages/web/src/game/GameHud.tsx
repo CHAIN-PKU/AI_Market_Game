@@ -99,6 +99,7 @@ export function TopBar({
   onStartCampaign,
   onNextCampaign,
   onOpenHistory,
+  onOpenGuide,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
@@ -109,6 +110,7 @@ export function TopBar({
   onStartCampaign: () => void;
   onNextCampaign: () => void;
   onOpenHistory: () => void;
+  onOpenGuide: () => void;
 }) {
   return (
     <header className="g-top">
@@ -173,7 +175,10 @@ export function TopBar({
         <button type="button" className="g-btn g-btn--ghost g-rules-btn" onClick={onOpenInstitutions}>
           改规则
         </button>
-        <button type="button" className="g-icon-btn" title="帮助与开发者信息" onClick={onToggleDebug}>
+        <button type="button" className="g-icon-btn g-guide-open" onClick={onOpenGuide} aria-label="怎么玩" title="怎么玩">
+          ?
+        </button>
+        <button type="button" className="g-icon-btn" title="帮助与开发者信息" aria-label="开发者信息" onClick={onToggleDebug}>
           <GearIcon size={16} />
         </button>
       </div>

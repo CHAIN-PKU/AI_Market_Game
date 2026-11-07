@@ -48,6 +48,16 @@
 
 ---
 
+## 2.5 「怎么玩」30 秒
+
+顶栏 `?` 打开「30 秒看懂」：
+
+1. 发任务：看谁想接、谁不接、报价多少
+2. 看理由：点居民，看它怎么想、怕什么、想买什么
+3. 改规则：调税、公共研发、技能归谁，再跑一轮看变化
+
+弹窗里可以直接「先看一轮」，也可以「自己逛逛」。没有自动弹窗，不打断回访玩家。
+
 ## 3. 证据
 
 | 内容 | 文件 |
@@ -62,6 +72,7 @@
 | 改规则前后对比（左栏常驻，可再改一次） | `docs/screenshots/plain-ui/compare-retry-1920.png` |
 | 编年史里的本事变化 | `docs/screenshots/plain-ui/history-ability-1920.png` |
 | 5 轮结束小结 | `docs/screenshots/plain-ui/history-summary-1920.png` |
+| 「怎么玩」30 秒 | `docs/screenshots/plain-ui/guide-1920.png` |
 | 事件抽屉中文化 | `docs/screenshots/plain-ui/events-cn-1920.png` |
 | 53 秒 MP4 | `docs/recordings/ai-civ-demo-2026-11-08.mp4` |
 

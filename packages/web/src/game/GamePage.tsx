@@ -5,6 +5,7 @@ import { Component, Suspense, useCallback, useEffect, useMemo, useState, type Re
 import fixtureJson from '../demo/bid-demo.fixture.json';
 import { GameScene } from './GameScene';
 import { CampaignHistory } from './CampaignHistory';
+import { Guide } from './Guide';
 import { InstitutionPanel, summarizeRun } from './InstitutionPanel';
 import { QUALITY, readQuality, writeQuality, type Quality } from './quality';
 import {
@@ -119,6 +120,7 @@ export function GamePage() {
     history: RoundHistory[];
   } | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const [campaignBusy, setCampaignBusy] = useState(false);
   const [compare, setCompare] = useState<RuleCompare | null>(null);
   const [quality, setQuality] = useState<Quality>(() => readQuality());
@@ -422,6 +424,7 @@ export function GamePage() {
         onStartCampaign={startCampaign}
         onNextCampaign={nextCampaign}
         onOpenHistory={() => setShowHistory(true)}
+        onOpenGuide={() => setShowGuide(true)}
       />
 
       <main className={`g-stage ${view === '2d' ? 'g-stage--2d' : ''}`}>
@@ -500,6 +503,10 @@ export function GamePage() {
 
       {showInstitutions && (
         <InstitutionPanel fixture={fixture} onClose={() => setShowInstitutions(false)} onApplied={applyRound} />
+      )}
+
+      {showGuide && (
+        <Guide onClose={() => setShowGuide(false)} onStart={campaign ? undefined : startDemo} />
       )}
 
       {showHistory && campaign && (
