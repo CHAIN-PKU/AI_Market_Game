@@ -3464,12 +3464,18 @@
 
 .g-compare-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px 8px;
+}
+
+.g-compare-head > span {
+  flex: 1 1 100%;
 }
 
 .g-compare-retry {
+  white-space: nowrap;
   border: 0;
   background: transparent;
   color: var(--g-teal-deep);
@@ -3637,4 +3643,11 @@
   color: var(--g-ink);
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+.g-compare-actions {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  gap: 10px;
 }

@@ -58,6 +58,15 @@
 
 弹窗里可以直接「先看一轮」，也可以「自己逛逛」。没有自动弹窗，不打断回访玩家。
 
+## 2.6 存成对比图
+
+左栏对比卡右上角新增「存成图片」：生成 1200×1200 的对比卡，可直接发人。卡上写清：
+
+- 同一批居民，两套规则
+- 税、中标、到手、技能、本事的前后变化
+- 变了的行标「变了」
+- 数字由引擎计算，动画不改结果
+
 ## 3. 证据
 
 | 内容 | 文件 |
@@ -73,6 +82,8 @@
 | 编年史里的本事变化 | `docs/screenshots/plain-ui/history-ability-1920.png` |
 | 5 轮结束小结（含收入柱状图） | `docs/screenshots/plain-ui/history-summary-1920.png` |
 | 「怎么玩」30 秒 | `docs/screenshots/plain-ui/guide-1920.png` |
+| 存成对比图（界面） | `docs/screenshots/plain-ui/compare-share-1920.png` |
+| 存成对比图（1200×1200） | `docs/screenshots/plain-ui/compare-share-card.png` |
 | 事件抽屉中文化 | `docs/screenshots/plain-ui/events-cn-1920.png` |
 | 53 秒 MP4 | `docs/recordings/ai-civ-demo-2026-11-08.mp4` |
 

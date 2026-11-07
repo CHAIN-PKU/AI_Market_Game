@@ -3,6 +3,7 @@ import { DOMAIN_LABEL, ROLE_KEY, ROLE_LABEL, type RuleCompare } from './types';
 import { QUALITY, type Quality } from './quality';
 import { STEP_INDEX, TIMELINE, buildPlaybackCues, type StepId } from './playback';
 import { eventText } from './eventText';
+import { downloadCompareCard } from './shareCard';
 import {
   decisionBadge,
   decisionHeadline,
@@ -304,9 +305,18 @@ export function LeftPanel({
           <div className="g-compare">
             <div className="g-compare-head">
               <span>上次改规则 · 同一批人，结果变了</span>
-              <button type="button" className="g-compare-retry" onClick={onOpenRules}>
-                再改一次
-              </button>
+              <span className="g-compare-actions">
+                <button
+                  type="button"
+                  className="g-compare-retry"
+                  onClick={() => downloadCompareCard(compare, fixture.civilization.name)}
+                >
+                  存成图片
+                </button>
+                <button type="button" className="g-compare-retry" onClick={onOpenRules}>
+                  再改一次
+                </button>
+              </span>
             </div>
             <div className="g-compare-row">
               <span>中标</span>

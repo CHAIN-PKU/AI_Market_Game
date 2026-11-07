@@ -271,6 +271,8 @@ export function GamePage() {
       const afterWinner = next.winner?.displayName ?? '没人';
       const afterNet = next.settlement?.net;
       const afterSkill = next.skillPurchase[0]?.name;
+      const beforeAbility = fixture.nextRound.abilityAfter;
+      const afterAbility = next.nextRound.abilityAfter;
       const compareText =
         beforeNet !== undefined && afterNet !== undefined
           ? `改规则后：${beforeWinner} → ${afterWinner} · 到手 ${beforeNet} → ${afterNet} · 技能 ${beforeSkill ? '买了' : '没买'} → ${afterSkill ? '买了' : '没买'}`
@@ -283,6 +285,10 @@ export function GamePage() {
           afterNet,
           beforeSkill: beforeSkill ?? null,
           afterSkill: afterSkill ?? null,
+          beforeTax: fixture.civilization.rules.taxRate,
+          afterTax: next.civilization.rules.taxRate,
+          beforeAbility,
+          afterAbility,
         });
       }
 

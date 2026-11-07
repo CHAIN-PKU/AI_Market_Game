@@ -202,4 +202,8 @@ export type RuleCompare = {
   afterNet: number | null;
   beforeSkill: string | null;
   afterSkill: string | null;
+  beforeTax: number;
+  afterTax: number;
+  beforeAbility: number | null;
+  afterAbility: number | null;
 };
