@@ -51,6 +51,16 @@ POST /api/campaign/:id/next
 - 历史由服务端从每轮 fixture 汇总并落盘，动画不会改写。
 - 截图：`docs/screenshots/campaign/history-1920.png`
 
+## 2.7 导出编年史
+
+「文明编年史」底部提供：
+
+- **导出 Markdown**：标题 + 制度/税率 + 表格 + 累计税 + 引擎声明
+- **导出 JSON**：完整 meta + history + `exportedAt`
+- **复制分享文案**：适合直接发飞书
+
+文件由浏览器本地生成，不经过服务器；截图：`docs/screenshots/campaign/history-export-1920.png`
+
 ## 3. API
 
 `/game` 现在走正式 `createGame` / `advance` 路由的 **demo 模式**：

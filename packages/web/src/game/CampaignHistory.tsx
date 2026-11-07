@@ -1,20 +1,47 @@
+import { useState } from 'react';
 import { CloseIcon } from './icons';
+import { chronicleJson, chronicleMarkdown, chronicleShareText } from './campaignExport';
 import { gold } from './presentation';
 import { DOMAIN_LABEL, type RoundHistory } from './types';
 
+function download(filename: string, text: string, type: string) {
+  const blob = new Blob([text], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function CampaignHistory({
+  civilization,
   round,
   maxRounds,
+  rules,
   history,
   onClose,
 }: {
+  civilization: string;
   round: number;
   maxRounds: number;
+  rules: { name: string; taxRate: number };
   history: RoundHistory[];
   onClose: () => void;
 }) {
+  const [copied, setCopied] = useState(false);
   const totalTax = history.reduce((sum, r) => sum + (r.tax ?? 0), 0);
   const wins = history.filter((r) => r.winner).length;
+  const meta = { civilization, round, maxRounds, rules, history };
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+
+  const copyShare = () => {
+    const text = chronicleShareText(meta);
+    void navigator.clipboard?.writeText(text).then(() => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    });
+  };
   return (
     <div className="g-modal-backdrop" role="presentation" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <section className="g-history" role="dialog" aria-modal="true" aria-labelledby="g-history-title">
@@ -82,9 +109,28 @@ export function CampaignHistory({
 
         <footer className="g-history-foot">
           <span className="g-muted">历史只记录引擎结果，不由动画改写。</span>
-          <button type="button" className="g-btn g-btn--ghost" onClick={onClose}>
-            关闭
-          </button>
+          <div className="g-history-actions">
+            <button
+              type="button"
+              className="g-btn g-btn--ghost"
+              onClick={() => download(`ai-civ-chronicle-${stamp}.md`, chronicleMarkdown(meta), 'text/markdown')}
+            >
+              导出 Markdown
+            </button>
+            <button
+              type="button"
+              className="g-btn g-btn--ghost"
+              onClick={() => download(`ai-civ-chronicle-${stamp}.json`, chronicleJson(meta), 'application/json')}
+            >
+              导出 JSON
+            </button>
+            <button type="button" className="g-btn g-btn--ghost" onClick={copyShare}>
+              {copied ? '已复制' : '复制分享文案'}
+            </button>
+            <button type="button" className="g-btn g-btn--ghost" onClick={onClose}>
+              关闭
+            </button>
+          </div>
         </footer>
       </section>
     </div>

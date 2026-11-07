@@ -475,8 +475,10 @@ export function GamePage() {
 
       {showHistory && campaign && (
         <CampaignHistory
+          civilization={fixture.civilization.name}
           round={campaign.round}
           maxRounds={campaign.maxRounds}
+          rules={fixture.civilization.rules}
           history={campaign.history}
           onClose={() => setShowHistory(false)}
         />

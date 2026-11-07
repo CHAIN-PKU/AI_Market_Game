@@ -3360,3 +3360,11 @@
 .g-campaign-chip {
   cursor: pointer;
 }
+
+.g-history-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
