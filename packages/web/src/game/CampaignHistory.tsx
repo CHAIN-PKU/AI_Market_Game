@@ -20,6 +20,8 @@ export function CampaignHistory({
   maxRounds,
   rules,
   history,
+  done,
+  onRestart,
   onClose,
 }: {
   civilization: string;
@@ -27,11 +29,23 @@ export function CampaignHistory({
   maxRounds: number;
   rules: { name: string; taxRate: number };
   history: RoundHistory[];
+  done?: boolean;
+  onRestart?: () => void;
   onClose: () => void;
 }) {
   const [copied, setCopied] = useState(false);
   const totalTax = history.reduce((sum, r) => sum + (r.tax ?? 0), 0);
   const wins = history.filter((r) => r.winner).length;
+  const winnerCounts = new Map<string, number>();
+  for (const r of history) {
+    if (r.winner) winnerCounts.set(r.winner, (winnerCounts.get(r.winner) ?? 0) + 1);
+  }
+  const skillCount = history.filter((r) => r.skill).length;
+  const maxGain = history.reduce((max, r) => {
+    if (r.abilityBefore == null || r.abilityAfter == null) return max;
+    return Math.max(max, r.abilityAfter - r.abilityBefore);
+  }, 0);
+  const lastTreasury = history[history.length - 1]?.treasuryAfter ?? null;
   const meta = { civilization, round, maxRounds, rules, history };
   const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
 
@@ -65,7 +79,26 @@ export function CampaignHistory({
           <span>
             税钱 <b>{gold(totalTax)}</b>
           </span>
+          <span>
+            买技能 <b>{skillCount}</b> 次
+          </span>
+          <span>
+            最大本事 <b>+{maxGain}</b>
+          </span>
+          <span>
+            国库 <b>{lastTreasury === null ? '—' : gold(lastTreasury)}</b>
+          </span>
         </div>
+
+        {winnerCounts.size > 0 && (
+          <p className="g-history-winners">
+            谁接过单：
+            {[...winnerCounts.entries()]
+              .sort((a, b) => b[1] - a[1])
+              .map(([name, n]) => `${name} ${n} 次`)
+              .join(' · ')}
+          </p>
+        )}
 
         {history.length === 0 ? (
           <p className="g-history-empty">还没有记录。推进一轮后再来看。</p>
@@ -94,7 +127,7 @@ export function CampaignHistory({
                       </span>
                       {r.title}
                     </td>
-                    <td>{r.winner ?? '流标'}</td>
+                    <td>{r.winner ?? '流标'}{r.failed ? ' · 搞砸' : ''}</td>
                     <td>{r.bid === null ? '—' : gold(r.bid)}</td>
                     <td>{r.tax === null ? '—' : `${gold(r.tax)} / ${gold(r.net ?? 0)}`}</td>
                     <td>{r.skill ?? '—'}</td>
@@ -135,6 +168,18 @@ export function CampaignHistory({
             <button type="button" className="g-btn g-btn--ghost" onClick={copyShare}>
               {copied ? '已复制' : '复制分享文案'}
             </button>
+            {done && onRestart && (
+              <button
+                type="button"
+                className="g-btn g-btn--primary"
+                onClick={() => {
+                  onRestart();
+                  onClose();
+                }}
+              >
+                再跑 5 轮
+              </button>
+            )}
             <button type="button" className="g-btn g-btn--ghost" onClick={onClose}>
               关闭
             </button>

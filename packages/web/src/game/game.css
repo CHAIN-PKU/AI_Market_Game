@@ -3482,3 +3482,9 @@
 .g-compare-retry:hover {
   text-decoration: underline;
 }
+
+.g-history-winners {
+  margin: -4px 0 10px;
+  color: var(--g-muted);
+  font-size: var(--g-fs-micro);
+}

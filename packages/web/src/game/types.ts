@@ -183,6 +183,7 @@ export type RoundHistory = {
   domain: string;
   title: string;
   winner: string | null;
+  failed?: boolean;
   bid: number | null;
   tax: number | null;
   net: number | null;

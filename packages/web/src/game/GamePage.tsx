@@ -509,6 +509,8 @@ export function GamePage() {
           maxRounds={campaign.maxRounds}
           rules={fixture.civilization.rules}
           history={campaign.history}
+          done={campaign.done}
+          onRestart={startCampaign}
           onClose={() => setShowHistory(false)}
         />
       )}

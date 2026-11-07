@@ -34,7 +34,7 @@ export function chronicleMarkdown(meta: ChronicleMeta, now = new Date()): string
   for (const r of meta.history) {
     const domain = DOMAIN_LABEL[r.domain as keyof typeof DOMAIN_LABEL] ?? r.domain;
     lines.push(
-      `| ${r.round} | ${domain} · ${r.title.replace(/\|/g, '\\|')} | ${r.winner ?? '流标'} | ${gold(r.bid)} | ${gold(r.tax)} / ${gold(r.net)} | ${r.skill ?? '—'} | ${ability(r)} | ${gold(r.treasuryAfter)} |`,
+      `| ${r.round} | ${domain} · ${r.title.replace(/\|/g, '\\|')} | ${r.winner ?? '流标'}${r.failed ? '（搞砸）' : ''} | ${gold(r.bid)} | ${gold(r.tax)} / ${gold(r.net)} | ${r.skill ?? '—'} | ${ability(r)} | ${gold(r.treasuryAfter)} |`,
     );
   }
   lines.push('');

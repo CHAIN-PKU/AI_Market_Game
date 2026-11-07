@@ -109,6 +109,7 @@ type RoundHistory = {
   domain: string;
   title: string;
   winner: string | null;
+  failed: boolean;
   bid: number | null;
   tax: number | null;
   net: number | null;
@@ -128,6 +129,7 @@ function summarizeFixture(fixture: DemoFixture): RoundHistory {
     domain: fixture.scenario.domain,
     title: fixture.scenario.title,
     winner: winner?.displayName ?? null,
+    failed: winner?.failed ?? false,
     bid: winner?.bidAmount ?? null,
     tax: fixture.settlement?.tax ?? null,
     net: fixture.settlement?.net ?? null,
