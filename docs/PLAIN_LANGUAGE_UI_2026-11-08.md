@@ -85,7 +85,7 @@
 | 存成对比图（界面） | `docs/screenshots/plain-ui/compare-share-1920.png` |
 | 存成对比图（1200×1200） | `docs/screenshots/plain-ui/compare-share-card.png` |
 | 事件抽屉中文化 | `docs/screenshots/plain-ui/events-cn-1920.png` |
-| 53 秒 MP4 | `docs/recordings/ai-civ-demo-2026-11-08.mp4` |
+| 57 秒 MP4 | `docs/recordings/ai-civ-demo-2026-11-08.mp4` |
 
 ---
 

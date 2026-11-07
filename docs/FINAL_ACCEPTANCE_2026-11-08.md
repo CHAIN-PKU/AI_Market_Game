@@ -15,6 +15,7 @@
 - 测试：**31/31**（simulation 19 + web 12）
 - 构建：simulation / server / web 全部通过
 - 视觉：Quaternius 角色 + toon + 描边 + 决策特写 + 高/中/低画质档
+- 大白话：怎么玩 / 先看一轮 / 改规则常驻对比 / 存成图片 / 5 轮小结与收入柱状图
 - 证据：1920 / 1366 / 3840×2160 截图、事件 JSON、编年史导出
 
 P0 五项均有可运行版本，**最后一项 `/game`→`createGame/advance` 是 demo adapter，不是经典双文明 GameStore**（见 §6）。

@@ -54,7 +54,7 @@
 
 - 首屏加「你是制度设计师」；顶栏/左右栏/规则/编年史全部换成口语化短句。
 - 右侧移除未实现的「合作偏好」，决策因子压缩到 4 个。
-- 53 秒 1080p MP4：`docs/recordings/ai-civ-demo-2026-11-08.mp4`
+- 57 秒 1080p MP4：`docs/recordings/ai-civ-demo-2026-11-08.mp4`
 - 详情：`docs/PLAIN_LANGUAGE_UI_2026-11-08.md`
 
 ### 3.13 编年史导出
