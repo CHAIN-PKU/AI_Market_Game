@@ -219,16 +219,16 @@ function campaignMeta(campaign: BidDemoCampaign) {
   };
 }
 
-app.post<{
-  Body: {
-    seed?: number;
-    maxRounds?: number;
-    tasksPerRound?: number;
-    initialAbility?: number;
-    rules?: RulesPatch;
-  };
-}>('/api/campaign', async (req) => {
-  const body = req.body ?? {};
+type DemoCreateBody = {
+  demo?: boolean;
+  seed?: number;
+  maxRounds?: number;
+  tasksPerRound?: number;
+  initialAbility?: number;
+  rules?: RulesPatch;
+};
+
+function startDemoCampaign(body: DemoCreateBody) {
   const maxRounds = Math.min(10, Math.max(1, Math.round(body.maxRounds ?? 5)));
   const campaign = createBidDemoCampaign({
     seed: body.seed,
@@ -239,13 +239,47 @@ app.post<{
   });
   const { fixture } = advanceBidDemoCampaign(campaign);
   const id = randomUUID();
-  const record = { campaign, fixture, history: [summarizeFixture(fixture)] };
+  const record: CampaignRecord = { campaign, fixture, history: [summarizeFixture(fixture)] };
   campaigns.set(id, record);
   saveCampaign(id, record);
+  return { id, record };
+}
+
+function demoGamePayload(id: string, record: CampaignRecord, status = 'running') {
   return {
     id,
-    fixture,
-    campaign: { ...campaignMeta(campaign), history: record.history },
+    state: record.campaign.state,
+    fixture: record.fixture,
+    campaign: { ...campaignMeta(record.campaign), history: record.history },
+    status,
+    meta: { agentBrain: 'deterministic-mock', mode: 'demo' as const },
+  };
+}
+
+function advanceDemoCampaign(id: string, record: CampaignRecord) {
+  const { campaign } = record;
+  if (campaign.completedRounds >= campaign.maxRounds) return null;
+  const { fixture } = advanceBidDemoCampaign(campaign);
+  record.fixture = fixture;
+  record.history.push(summarizeFixture(fixture));
+  saveCampaign(id, record);
+  return demoGamePayload(id, record);
+}
+
+app.post<{
+  Body: {
+    seed?: number;
+    maxRounds?: number;
+    tasksPerRound?: number;
+    initialAbility?: number;
+    rules?: RulesPatch;
+  };
+}>('/api/campaign', async (req) => {
+  const { id, record } = startDemoCampaign(req.body ?? {});
+  return {
+    id,
+    fixture: record.fixture,
+    campaign: { ...campaignMeta(record.campaign), history: record.history },
     meta: { engine: 'deterministic-mock' },
   };
 });
@@ -335,8 +369,13 @@ app.get<{ Params: { id: string } }>('/api/games/:id/mind', async (req, reply) =>
   });
 });
 
-app.post<{ Body: { rounds?: number } }>('/api/games', async (req) => {
-  const rounds = req.body?.rounds ?? 30;
+app.post<{ Body: DemoCreateBody & { rounds?: number } }>('/api/games', async (req) => {
+  const body = req.body ?? {};
+  if (body.demo) {
+    const { id, record } = startDemoCampaign(body);
+    return demoGamePayload(id, record);
+  }
+  const rounds = body.rounds ?? 30;
   const session = await store.create(rounds);
   return {
     id: session.id,
@@ -346,6 +385,8 @@ app.post<{ Body: { rounds?: number } }>('/api/games', async (req) => {
 });
 
 app.get<{ Params: { id: string } }>('/api/games/:id', async (req, reply) => {
+  const demo = getCampaign(req.params.id);
+  if (demo) return demoGamePayload(req.params.id, demo);
   const session = store.get(req.params.id);
   if (!session) return reply.code(404).send({ error: 'not_found' });
   return {
@@ -405,11 +446,25 @@ async function respondStepResult(
 }
 
 app.post<{ Params: { id: string } }>('/api/games/:id/step', async (req, reply) => {
+  const demo = getCampaign(req.params.id);
+  if (demo) {
+    const payload = advanceDemoCampaign(req.params.id, demo);
+    if (!payload) return reply.code(409).send({ error: 'campaign_finished' });
+    return payload;
+  }
   const result = await store.step(req.params.id);
   return respondStepResult(reply, result);
 });
 
 app.post<{ Params: { id: string } }>('/api/games/:id/advance', async (req, reply) => {
+  const demo = getCampaign(req.params.id);
+  if (demo) {
+    const payload = advanceDemoCampaign(req.params.id, demo);
+    if (!payload) {
+      return reply.code(409).send({ error: 'campaign_finished', campaign: { ...campaignMeta(demo.campaign), history: demo.history } });
+    }
+    return payload;
+  }
   try {
     const result = await store.advance(req.params.id);
     return respondStepResult(reply, result);

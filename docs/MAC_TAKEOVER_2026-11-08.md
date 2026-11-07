@@ -50,6 +50,14 @@
 - API 失败时红条阻断并提示启动 `npm run dev:server`，**不静默回退**。
 - 高税场景下，界面明确显示「Delta 税后剩 65 金，买不起 80 金的 Clean Code Patterns；能力停在 40」——制度直接改变消费与下一轮能力。
 
+### 3.12 接上 `/api/games` 的 createGame / advance
+
+- `/game` 的 5 轮文明改为调用 `POST /api/games`（`demo:true`）与 `POST /api/games/:id/advance`。
+- 返回 `{ state, fixture, campaign, status }`；`GET /api/games/:id` 支持刷新恢复。
+- 不带 `demo` 的 `/api/games` 继续走经典双文明 GameStore，`/classic` 不受影响。
+- 兼容旧 `/api/campaign` 路由。
+- 仍是一个 demo adapter，不是把 campaign 塞进经典 GameStore；两套状态后续统一。
+
 ### 3.11 文明编年史
 
 - 5 轮文明每轮记录：任务域/标题、中标者、报价、税/到手、技能、国库。
@@ -150,7 +158,7 @@
 - 国库跳变已拆解：结算状态卡显示「本任务税 / 其他任务税 / 公共研发」；详见 `INSTITUTION_LAB.md` §5。
 - 右侧居民档案已把「公开决策记录」提到性格参数之前，1080 高度下决策因子、目标、能力、履历一屏可见（`docs/screenshots/mac-verify/2026-11-08-panel-order-1920.png`）。
 - 三个既有问题未处理：drei portal `removeChild` 警告、404 资源、三套调色板未统一。
-- 5 轮文明已跑通且落盘恢复（`runtime/campaigns/`），但仍不是 `/api/games` 的 `createGame/advance`。
+- 5 轮文明已跑通且落盘恢复（`runtime/campaigns/`），并通过 `/api/games` 的 demo 模式使用 `createGame/advance` 路由；仍不是经典双文明 `GameStore`。
 - Event Playback 已到 cue-by-cue：`rawEvents → 逐事件点`、播放坞显示「事件 X/Y」、跳过/暂停/倍速契约已测。
 
 ---
@@ -159,7 +167,7 @@
 
 1. **`/game` 接 `createGame` / `advance` 与事件队列**（跳过动画不改 `GameState` 的契约测试）。
 2. **5–7 轮连续实验**：每轮沿用上一轮的钱包/能力，制度对比才完整。
-3. 接 `/api/games` 的 createGame/advance 协议。
+3. 统一 demo campaign 与经典 `/api/games` 的 GameStore（避免两套状态）。
 4. 更精细的角色资产与建筑材质分层。
 5. 文明编年史导出（Markdown/JSON）。
 

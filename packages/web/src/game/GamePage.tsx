@@ -299,7 +299,7 @@ export function GamePage() {
     const id = localStorage.getItem('dsh-campaign-id');
     if (!id) return;
     let cancelled = false;
-    fetch(`/api/campaign/${id}`)
+    fetch(`/api/games/${id}`)
       .then(async (res) => {
         if (!res.ok) {
           if (res.status === 404) localStorage.removeItem('dsh-campaign-id');
@@ -329,10 +329,11 @@ export function GamePage() {
     setCampaignBusy(true);
     try {
       const r = fixture.civilization.rules;
-      const res = await fetch('/api/campaign', {
+      const res = await fetch('/api/games', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          demo: true,
           seed: fixture.seed,
           tasksPerRound: fixture.tasksPerRound,
           initialAbility: fixture.initialAbility,
@@ -364,7 +365,7 @@ export function GamePage() {
     if (!campaign || campaign.done) return;
     setCampaignBusy(true);
     try {
-      const res = await fetch(`/api/campaign/${campaign.id}/next`, { method: 'POST' });
+      const res = await fetch(`/api/games/${campaign.id}/advance`, { method: 'POST' });
       if (!res.ok) {
         const text = await res.text().catch(() => '');
         throw new Error(`HTTP ${res.status}${text ? `：${text.slice(0, 100)}` : ''}`);

@@ -53,19 +53,22 @@ POST /api/campaign/:id/next
 
 ## 3. API
 
-`POST /api/campaign`
+`/game` 现在走正式 `createGame` / `advance` 路由的 **demo 模式**：
+
+`POST /api/games`
 
 ```json
-{ "seed": 20, "maxRounds": 5, "tasksPerRound": 2, "initialAbility": 28,
+{ "demo": true, "seed": 20, "maxRounds": 5, "tasksPerRound": 2, "initialAbility": 28,
   "rules": { "name": "自由市场", "taxRate": 0.08, "publicResearchShare": 0.1, "skillOwnership": "private" } }
 ```
 
-返回 `{ id, fixture, campaign: { round, maxRounds, done, seed, rules, history } }`。
+返回 `{ id, state, fixture, campaign: { round, maxRounds, done, seed, rules, history }, status }`。
 
-`POST /api/campaign/:id/next`（空 body，不要带 `Content-Type: application/json`）
-返回同样结构；跑满后返回 `409 campaign_finished`。
+`POST /api/games/:id/advance` 推进一轮；跑满后返回 `409 campaign_finished`。
+`GET /api/games/:id` 返回进度 + history + 最近一轮 fixture。
+不带 `demo` 的 `/api/games` 仍然走经典双文明 `GameStore`，`/classic` 不受影响。
 
-`GET /api/campaign/:id` 返回进度 + history + 最近一轮 fixture。
+兼容别名：`POST /api/campaign`、`POST /api/campaign/:id/next`、`GET /api/campaign/:id` 行为相同。
 
 ---
 
