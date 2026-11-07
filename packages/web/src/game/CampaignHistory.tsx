@@ -54,6 +54,7 @@ export function CampaignHistory({
   }
   const earners = [...incomeTotals.entries()].filter(([, net]) => net > 0).sort((a, b) => b[1] - a[1]);
   const zeroEarners = [...incomeTotals.entries()].filter(([, net]) => net <= 0).length;
+  const maxIncome = earners[0]?.[1] ?? 0;
   const meta = { civilization, round, maxRounds, rules, history };
   const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
 
@@ -109,14 +110,27 @@ export function CampaignHistory({
         )}
 
         {earners.length > 0 && (
-          <p className="g-history-income">
-            谁赚到了钱：
-            {earners
-              .slice(0, 4)
-              .map(([name, net]) => `${name} ${gold(net)}`)
-              .join(' · ')}
-            {zeroEarners > 0 ? ` · 其他 ${zeroEarners} 人 0 金` : ''}
-          </p>
+          <div className="g-income-block">
+            <p className="g-history-income">
+              谁赚到了钱：
+              {earners
+                .slice(0, 4)
+                .map(([name, net]) => `${name} ${gold(net)}`)
+                .join(' · ')}
+              {zeroEarners > 0 ? ` · 其他 ${zeroEarners} 人 0 金` : ''}
+            </p>
+            <div className="g-income-chart">
+              {earners.slice(0, 4).map(([name, net]) => (
+                <div key={name} className="g-income-row">
+                  <span>{name}</span>
+                  <div className="g-income-track">
+                    <i style={{ width: `${maxIncome > 0 ? Math.max(4, (net / maxIncome) * 100) : 0}%` }} />
+                  </div>
+                  <b>{gold(net)}</b>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {history.length === 0 ? (

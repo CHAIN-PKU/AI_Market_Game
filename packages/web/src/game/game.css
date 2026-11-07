@@ -3593,3 +3593,48 @@
   color: var(--g-muted);
   font-size: var(--g-fs-micro);
 }
+
+.g-income-block {
+  margin: -4px 0 10px;
+}
+
+.g-income-chart {
+  display: grid;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.g-income-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 72px;
+  align-items: center;
+  gap: 8px;
+  color: var(--g-muted);
+  font-size: 10px;
+}
+
+.g-income-row > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.g-income-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #eee5d5;
+  overflow: hidden;
+}
+
+.g-income-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6fb6a6, #3f8f96);
+}
+
+.g-income-row b {
+  color: var(--g-ink);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

@@ -71,7 +71,7 @@
 | 改规则前后对比（toast） | `docs/screenshots/plain-ui/compare-1920.png` |
 | 改规则前后对比（左栏常驻，可再改一次） | `docs/screenshots/plain-ui/compare-retry-1920.png` |
 | 编年史里的本事变化 | `docs/screenshots/plain-ui/history-ability-1920.png` |
-| 5 轮结束小结（含谁赚到了钱） | `docs/screenshots/plain-ui/history-summary-1920.png` |
+| 5 轮结束小结（含收入柱状图） | `docs/screenshots/plain-ui/history-summary-1920.png` |
 | 「怎么玩」30 秒 | `docs/screenshots/plain-ui/guide-1920.png` |
 | 事件抽屉中文化 | `docs/screenshots/plain-ui/events-cn-1920.png` |
 | 53 秒 MP4 | `docs/recordings/ai-civ-demo-2026-11-08.mp4` |
