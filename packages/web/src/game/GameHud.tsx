@@ -658,6 +658,8 @@ export function Dock({
   onPrev,
   onReset,
   onSkip,
+  cuePosition,
+  cueCount,
   onSpeed,
   onOpenEvents,
   onRestart,
@@ -665,6 +667,8 @@ export function Dock({
   step: StepId;
   playing: boolean;
   speed: number;
+  cuePosition: number;
+  cueCount: number;
   onTogglePlay: () => void;
   onNext: () => void;
   onPrev: () => void;
@@ -682,8 +686,9 @@ export function Dock({
         <span className="g-dock-step-label">{active.label}</span>
         <span className="g-dock-step-hint">{active.hint}</span>
         <span className="g-dock-step-count">
-          {idx + 1} / {TIMELINE.length}
+          步骤 {idx + 1} / {TIMELINE.length}
         </span>
+        <span className="g-dock-cue">事件 {cuePosition} / {cueCount}</span>
       </div>
 
       <div className="g-playback">

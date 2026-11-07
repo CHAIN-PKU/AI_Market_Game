@@ -75,7 +75,7 @@ POST /api/campaign/:id/next
 
 - campaign 状态在 **API 进程内存**里；重启 API 会丢，刷新网页不会自动恢复当前 campaign（页面会回到 bundled fixture）。
 - 这是 `runSingleRound` 的真实多轮推进，但**不是** `/api/games` 的 `createGame` / `advance` 协议，也没有 SQLite 存档。
-- Event Playback v1 已把 `rawEvents` 映射成步骤队列并支持「跳过动画」；仍是 11 步叙事时间线，尚未逐事件步进（见 `EVENT_CONTRACT.md` §4.5）。
+- Event Playback 已支持逐事件播放（`事件 X / 19`）与「跳过动画」；campaign 仍是内存状态（见 `EVENT_CONTRACT.md` §4.5）。
 - 每轮固定发布同一张玩家任务；还没有市场阶段、公司、合作。
 - 重开方式：刷新页面，或在「制度实验」里重跑（会清掉 campaign）。
 

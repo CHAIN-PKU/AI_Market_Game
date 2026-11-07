@@ -6,6 +6,7 @@ import {
   advanceIfPlaying,
   buildPlaybackCues,
   durationAt,
+  flattenPlaybackCues,
   skipToEnd,
 } from './playback';
 
@@ -46,5 +47,29 @@ describe('event playback cue queue', () => {
     const skillCue = buildPlaybackCues(fixture).find((c) => c.step === 'skill')!;
     expect(skillCue.events).toHaveLength(fixture.skillPurchase.length);
     expect(new Set(skillCue.events.map((e) => e.id)).size).toBe(skillCue.events.length);
+  });
+});
+
+describe('cue-by-cue playback', () => {
+  it('flattens events one by one while keeping every narrative step reachable', () => {
+    const points = flattenPlaybackCues(fixture);
+    expect(points.length).toBeGreaterThan(TIMELINE.length);
+    expect(new Set(points.map((p) => p.step))).toEqual(new Set(TIMELINE.map((s) => s.id)));
+    expect(points.filter((p) => p.event).length).toBeGreaterThanOrEqual(10);
+    expect(points.filter((p) => p.step === 'bids' && p.event).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('walking cue by cue reaches next and never skips a step', () => {
+    const points = flattenPlaybackCues(fixture);
+    let i = points.findIndex((p) => p.step === 'posted');
+    expect(i).toBeGreaterThan(0);
+    const seen = new Set<string>();
+    while (i >= 0 && i < points.length) {
+      seen.add(points[i]!.step);
+      i += 1;
+    }
+    expect(seen.has('next')).toBe(true);
+    expect(seen.has('settled')).toBe(true);
+    expect(seen.has('skill')).toBe(true);
   });
 });

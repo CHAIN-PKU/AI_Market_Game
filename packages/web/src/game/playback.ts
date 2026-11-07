@@ -152,3 +152,30 @@ export function durationAt(step: StepId, speed: number): number {
 export function advanceIfPlaying(step: StepId, playing: boolean): StepId {
   return playing ? nextStep(step) ?? step : step;
 }
+
+export type PlaybackPoint = {
+  step: StepId;
+  label: string;
+  message: string;
+  duration: number;
+  event: RawEvent | null;
+};
+
+/**
+ * Flatten the step queue into cue-by-cue points. One point per engine event;
+ * steps without events still get a single point so the narrative can pause there.
+ */
+export function flattenPlaybackCues(fixture: BidDemoFixture): PlaybackPoint[] {
+  const points: PlaybackPoint[] = [];
+  for (const cue of buildPlaybackCues(fixture)) {
+    if (cue.events.length === 0) {
+      points.push({ step: cue.step, label: cue.label, message: cue.hint, duration: cue.duration, event: null });
+      continue;
+    }
+    const duration = Math.max(650, Math.round(cue.duration / cue.events.length));
+    for (const event of cue.events) {
+      points.push({ step: cue.step, label: cue.label, message: event.message, duration, event });
+    }
+  }
+  return points;
+}

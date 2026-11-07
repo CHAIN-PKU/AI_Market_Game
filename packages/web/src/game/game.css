@@ -3180,3 +3180,10 @@
   line-height: 1;
   letter-spacing: -0.08em;
 }
+
+.g-dock-cue {
+  font-size: 11px;
+  color: var(--g-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

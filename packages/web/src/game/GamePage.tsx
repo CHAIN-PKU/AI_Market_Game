@@ -16,13 +16,10 @@ import {
   type ViewMode,
 } from './GameHud';
 import {
-  STEP_INDEX,
-  TIMELINE,
   atLeast,
+  flattenPlaybackCues,
   focusAgentIndexForStep,
   focusNumberForStep,
-  nextStep,
-  prevStep,
   type StepId,
 } from './playback';
 import type { BidDemoFixture } from './types';
@@ -99,7 +96,10 @@ function SceneLoading() {
 
 export function GamePage() {
   const [fixture, setFixture] = useState<BidDemoFixture>(bundledFixture);
-  const [step, setStep] = useState<StepId>('idle');
+  const points = useMemo(() => flattenPlaybackCues(fixture), [fixture]);
+  const [cueIndex, setCueIndex] = useState(0);
+  const safeCueIndex = Math.min(cueIndex, Math.max(0, points.length - 1));
+  const step: StepId = points[safeCueIndex]?.step ?? 'idle';
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [view, setView] = useState<ViewMode>('2.5d');
@@ -111,6 +111,7 @@ export function GamePage() {
   const [campaign, setCampaign] = useState<{ id: string; round: number; maxRounds: number; done: boolean } | null>(null);
   const [campaignBusy, setCampaignBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [autoStart, setAutoStart] = useState(false);
   const [sceneKey, setSceneKey] = useState(0);
 
   useEffect(() => {
@@ -118,6 +119,15 @@ export function GamePage() {
     const timer = setTimeout(() => setNotice(null), 9000);
     return () => clearTimeout(timer);
   }, [notice]);
+
+  useEffect(() => {
+    if (!autoStart) return;
+    const posted = points.findIndex((p) => p.step === 'posted');
+    if (posted < 0) return;
+    setCueIndex(posted);
+    setPlaying(true);
+    setAutoStart(false);
+  }, [autoStart, points]);
 
   const winnerId = fixture.winner?.agentId ?? null;
   const winnerAgent = useMemo(() => fixture.agents.find((a) => a.id === winnerId) ?? null, [winnerId]);
@@ -137,33 +147,36 @@ export function GamePage() {
 
   useEffect(() => {
     if (!playing) return;
-    const i = STEP_INDEX[step];
-    if (i >= TIMELINE.length - 1) {
+    if (safeCueIndex >= points.length - 1) {
       setPlaying(false);
       return;
     }
-    const duration = TIMELINE[i]!.duration / speed;
+    const duration = Math.max(120, points[safeCueIndex]!.duration / speed);
     const timer = setTimeout(() => {
-      setStep(TIMELINE[i + 1]!.id);
+      setCueIndex(Math.min(safeCueIndex + 1, points.length - 1));
     }, duration);
     return () => clearTimeout(timer);
-  }, [playing, step, speed]);
+  }, [playing, safeCueIndex, speed, points]);
 
   const startDemo = useCallback(() => {
     if (step !== 'idle') return;
-    setStep('posted');
+    const posted = points.findIndex((p) => p.step === 'posted');
+    if (posted < 0) return;
+    setCueIndex(posted);
     setPlaying(true);
-  }, [step]);
+  }, [step, points]);
 
   const restartDemo = useCallback(() => {
+    const posted = points.findIndex((p) => p.step === 'posted');
+    if (posted < 0) return;
     setSelectedId(null);
-    setStep('posted');
+    setCueIndex(posted);
     setPlaying(true);
-  }, []);
+  }, [points]);
 
   const resetAll = useCallback(() => {
     setPlaying(false);
-    setStep('idle');
+    setCueIndex(0);
     setSelectedId(null);
   }, []);
 
@@ -181,21 +194,19 @@ export function GamePage() {
 
   const stepOnce = useCallback(() => {
     setPlaying(false);
-    const next = nextStep(step);
-    if (next) setStep(next);
-  }, [step]);
+    setCueIndex(Math.min(safeCueIndex + 1, points.length - 1));
+  }, [safeCueIndex, points.length]);
 
   const stepBack = useCallback(() => {
     setPlaying(false);
-    const prev = prevStep(step);
-    if (prev) setStep(prev);
-  }, [step]);
+    setCueIndex(Math.max(0, safeCueIndex - 1));
+  }, [safeCueIndex]);
 
   const skipToEnd = useCallback(() => {
     setPlaying(false);
-    setStep('next');
+    setCueIndex(points.length - 1);
     if (winnerId) setSelectedId(winnerId);
-  }, [winnerId]);
+  }, [points.length, winnerId]);
 
   const derived: Derived = useMemo(() => {
     const posted = step !== 'idle';
@@ -236,7 +247,7 @@ export function GamePage() {
 
   const applyRound = useCallback((next: BidDemoFixture, summary: string) => {
     setPlaying(false);
-    setStep('idle');
+    setCueIndex(0);
     setSelectedId(null);
     setFixture(next);
     setShowInstitutions(false);
@@ -251,8 +262,8 @@ export function GamePage() {
       setShowInstitutions(false);
       setCampaign({ id, ...meta });
       setNotice(`文明 ${meta.round}/${meta.maxRounds} · ${summarizeRun(next)}`);
-      setStep('posted');
-      setPlaying(true);
+      setPlaying(false);
+      setAutoStart(true);
     },
     [],
   );
@@ -374,6 +385,8 @@ export function GamePage() {
         onPrev={stepBack}
         onReset={resetAll}
         onSkip={skipToEnd}
+        cuePosition={safeCueIndex + 1}
+        cueCount={points.length}
         onSpeed={() => setSpeed((s) => (s === 1 ? 2 : 1))}
         onOpenEvents={() => setShowEvents(true)}
         onRestart={restartDemo}

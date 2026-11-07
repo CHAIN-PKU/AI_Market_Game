@@ -3,7 +3,7 @@
 > 接手人：DSH（Mac mini，macOS 26.6.2 arm64）
 > 仓库：`CHAIN-PKU/AI_Market_Game`，Mac 工作副本
 > 接手分支：`feat/visual-cozy-hud` @ `3a861ab`（交接文档提交）
-> 结论：**基线可复现**；本轮完成「制度实验台」、国库/税金拆解、右侧档案节奏、7 栋建筑功能剪影与 5 轮文明、Event Playback v1，测试 **23/23**，Web 构建通过。
+> 结论：**基线可复现**；本轮完成「制度实验台」、国库/税金拆解、右侧档案节奏、7 栋建筑功能剪影与 5 轮文明、Event Playback cue-by-cue，测试 **25/25**，Web 构建通过。
 
 ---
 
@@ -33,7 +33,7 @@
 |---|---|---|
 | `npm install` | 通过（273 packages，本地 cache） | — |
 | `npm run build -w @ai-civ/simulation` | 通过 | — |
-| `npm test` | **23/23**（simulation 18 + playback 5） | `packages/simulation/tests/bid-demo.test.ts` |
+| `npm test` | **25/25**（simulation 18 + playback 7） | `packages/simulation/tests/bid-demo.test.ts` |
 | `npm run build -w @ai-civ/web` | 通过（1,458.63 kB / gzip 407.05 kB） | 仅有 >500 kB 既有警告 |
 | `/game` 1920×1080 | 通过：公告→三性格→报价→决标→结算→技能→下一轮 | `docs/screenshots/mac-verify/2026-11-08-game-1920.png` |
 | `/game` 1366×768 | 通过，布局不溢出；右栏为按需打开 | `docs/screenshots/mac-verify/2026-11-08-game-1366.png` |
@@ -50,14 +50,15 @@
 - API 失败时红条阻断并提示启动 `npm run dev:server`，**不静默回退**。
 - 高税场景下，界面明确显示「Delta 税后剩 65 金，买不起 80 金的 Clean Code Patterns；能力停在 40」——制度直接改变消费与下一轮能力。
 
-### 3.7 Event Playback v1
+### 3.7 Event Playback cue-by-cue
 
-- 新增 `buildPlaybackCues(fixture)`：把 `rawEvents` 映射到 11 个播放步骤，形成事件队列（焦点居民 / 竞价 / 决标 / 结算 / 技能）。
+- 新增 `buildPlaybackCues` + `flattenPlaybackCues`：把 `rawEvents` 映射成 19 个逐事件点，同时保留 11 个叙事步骤。
 - 播放坞新增「跳过动画」（⏭），直接到本轮结束；跳过只改播放状态，不动 fixture/经济。
 - 事件抽屉显示当前步骤队列条数与总事件数；开发者面板显示 `步骤:事件数` 的队列分布。
-- 新增 5 条播放契约测试：队列映射、跳过不改数据、暂停不推进、2x 只改时长、单次购买只出现一个技能 cue。
+- 播放坞显示「事件 X / 19」；单步按钮现在是逐事件步进。
+- 新增 7 条播放契约测试：队列映射、逐事件覆盖全部步骤、跳过不改数据、暂停不推进、2x 只改时长、单次购买只一个技能 cue。
 - 测试文件：`packages/web/src/game/playback.test.ts`；截图：`docs/screenshots/playback/`
-- 边界：仍是 11 步叙事时间线，尚未逐 event step；`skip` 到 next，不是任意步骤。
+- 边界：跳过是到「下一轮」，不是任意步骤；campaign 仍是内存状态。
 
 ### 3.6 5 轮文明（真实引擎多轮）
 
@@ -118,7 +119,7 @@
 - 右侧居民档案已把「公开决策记录」提到性格参数之前，1080 高度下决策因子、目标、能力、履历一屏可见（`docs/screenshots/mac-verify/2026-11-08-panel-order-1920.png`）。
 - 三个既有问题未处理：drei portal `removeChild` 警告、404 资源、三套调色板未统一。
 - 5 轮文明已跑通，但仍是内存 campaign，不是持久化 `createGame/advance`。
-- Event Playback 只到 v1：`rawEvents → 步骤队列`、跳过/暂停/倍速契约已测；**逐事件步进**尚未接。
+- Event Playback 已到 cue-by-cue：`rawEvents → 逐事件点`、播放坞显示「事件 X/Y」、跳过/暂停/倍速契约已测。
 
 ---
 
@@ -126,8 +127,8 @@
 
 1. **`/game` 接 `createGame` / `advance` 与事件队列**（跳过动画不改 `GameState` 的契约测试）。
 2. **5–7 轮连续实验**：每轮沿用上一轮的钱包/能力，制度对比才完整。
-3. Event Playback 逐事件步进（cue-by-cue）。
-4. campaign 持久化与刷新恢复。
+3. campaign 持久化与刷新恢复。
+4. 接 `/api/games` 的 createGame/advance 协议。
 5. 建筑状态与事件绑定（技能铺亮灯、市集成交）。
 
 ---
@@ -138,7 +139,7 @@
 cd <repo>
 npm install --cache "$PWD/.npm-cache"
 npm run build -w @ai-civ/simulation
-npm test                                # 23/23
+npm test                                # 25/25
 npm run build -w @ai-civ/web
 npm run dev -w @ai-civ/server           # API 3001
 npm run dev -w @ai-civ/web -- --port 5180 --strictPort
