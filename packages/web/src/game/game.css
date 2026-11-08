@@ -3981,3 +3981,8 @@
     margin: 0 auto;
   }
 }
+
+.g-cast-actions {
+  display: flex;
+  gap: 8px;
+}

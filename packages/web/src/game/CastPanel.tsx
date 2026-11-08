@@ -4,6 +4,7 @@ import { gold, investLabel, riskLabel } from './presentation';
 import { ROLE_KEY, ROLE_LABEL, type BidDemoFixture } from './types';
 import { makeResidentPortrait } from './characterArt';
 import { loreFor } from './agentLore';
+import { downloadCastPoster } from './castPoster';
 
 export function CastPanel({
   fixture,
@@ -125,10 +126,15 @@ export function CastPanel({
         </div>
 
         <footer className="g-cast-foot">
-          <span className="g-muted">点一个人，打开它的档案。</span>
-          <button type="button" className="g-btn g-btn--ghost" onClick={onClose}>
-            关闭
-          </button>
+          <span className="g-muted">点一个人，打开它的人物设定卡。</span>
+          <div className="g-cast-actions">
+            <button type="button" className="g-btn g-btn--ghost" onClick={() => void downloadCastPoster(fixture)}>
+              存成海报
+            </button>
+            <button type="button" className="g-btn g-btn--ghost" onClick={onClose}>
+              关闭
+            </button>
+          </div>
         </footer>
       </section>
     </div>
