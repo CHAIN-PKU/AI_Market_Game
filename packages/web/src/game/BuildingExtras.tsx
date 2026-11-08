@@ -298,9 +298,95 @@ function Signature({ role, height, width }: { role: BuildingRole; height: number
   );
 }
 
+
+function Massing({ role, height, width }: { role: BuildingRole; height: number; width: number }) {
+  if (role === 'research') {
+    return (
+      <group position={[-width / 2 - 0.62, 0, -0.15]}>
+        <C r1={0.46} r2={0.52} h={height * 1.15} pos={[0, height * 0.575, 0]} color="#e8f0f4" />
+        {[0.35, 0.7].map((t) => <C key={t} r1={0.49} r2={0.49} h={0.06} pos={[0, height * t, 0]} color="#6f9dc9" />)}
+        {[0.55, 0.85, 1.15].map((t) => (
+          <mesh key={t} position={[0.44, height * t * 0.55, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <boxGeometry args={[0.22, 0.3, 0.03]} />
+            <meshStandardMaterial color="#a9e4dc" emissive="#7fb9a8" emissiveIntensity={0.3} />
+          </mesh>
+        ))}
+        <mesh position={[0, height * 1.15, 0]} castShadow>
+          <sphereGeometry args={[0.52, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2]} />
+          <meshStandardMaterial color="#8fb6cf" roughness={0.3} metalness={0.2} />
+        </mesh>
+        <B size={[0.95, 0.4, 0.65]} pos={[0.55, 0.2, 0.05]} color="#c4b7a2" />
+      </group>
+    );
+  }
+  if (role === 'coding') {
+    return (
+      <group position={[width / 2 + 0.55, 0, -0.25]}>
+        <B size={[1.0, height * 0.58, 1.15]} pos={[0, height * 0.29, 0]} color="#4d5a55" />
+        <B size={[1.04, 0.08, 1.19]} pos={[0, height * 0.58, 0]} color="#33413d" />
+        {[-0.25, 0.25].map((x) => <B key={x} size={[0.28, 0.18, 0.4]} pos={[x, height * 0.64, 0]} color="#6d7d76" />)}
+        <C r1={0.02} r2={0.03} h={0.9} pos={[-0.3, height * 0.62 + 0.45, 0]} color="#33413d" />
+        <B size={[0.22, 0.16, 0.02]} pos={[-0.22, height * 0.62 + 0.88, 0]} color="#a9e4dc" />
+      </group>
+    );
+  }
+  if (role === 'market') {
+    return (
+      <group position={[0, 0, 2.35]}>
+        {[-1.0, 1.0].map((x) => [-0.55, 0.55].map((z) => <C key={`${x}-${z}`} r1={0.04} r2={0.05} h={1.75} pos={[x, 0.875, z]} color={DARK} />))}
+        <group position={[0, 1.82, 0]} rotation={[0.06, 0, 0]}>
+          {Array.from({ length: 6 }, (_, i) => <B key={i} size={[0.36, 0.05, 1.3]} pos={[-0.9 + i * 0.36, 0, 0]} color={i % 2 === 0 ? '#d97a52' : CREAM} />)}
+        </group>
+        <B size={[1.9, 0.42, 0.4]} pos={[0, 0.24, 0]} color={WOOD} />
+      </group>
+    );
+  }
+  if (role === 'design') {
+    return (
+      <group position={[-width / 2 - 0.5, 0, 0.25]}>
+        <B size={[0.75, 0.65, 1.2]} pos={[0, 0.32, 0]} color="#e8dcc8" />
+        <mesh position={[0, 0.95, 0]}>
+          <boxGeometry args={[0.72, 0.55, 1.15]} />
+          <meshStandardMaterial color={GLASS} transparent opacity={0.28} roughness={0.12} metalness={0.1} />
+        </mesh>
+        <Plant x={0} z={0.3} s={0.55} />
+      </group>
+    );
+  }
+  if (role === 'public-rd') {
+    return (
+      <group position={[-width / 2 - 0.55, 0, -0.15]}>
+        <C r1={0.42} r2={0.5} h={height * 1.35} pos={[0, height * 0.675, 0]} color="#d7cbb5" />
+        <mesh position={[0, height * 1.38, 0]} castShadow>
+          <coneGeometry args={[0.55, 0.5, 8]} />
+          <meshStandardMaterial color="#b8842f" roughness={0.8} />
+        </mesh>
+        {[0.3, 0.6, 0.9, 1.2].map((t) => <C key={t} r1={0.46} r2={0.46} h={0.06} pos={[0, height * t, 0]} color="#8a5a2f" />)}
+      </group>
+    );
+  }
+  if (role === 'homes') {
+    return (
+      <group position={[0, 0, 2.05]}>
+        <B size={[1.25, 0.9, 0.5]} pos={[0, 0.45, 0]} color="#f9f0df" />
+        <B size={[0.7, 0.3, 0.42]} pos={[-0.26, 0.98, 0]} color="#7cbf7a" />
+        <B size={[0.08, 0.55, 0.08]} pos={[0.6, 0.28, 0]} color={DARK} />
+      </group>
+    );
+  }
+  return (
+    <group position={[width / 2 + 0.45, 0, 0.1]}>
+      <B size={[0.75, 0.55, 0.9]} pos={[0, 0.28, 0]} color="#e8dcc8" />
+      <B size={[0.85, 0.06, 1.0]} pos={[0, 0.58, 0]} color="#8f7cc9" rot={[0.1, 0, 0]} />
+      <C r1={0.18} r2={0.22} h={0.2} pos={[0, 0.68, 0.1]} color={METAL} />
+    </group>
+  );
+}
+
 export function BuildingExtras({ role, height, width }: { role: BuildingRole; height: number; width: number }) {
   return (
     <group>
+      <Massing role={role} height={height} width={width} />
       <RoleDetails role={role} />
       <Signature role={role} height={height} width={width} />
     </group>
