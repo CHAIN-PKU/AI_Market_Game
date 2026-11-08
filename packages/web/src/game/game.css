@@ -1609,16 +1609,6 @@
 
 /* ---------- responsive ---------- */
 
-@media (max-width: 1500px) {
-  .g-shell {
-    grid-template-columns: 286px minmax(0, 1fr) 300px;
-  }
-
-  .g-resources {
-    gap: 6px;
-  }
-}
-
 @media (max-width: 1280px) {
   .g-shell {
     grid-template-columns: 250px minmax(0, 1fr) 270px;
@@ -4687,19 +4677,39 @@
 .g-a-status.is-failed { color: #a4452c; }
 .g-a-status.is-assigned { color: var(--text-3); }
 
-/* 1366×768 这类窄屏：底部按钮排一行会压到播放条，改成更紧凑且可换行 */
+/* 窄屏收尾：放在最后，覆盖前面同优先级的基础规则 */
 @media (max-width: 1500px) {
+  /* 窄屏时播放条在底部会变高，操作排没地方放，移到顶部中间（天空区域）；
+     任务卡同时下移避让，避免两个浮层叠在一起。 */
   .g-dock {
-    /* 窄屏下播放条会变高，按钮排必须抬到它上面，否则会压住播放/重播 */
-    bottom: 200px;
+    top: 60px;
+    bottom: auto;
     gap: 5px;
     flex-wrap: nowrap;
     max-width: none;
   }
+
   .g-dock-btn {
     min-width: 0;
     padding: 5px 8px;
   }
-  .g-dock-btn span { font-size: 11.5px; letter-spacing: 0; }
-  .g-dock-btn em { font-size: 9px; }
+
+  .g-dock-btn span {
+    font-size: 11.5px;
+    letter-spacing: 0;
+  }
+
+  .g-dock-btn em {
+    font-size: 9px;
+  }
+
+  .g-story--task,
+  .g-story--money {
+    top: 132px;
+  }
+
+  .g-resources {
+    gap: 6px;
+  }
 }
+
