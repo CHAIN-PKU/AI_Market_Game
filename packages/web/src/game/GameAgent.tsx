@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Group, MathUtils } from 'three';
 import { ROLE_KEY, ROLE_LABEL, type DemoAgent } from './types';
 import { RoleIcon } from './icons';
-import { makeResidentTexture } from './characterArt';
+import { makeResidentAtlas } from './characterArt';
 
 export type AgentVisualState = 'idle' | 'watching' | 'bidding' | 'selected' | 'working' | 'done' | 'shopping';
 
@@ -39,7 +39,9 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
   const movingRef = useRef(false);
   const phase = useRef(index * 1.7);
   const roleKey = ROLE_KEY[agent.role];
-  const texture = useMemo(() => makeResidentTexture(index, roleKey), [index, roleKey]);
+  const texture = useMemo(() => makeResidentAtlas(index, roleKey), [index, roleKey]);
+  const walkFrame = useRef(0);
+  const walkClock = useRef(0);
 
   useEffect(() => () => texture.dispose(), [texture]);
 
@@ -66,6 +68,17 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
         setMoving(false);
       }
       phase.current += dt * 1.5;
+    }
+    if (moving) {
+      walkClock.current += dt;
+      if (walkClock.current > 0.18) {
+        walkClock.current = 0;
+        walkFrame.current = walkFrame.current === 0 ? 1 : 0;
+        texture.offset.x = walkFrame.current * 0.5;
+      }
+    } else if (walkFrame.current !== 0) {
+      walkFrame.current = 0;
+      texture.offset.x = 0;
     }
     if (spriteRef.current) {
       const bob = moving ? Math.abs(Math.sin(phase.current)) * 0.04 : Math.sin(phase.current * 0.7) * 0.012;

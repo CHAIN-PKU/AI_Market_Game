@@ -1,4 +1,4 @@
-import { CanvasTexture, LinearFilter, LinearMipmapLinearFilter, SRGBColorSpace } from 'three';
+import { CanvasTexture, ClampToEdgeWrapping, LinearFilter, LinearMipmapLinearFilter, SRGBColorSpace } from 'three';
 type RoleKey = 'coding' | 'research' | 'design';
 
 type Look = {
@@ -37,7 +37,7 @@ const ROLE_SHIRT_DARK: Record<RoleKey, string> = {
 };
 
 const OUTLINE = '#33231c';
-const S = 1.5;
+const S = 768 / 683;
 
 function path(ctx: CanvasRenderingContext2D, draw: () => void, fill: string, outline = true) {
   ctx.beginPath();
@@ -70,10 +70,11 @@ function limb(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number,
   ctx.lineCap = 'butt';
 }
 
-function drawLegs(ctx: CanvasRenderingContext2D, l: Look) {
-  for (const [x, tilt] of [[-52, 0.05], [52, -0.05]] as const) {
+function drawLegs(ctx: CanvasRenderingContext2D, l: Look, pose = 0) {
+  const stride = pose ? 14 : 0;
+  for (const [x, tilt] of [[-52 - stride, 0.05 + (pose ? 0.05 : 0)], [52 + stride, -0.05 - (pose ? 0.05 : 0)]] as const) {
     ctx.save();
-    ctx.translate(341 + x, 690);
+    ctx.translate(341 + x, 690 + (pose && x < 0 ? -5 : 0));
     ctx.rotate(tilt);
     path(ctx, () => {
       ctx.moveTo(-34, 0);
@@ -92,7 +93,7 @@ function drawLegs(ctx: CanvasRenderingContext2D, l: Look) {
     ctx.restore();
   }
   // soles
-  for (const x of [-52, 52]) {
+  for (const x of [-52 - (pose ? 14 : 0), 52 + (pose ? 14 : 0)]) {
     path(ctx, () => {
       ctx.ellipse(341 + x, 936, 39, 12, 0, 0, Math.PI * 2);
     }, '#2b1f19');
@@ -170,16 +171,17 @@ function drawBody(ctx: CanvasRenderingContext2D, l: Look, role: RoleKey) {
   ctx.fillText(role === 'coding' ? '</>' : role === 'research' ? 'R' : 'D', 341, 527);
 }
 
-function drawArms(ctx: CanvasRenderingContext2D, l: Look) {
+function drawArms(ctx: CanvasRenderingContext2D, l: Look, pose = 0) {
+  const swing = pose ? 13 : 0;
   // sleeves
-  limb(ctx, 278, 500, 238, 636, 46, l.shirt);
-  limb(ctx, 404, 500, 444, 636, 46, l.shirt);
+  limb(ctx, 278, 500, 238 + swing, 636 - swing, 46, l.shirt);
+  limb(ctx, 404, 500, 444 - swing, 636 + swing, 46, l.shirt);
   // cuffs
-  path(ctx, () => { ctx.ellipse(238, 630, 25, 18, 0, 0, Math.PI * 2); }, l.accent);
-  path(ctx, () => { ctx.ellipse(444, 630, 25, 18, 0, 0, Math.PI * 2); }, l.accent);
+  path(ctx, () => { ctx.ellipse(238 + swing, 630 - swing, 25, 18, 0, 0, Math.PI * 2); }, l.accent);
+  path(ctx, () => { ctx.ellipse(444 - swing, 630 + swing, 25, 18, 0, 0, Math.PI * 2); }, l.accent);
   // hands
-  path(ctx, () => { ctx.ellipse(238, 660, 27, 31, -0.08, 0, Math.PI * 2); }, l.skin);
-  path(ctx, () => { ctx.ellipse(444, 660, 27, 31, 0.08, 0, Math.PI * 2); }, l.skin);
+  path(ctx, () => { ctx.ellipse(238 + swing, 660 - swing, 27, 31, -0.08, 0, Math.PI * 2); }, l.skin);
+  path(ctx, () => { ctx.ellipse(444 - swing, 660 + swing, 27, 31, 0.08, 0, Math.PI * 2); }, l.skin);
 }
 
 function drawHairBack(ctx: CanvasRenderingContext2D, l: Look) {
@@ -417,12 +419,22 @@ function drawAccessory(ctx: CanvasRenderingContext2D, l: Look, role: RoleKey) {
   }
 }
 
-export function makeResidentTexture(index: number, role: RoleKey): CanvasTexture {
+function drawResident(ctx: CanvasRenderingContext2D, look: Look, role: RoleKey, pose: number) {
+  drawHairBack(ctx, look);
+  drawLegs(ctx, look, pose);
+  drawBody(ctx, look, role);
+  drawArms(ctx, look, pose);
+  drawFace(ctx, look, role);
+  drawHairFront(ctx, look);
+  drawAccessory(ctx, look, role);
+}
+
+/** Two-frame atlas: left = idle, right = walk. */
+export function makeResidentAtlas(index: number, role: RoleKey): CanvasTexture {
   const canvas = document.createElement('canvas');
-  canvas.width = 1024;
+  canvas.width = 1536;
   canvas.height = 1536;
   const ctx = canvas.getContext('2d')!;
-  ctx.scale(S, S);
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
 
@@ -433,18 +445,21 @@ export function makeResidentTexture(index: number, role: RoleKey): CanvasTexture
     shirtDark: ROLE_SHIRT_DARK[role],
   };
 
-  drawHairBack(ctx, look);
-  drawLegs(ctx, look);
-  drawBody(ctx, look, role);
-  drawArms(ctx, look);
-  drawFace(ctx, look, role);
-  drawHairFront(ctx, look);
-  drawAccessory(ctx, look, role);
+  for (let frame = 0; frame < 2; frame += 1) {
+    ctx.save();
+    ctx.translate(frame * 768, 0);
+    ctx.scale(S, S);
+    drawResident(ctx, look, role, frame);
+    ctx.restore();
+  }
 
   const tex = new CanvasTexture(canvas);
   tex.colorSpace = SRGBColorSpace;
   tex.magFilter = LinearFilter;
   tex.minFilter = LinearMipmapLinearFilter;
   tex.anisotropy = 8;
+  tex.wrapS = tex.wrapT = ClampToEdgeWrapping;
+  tex.repeat.set(0.5, 1);
+  tex.offset.set(0, 0);
   return tex;
 }
