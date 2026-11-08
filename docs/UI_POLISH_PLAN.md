@@ -23,7 +23,7 @@
 
 ## 已定位的缺陷（需要单独修）
 
-- [ ] **React `removeChild` 报错**：页面加载约 2.3 秒时必现
+- [x] **React `removeChild` 报错**（已修）：页面加载约 2.3 秒时必现
   `NotFoundError: Failed to execute 'removeChild' on 'Node'`
   + `Attempted to synchronously unmount a root while React was already rendering`
   - 复现条件：**不开剧演、气泡全部未显示**时也会出现 → 与气泡无关，属既有问题
@@ -31,7 +31,10 @@
   - 影响：目前界面可用，但属于隐患（快速切步骤时有几率白屏）
   - 修法：把 `useGLTF` 的挂起范围收窄到模型子树（`GameAgentModel` 只渲染 primitive，
     `GameAgent` 保留徽章/气泡/动画），使整场景不再因模型加载而整体挂起
-  - 验收：加载过程 console 无 pageerror；剧演连播 3 轮不报错
+  - **真正原因**：`<Suspense>` 的 fallback 本身就是 drei 的 `<Html>` 门户；模型加载结束时
+    React 在渲染过程中同步卸载该门户 → `Attempted to synchronously unmount a root` + `removeChild` 失败。
+  - **修法**：fallback 改为 `null`；加载提示移到 Canvas 外层，用 `useProgress` 驱动显示。
+  - 验收：生产构建与 dev 均无 pageerror（已验证）；剧演冒烟无报错
 
 ---
 

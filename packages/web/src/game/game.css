@@ -4510,3 +4510,20 @@
   transform: translateY(0) scale(1);
   transition: opacity 180ms ease, transform 180ms ease;
 }
+
+/* 加载提示：Canvas 外层，避免 drei Html 门户在挂起结束时被卸载 */
+.g-scene-loading--overlay {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgb(253 247 234 / 0.92);
+  border: 1px solid #d9c7a8;
+  color: #6e6252;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+}

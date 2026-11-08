@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { apiUrl } from '../apiBase';
 import { NeutralToneMapping } from 'three';
-import { Html } from '@react-three/drei';
+import { useProgress } from '@react-three/drei';
 import { Component, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import fixtureJson from '../demo/bid-demo.fixture.json';
 import { GameScene } from './GameScene';
@@ -97,12 +97,25 @@ class SceneBoundary extends Component<{ children: ReactNode; onRetry: () => void
   }
 }
 
-function SceneLoading() {
-  return (
-    <Html center position={[0, 1.8, 0]} zIndexRange={[30, 0]} style={{ pointerEvents: 'none' }}>
-      <div className="g-scene-loading">正在点亮晨曦文明…</div>
-    </Html>
-  );
+/**
+ * 加载提示放在 Canvas 外层。
+ * 之前它是 <Suspense> 的 fallback 且用了 drei 的 <Html>：模型加载结束时该门户
+ * 会在 React 渲染过程中被同步卸载，触发 removeChild 报错（加载后约 2 秒必现）。
+ */
+function SceneLoadingOverlay() {
+  const { active } = useProgress();
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    if (!active) {
+      setVisible(false);
+      return;
+    }
+    // 极短的加载不闪一下提示
+    const timer = window.setTimeout(() => setVisible(true), 250);
+    return () => window.clearTimeout(timer);
+  }, [active]);
+  if (!visible) return null;
+  return <div className="g-scene-loading g-scene-loading--overlay">正在点亮晨曦文明…</div>;
 }
 
 export function GamePage() {
@@ -497,7 +510,7 @@ export function GamePage() {
               camera={{ position: [0, 17.2, 23.8], fov: 38, near: 0.1, far: 140 }}
               onPointerMissed={() => setSelectedId(null)}
             >
-              <Suspense fallback={<SceneLoading />}>
+              <Suspense fallback={null}>
                 <GameScene
                   fixture={fixture}
                   step={step}
@@ -510,6 +523,7 @@ export function GamePage() {
                 />
               </Suspense>
             </Canvas>
+            <SceneLoadingOverlay />
           </SceneBoundary>
         </div>
         {view === '2d' && <BidBoard2D fixture={fixture} derived={derived} onSelect={setSelectedId} />}
