@@ -152,6 +152,23 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
           <span>种子 {seed}</span>
         </div>
 
+        {/* 后果预览：跟着滑块实时变，让"改了多少"和"会怎样"挨在一起 */}
+        <div className="g-rule-preview" aria-live="polite">
+          <span className="g-rule-preview-title">按这套规则</span>
+          <div>
+            <span>一单 {fixture.scenario.reward} 金到手约</span>
+            <b>{Math.round(fixture.scenario.reward * (1 - taxPct / 100))} 金</b>
+          </div>
+          <div>
+            <span>每 100 金税进公共研发</span>
+            <b>{Math.round(sharePct)} 金</b>
+          </div>
+          <div>
+            <span>技能</span>
+            <b>{ownership === 'shared' ? '8 人共用，谁买全体受益' : '各买各的，只影响自己'}</b>
+          </div>
+        </div>
+
         <label className="g-rule-field">
           <span className="g-rule-label">
             <b>税</b>

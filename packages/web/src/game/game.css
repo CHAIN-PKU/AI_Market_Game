@@ -4839,3 +4839,33 @@
   letter-spacing: 0.08em;
   box-shadow: 0 2px 8px rgb(143 95 28 / 0.35);
 }
+
+/* 政策卡：后果预览（跟随滑块） */
+.g-rule-preview {
+  display: grid;
+  gap: 4px;
+  margin: 0 var(--sp-5) var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  background: #f2f7f4;
+  border: 1px dashed #a9cdc9;
+}
+.g-rule-preview-title {
+  font-size: var(--fs-11);
+  letter-spacing: var(--tracking-label);
+  color: var(--text-3);
+}
+.g-rule-preview div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  font-size: var(--fs-12);
+  color: var(--text-2);
+}
+.g-rule-preview div b {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  color: #2f6f75;
+  text-align: right;
+}
