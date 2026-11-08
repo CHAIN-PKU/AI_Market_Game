@@ -31,7 +31,7 @@
 
 ## 缩略图
 
-`public/assets/mixamo/thumbs/*.png` 由原缩略图去背景得到，用于图鉴/人物设定卡/海报。因为原图分辨率只有 220px，放大到 1920 卡面会偏软；追求印刷级可再做 512/1024 的离屏渲染。
+`public/assets/mixamo/portraits/*.png` 由 Blender EEVEE 以 512×768、透明背景重新渲染，用于图鉴/人物设定卡/海报；不再用 220px 缩略图。
 
 ## 对比
 
