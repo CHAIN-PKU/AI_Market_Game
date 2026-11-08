@@ -146,6 +146,7 @@ export function GamePage() {
   const [showNegotiation, setShowNegotiation] = useState(false);
   const [showEvolution, setShowEvolution] = useState(false);
   const [showAMode, setShowAMode] = useState(false);
+  const [roundBusy, setRoundBusy] = useState(false);
   const [theaterT, setTheaterT] = useState<number | null>(null);
 
   // Theater playback: drives the speech bubbles above each resident's head.
@@ -222,13 +223,39 @@ export function GamePage() {
     return () => clearTimeout(timer);
   }, [playing, safeCueIndex, speed, points]);
 
-  const startDemo = useCallback(() => {
-    if (step !== 'idle') return;
-    const posted = points.findIndex((p) => p.step === 'posted');
-    if (posted < 0) return;
-    setCueIndex(posted);
-    setPlaying(true);
-  }, [step, points]);
+  /**
+   * 「先看一轮」= 真的调引擎跑一轮，而不是回放打包好的 fixture。
+   * 失败就红灯阻断（项目纪律：禁止静默 fallback），不退回旧数据假装跑通。
+   */
+  const startDemo = useCallback(async () => {
+    if (step !== 'idle' || roundBusy) return;
+    setRoundBusy(true);
+    try {
+      const res = await fetch(apiUrl('/api/demo/round'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ seed: fixture.seed, rules: fixture.civilization.rules }),
+      });
+      if (!res.ok) {
+        const detail = await res.text().catch(() => '');
+        throw new Error(`引擎返回 ${res.status}${detail ? `：${detail.slice(0, 80)}` : ''}`);
+      }
+      const data = (await res.json()) as {
+        fixture: BidDemoFixture;
+        evolution?: BidDemoFixture['evolution'];
+      };
+      const live = { ...data.fixture, evolution: data.evolution ?? data.fixture.evolution } as BidDemoFixture;
+      setFixture(live);
+      setNotice(`引擎已实时跑完第 ${live.demoRound} 轮（${live.bids.length} 人报价）`);
+      const posted = flattenPlaybackCues(live).findIndex((p) => p.step === 'posted');
+      setCueIndex(posted >= 0 ? posted : 0);
+      setPlaying(true);
+    } catch (err) {
+      setNotice(`跑不起来：${err instanceof Error ? err.message : '引擎不可用'}（需要 API 3001）`);
+    } finally {
+      setRoundBusy(false);
+    }
+  }, [step, points, roundBusy, fixture]);
 
   const restartDemo = useCallback(() => {
     const posted = points.findIndex((p) => p.step === 'posted');

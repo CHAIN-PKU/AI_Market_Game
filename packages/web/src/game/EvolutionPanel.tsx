@@ -5,28 +5,7 @@ import type { BidDemoFixture } from './types';
  * 数字全部来自 fixture.evolution（由 scripts/add-evolution-demo.mjs 用引擎算出来）。
  */
 export function EvolutionPanel({ fixture, onClose }: { fixture: BidDemoFixture; onClose: () => void }) {
-  const evo = (fixture as unknown as { evolution?: Record<string, unknown> }).evolution as
-    | {
-        displayName: string;
-        domain: string;
-        reason: string;
-        taskTitle: string;
-        taskReward: number;
-        bidAmount: number;
-        walletBefore: number;
-        taxPaid: number;
-        trainingCost: number;
-        trainingBonus: number;
-        walletAfter: number;
-        abilityBefore: number;
-        abilityAfter: number;
-        successBefore: number;
-        successAfter: number;
-        cheapestSkillPrice: number;
-        shortfallToSkill: number;
-        civLean: Record<string, number>;
-      }
-    | undefined;
+  const evo = fixture.evolution;
 
   if (!evo) return null;
 

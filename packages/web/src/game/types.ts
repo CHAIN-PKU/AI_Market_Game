@@ -130,6 +130,8 @@ export type BidDemoFixture = {
     treasuryStart: number;
     treasuryAfter: number;
   };
+  /** 中标之后的投资进化：服务端用引擎算的（/api/demo/round 返回），不是前端预置 */
+  evolution?: EvolutionSummary;
   /** A 模式：引擎真跑的一轮双文明同场抢单，见 scripts/add-a-mode-demo.mjs */
   aMode?: {
     generatedBy: string;
@@ -308,4 +310,26 @@ export type ExperimentReport = {
   maxRounds: number;
   a: { rules: { name: string; taxRate: number }; stats: ExperimentStats };
   b: { rules: { name: string; taxRate: number }; stats: ExperimentStats };
+};
+
+export type EvolutionSummary = {
+  agentId: string;
+  displayName: string;
+  domain: string;
+  reason: string;
+  taskTitle: string;
+  taskReward: number;
+  bidAmount: number;
+  walletBefore: number;
+  taxPaid: number;
+  trainingCost: number;
+  trainingBonus: number;
+  walletAfter: number;
+  abilityBefore: number;
+  abilityAfter: number;
+  successBefore: number;
+  successAfter: number;
+  cheapestSkillPrice: number;
+  shortfallToSkill: number;
+  civLean: Record<string, number>;
 };
