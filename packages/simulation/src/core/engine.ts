@@ -75,11 +75,18 @@ export function runSingleRound(
           teamCost: bid.teamCost,
           teamProfit: bid.teamProfit,
           ringAgentIds: bid.ringAgentIds,
+          ringDefected: bid.ringDefected,
           personalGoalId: bid.personalGoalId,
           personalGoalLabel: bid.personalGoalLabel,
           observedCompetitors: bid.observedCompetitors,
           reasonFactors: bid.reasonFactors,
         });
+        if (bid.ringDefected) {
+          pushEvent(state, 'ring_defected', `${bid.agentId} broke the price ring on ${bid.taskId}`, {
+            taskId: bid.taskId,
+            agentId: bid.agentId,
+          });
+        }
       }
       for (const decline of decision.declines ?? []) {
         pushEvent(state, 'bid_declined', `${agent.displayName} passed on ${decline.taskId}`, {

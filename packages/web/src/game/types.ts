@@ -81,6 +81,7 @@ export type BidSummary = {
   teamCost?: number;
   teamProfit?: number;
   ringAgentIds?: string[];
+  ringDefected?: boolean;
   personalGoalLabel: string;
   reasonFactors: ReasonFactor[];
 };

@@ -40,6 +40,7 @@ export interface Bid {
   teamProfit?: number;
   /** Price-ring members: leader + suppressed partners. */
   ringAgentIds?: string[];
+  ringDefected?: boolean;
   personalGoalId?: string;
   personalGoalLabel?: string;
   observedCompetitors?: ObservedCompetitors;

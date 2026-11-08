@@ -31,18 +31,18 @@
       "allowCollaboration": true
     },
     "treasuryStart": 1000,
-    "treasuryAfter": 1018
+    "treasuryAfter": 1030
   },
   "treasuryBreakdown": {
     "start": 1000,
-    "end": 1018,
-    "delta": 18,
+    "end": 1030,
+    "delta": 30,
     "mainTaskTax": 8,
-    "otherTaskTax": 12,
-    "totalTax": 20,
-    "publicResearch": 2,
-    "toTreasury": 18,
-    "completedTasks": 3,
+    "otherTaskTax": 25,
+    "totalTax": 33,
+    "publicResearch": 3,
+    "toTreasury": 30,
+    "completedTasks": 4,
     "consistent": true
   },
   "focusAgentIds": [
@@ -199,13 +199,8 @@
         "design": 21
       },
       "walletBefore": 0,
-      "walletAfter": 55,
-      "skillsAfter": [
-        {
-          "id": "skill_research_basic",
-          "name": "Literature Review"
-        }
-      ],
+      "walletAfter": 0,
+      "skillsAfter": [],
       "publicRecord": {
         "tasksCompleted": 0,
         "tasksFailed": 0,
@@ -221,7 +216,7 @@
       },
       "decision": {
         "action": "pass",
-        "reasonCode": "price_ring",
+        "reasonCode": "risk_above_comfort",
         "bidAmount": null,
         "expectedQuality": 0.12000000000000005,
         "successProbability": 0.07499999999999996,
@@ -328,8 +323,13 @@
         "design": 42
       },
       "walletBefore": 0,
-      "walletAfter": 0,
-      "skillsAfter": [],
+      "walletAfter": 73,
+      "skillsAfter": [
+        {
+          "id": "skill_design_basic",
+          "name": "Visual Composition"
+        }
+      ],
       "publicRecord": {
         "tasksCompleted": 0,
         "tasksFailed": 0,
@@ -470,7 +470,7 @@
       "decision": {
         "action": "bid",
         "reasonCode": "bid",
-        "bidAmount": 68,
+        "bidAmount": 66,
         "expectedQuality": 0.45,
         "successProbability": 0.35,
         "riskComfortFloor": 0.28400000000000003,
@@ -576,8 +576,13 @@
         "design": 22
       },
       "walletBefore": 0,
-      "walletAfter": 0,
-      "skillsAfter": [],
+      "walletAfter": 55,
+      "skillsAfter": [
+        {
+          "id": "skill_research_basic",
+          "name": "Literature Review"
+        }
+      ],
       "publicRecord": {
         "tasksCompleted": 0,
         "tasksFailed": 0,
@@ -842,7 +847,7 @@
       "decision": {
         "action": "bid",
         "reasonCode": "bid",
-        "bidAmount": 72,
+        "bidAmount": 79,
         "expectedQuality": 0.45,
         "successProbability": 0.35,
         "riskComfortFloor": 0.34,
@@ -1053,13 +1058,14 @@
     {
       "agentId": "civ-a-agent-3",
       "displayName": "Delta",
-      "bidAmount": 68,
+      "bidAmount": 66,
       "expectedQuality": 0.45,
       "successProbability": 0.35,
       "estimatedCost": 42,
       "expectedProfit": 3,
       "reputation": 0.33,
       "competitors": 2,
+      "ringDefected": true,
       "reasonFactors": [
         {
           "key": "successProbability",
@@ -1204,17 +1210,14 @@
     {
       "agentId": "civ-a-agent-6",
       "displayName": "Grove",
-      "bidAmount": 72,
+      "bidAmount": 79,
       "expectedQuality": 0.45,
       "successProbability": 0.35,
       "estimatedCost": 42,
       "expectedProfit": 3,
       "reputation": 0.33,
       "competitors": 2,
-      "ringAgentIds": [
-        "civ-a-agent-6",
-        "civ-a-agent-1"
-      ],
+      "ringDefected": false,
       "reasonFactors": [
         {
           "key": "successProbability",
@@ -1282,7 +1285,7 @@
     },
     {
       "agentId": "civ-a-agent-1",
-      "reasonCode": "price_ring"
+      "reasonCode": "risk_above_comfort"
     },
     {
       "agentId": "civ-a-agent-2",
@@ -1307,7 +1310,7 @@
     "bidAmount": 71,
     "completed": true,
     "failed": false,
-    "quality": 0.8085459419991822,
+    "quality": 0.8854763911571354,
     "teamAgentIds": [
       "civ-a-agent-3",
       "civ-a-agent-0"
@@ -1335,15 +1338,15 @@
       "domain": "research",
       "reward": 147,
       "status": "completed",
-      "winnerName": "Boreal"
+      "winnerName": "Echo"
     },
     {
       "id": "task-r2-3",
       "title": "Icon set refresh (Design)",
       "domain": "design",
       "reward": 166,
-      "status": "failed",
-      "winnerName": "Flux"
+      "status": "completed",
+      "winnerName": "Cinder"
     }
   ],
   "rawEvents": [
@@ -1728,7 +1731,7 @@
       "payload": {
         "taskId": "task-r2-2",
         "agentId": "civ-a-agent-1",
-        "bidAmount": 101,
+        "bidAmount": 108,
         "decisionSource": "mock",
         "expectedQuality": 0.78,
         "successProbability": 0.625,
@@ -1739,6 +1742,7 @@
         "expectedProfit": 63,
         "reputation": 0.33,
         "competitors": 2,
+        "ringDefected": false,
         "personalGoalId": "save_for_skill",
         "personalGoalLabel": "攒钱买「Literature Review」",
         "observedCompetitors": {
@@ -1813,7 +1817,7 @@
       "payload": {
         "taskId": "player-task-1-r0",
         "agentId": "civ-a-agent-1",
-        "reasonCode": "price_ring",
+        "reasonCode": "risk_above_comfort",
         "successProbability": 0.07499999999999996,
         "expectedQuality": 0.12000000000000005,
         "riskComfortFloor": 0.36240000000000006,
@@ -1891,19 +1895,6 @@
     },
     {
       "id": "evt-12",
-      "round": 1,
-      "kind": "price_ring",
-      "message": "Boreal honors the price ring on player-task-1-r0",
-      "payload": {
-        "taskId": "player-task-1-r0",
-        "agentId": "civ-a-agent-1",
-        "ringAgentIds": [
-          "civ-a-agent-1"
-        ]
-      }
-    },
-    {
-      "id": "evt-13",
       "round": 1,
       "kind": "bid_declined",
       "message": "Boreal passed on task-r2-3",
@@ -1987,7 +1978,7 @@
       }
     },
     {
-      "id": "evt-14",
+      "id": "evt-13",
       "round": 1,
       "kind": "bid_declined",
       "message": "Boreal passed on task-r2-4",
@@ -2071,14 +2062,14 @@
       }
     },
     {
-      "id": "evt-15",
+      "id": "evt-14",
       "round": 1,
       "kind": "bid_placed",
       "message": "Cinder bid on task-r2-3",
       "payload": {
         "taskId": "task-r2-3",
         "agentId": "civ-a-agent-2",
-        "bidAmount": 122,
+        "bidAmount": 118,
         "decisionSource": "mock",
         "expectedQuality": 0.6,
         "successProbability": 0.475,
@@ -2089,6 +2080,7 @@
         "expectedProfit": 36,
         "reputation": 0.33,
         "competitors": 1,
+        "ringDefected": false,
         "personalGoalId": "save_for_skill",
         "personalGoalLabel": "攒钱买「Visual Composition」",
         "observedCompetitors": {
@@ -2156,7 +2148,7 @@
       }
     },
     {
-      "id": "evt-16",
+      "id": "evt-15",
       "round": 1,
       "kind": "bid_declined",
       "message": "Cinder passed on player-task-1-r0",
@@ -2240,7 +2232,7 @@
       }
     },
     {
-      "id": "evt-17",
+      "id": "evt-16",
       "round": 1,
       "kind": "bid_declined",
       "message": "Cinder passed on task-r2-2",
@@ -2324,7 +2316,7 @@
       }
     },
     {
-      "id": "evt-18",
+      "id": "evt-17",
       "round": 1,
       "kind": "bid_declined",
       "message": "Cinder passed on task-r2-4",
@@ -2408,14 +2400,14 @@
       }
     },
     {
-      "id": "evt-19",
+      "id": "evt-18",
       "round": 1,
       "kind": "bid_placed",
       "message": "Delta bid on player-task-1-r0",
       "payload": {
         "taskId": "player-task-1-r0",
         "agentId": "civ-a-agent-3",
-        "bidAmount": 68,
+        "bidAmount": 66,
         "decisionSource": "mock",
         "expectedQuality": 0.45,
         "successProbability": 0.35,
@@ -2426,6 +2418,7 @@
         "expectedProfit": 3,
         "reputation": 0.33,
         "competitors": 2,
+        "ringDefected": true,
         "personalGoalId": "save_for_skill",
         "personalGoalLabel": "攒钱买「Clean Code Patterns」",
         "observedCompetitors": {
@@ -2493,6 +2486,16 @@
       }
     },
     {
+      "id": "evt-19",
+      "round": 1,
+      "kind": "ring_defected",
+      "message": "civ-a-agent-3 broke the price ring on player-task-1-r0",
+      "payload": {
+        "taskId": "player-task-1-r0",
+        "agentId": "civ-a-agent-3"
+      }
+    },
+    {
       "id": "evt-20",
       "round": 1,
       "kind": "bid_placed",
@@ -2500,7 +2503,7 @@
       "payload": {
         "taskId": "task-r2-2",
         "agentId": "civ-a-agent-3",
-        "bidAmount": 90,
+        "bidAmount": 99,
         "decisionSource": "mock",
         "expectedQuality": 0.48,
         "successProbability": 0.375,
@@ -2511,6 +2514,7 @@
         "expectedProfit": 11,
         "reputation": 0.33,
         "competitors": 5,
+        "ringDefected": false,
         "personalGoalId": "save_for_skill",
         "personalGoalLabel": "攒钱买「Clean Code Patterns」",
         "observedCompetitors": {
@@ -2851,7 +2855,7 @@
       "payload": {
         "taskId": "task-r2-2",
         "agentId": "civ-a-agent-4",
-        "bidAmount": 106,
+        "bidAmount": 95,
         "decisionSource": "mock",
         "expectedQuality": 0.78,
         "successProbability": 0.625,
@@ -2862,6 +2866,7 @@
         "expectedProfit": 63,
         "reputation": 0.33,
         "competitors": 2,
+        "ringDefected": false,
         "personalGoalId": "save_for_skill",
         "personalGoalLabel": "攒钱买「Literature Review」",
         "observedCompetitors": {
@@ -3188,7 +3193,7 @@
       "payload": {
         "taskId": "task-r2-3",
         "agentId": "civ-a-agent-5",
-        "bidAmount": 114,
+        "bidAmount": 124,
         "decisionSource": "mock",
         "expectedQuality": 0.6,
         "successProbability": 0.475,
@@ -3199,6 +3204,7 @@
         "expectedProfit": 36,
         "reputation": 0.33,
         "competitors": 1,
+        "ringDefected": false,
         "personalGoalId": "save_for_skill",
         "personalGoalLabel": "攒钱买「Visual Composition」",
         "observedCompetitors": {
@@ -3525,7 +3531,7 @@
       "payload": {
         "taskId": "player-task-1-r0",
         "agentId": "civ-a-agent-6",
-        "bidAmount": 72,
+        "bidAmount": 79,
         "decisionSource": "mock",
         "expectedQuality": 0.45,
         "successProbability": 0.35,
@@ -3536,10 +3542,7 @@
         "expectedProfit": 3,
         "reputation": 0.33,
         "competitors": 2,
-        "ringAgentIds": [
-          "civ-a-agent-6",
-          "civ-a-agent-1"
-        ],
+        "ringDefected": false,
         "personalGoalId": "save_for_skill",
         "personalGoalLabel": "攒钱买「Clean Code Patterns」",
         "observedCompetitors": {
@@ -3614,7 +3617,7 @@
       "payload": {
         "taskId": "task-r2-2",
         "agentId": "civ-a-agent-6",
-        "bidAmount": 110,
+        "bidAmount": 97,
         "decisionSource": "mock",
         "expectedQuality": 0.45,
         "successProbability": 0.35,
@@ -3625,6 +3628,7 @@
         "expectedProfit": 5,
         "reputation": 0.33,
         "competitors": 5,
+        "ringDefected": false,
         "personalGoalId": "save_for_skill",
         "personalGoalLabel": "攒钱买「Clean Code Patterns」",
         "observedCompetitors": {
@@ -3867,7 +3871,7 @@
       "payload": {
         "taskId": "task-r2-2",
         "agentId": "civ-a-agent-7",
-        "bidAmount": 103,
+        "bidAmount": 100,
         "decisionSource": "mock",
         "expectedQuality": 0.78,
         "successProbability": 0.625,
@@ -3878,6 +3882,7 @@
         "expectedProfit": 63,
         "reputation": 0.33,
         "competitors": 2,
+        "ringDefected": false,
         "personalGoalId": "save_for_skill",
         "personalGoalLabel": "攒钱买「Literature Review」",
         "observedCompetitors": {
@@ -4200,12 +4205,12 @@
       "id": "evt-40",
       "round": 1,
       "kind": "task_assigned",
-      "message": "civ-a-agent-5 assigned Icon set refresh (Design)",
+      "message": "civ-a-agent-2 assigned Icon set refresh (Design)",
       "payload": {
         "taskId": "task-r2-3",
-        "agentId": "civ-a-agent-5",
+        "agentId": "civ-a-agent-2",
         "teamAgentIds": [
-          "civ-a-agent-5"
+          "civ-a-agent-2"
         ]
       }
     },
@@ -4213,12 +4218,12 @@
       "id": "evt-41",
       "round": 1,
       "kind": "task_assigned",
-      "message": "civ-a-agent-1 assigned Prototype material (Research)",
+      "message": "civ-a-agent-4 assigned Prototype material (Research)",
       "payload": {
         "taskId": "task-r2-2",
-        "agentId": "civ-a-agent-1",
+        "agentId": "civ-a-agent-4",
         "teamAgentIds": [
-          "civ-a-agent-1"
+          "civ-a-agent-4"
         ]
       }
     },
@@ -4302,7 +4307,7 @@
       "message": "Delta completed 修复网站登录问题",
       "payload": {
         "taskId": "player-task-1-r0",
-        "quality": 0.8085459419991822,
+        "quality": 0.8854763911571354,
         "teamAgentIds": [
           "civ-a-agent-3",
           "civ-a-agent-0"
@@ -4313,9 +4318,9 @@
       "id": "evt-48",
       "round": 1,
       "kind": "tax_collected",
-      "message": "Boreal paid 12 tax on Prototype material (Research)",
+      "message": "Echo paid 12 tax on Prototype material (Research)",
       "payload": {
-        "agentId": "civ-a-agent-1",
+        "agentId": "civ-a-agent-4",
         "civilizationId": "civ-a",
         "taskId": "task-r2-2",
         "tax": 12,
@@ -4326,38 +4331,65 @@
       "id": "evt-49",
       "round": 1,
       "kind": "task_completed",
-      "message": "Boreal completed Prototype material (Research)",
+      "message": "Echo completed Prototype material (Research)",
       "payload": {
         "taskId": "task-r2-2",
-        "quality": 0.9480764986667782,
+        "quality": 0.9897368431277573,
         "teamAgentIds": [
-          "civ-a-agent-1"
+          "civ-a-agent-4"
         ]
       }
     },
     {
       "id": "evt-50",
       "round": 1,
-      "kind": "task_failed",
-      "message": "Flux failed: Icon set refresh (Design)",
+      "kind": "tax_collected",
+      "message": "Cinder paid 13 tax on Icon set refresh (Design)",
       "payload": {
-        "agentId": "civ-a-agent-5",
-        "taskId": "task-r2-3"
+        "agentId": "civ-a-agent-2",
+        "civilizationId": "civ-a",
+        "taskId": "task-r2-3",
+        "tax": 13,
+        "net": 153
       }
     },
     {
       "id": "evt-51",
       "round": 1,
-      "kind": "skill_purchased",
-      "message": "Boreal bought Literature Review",
+      "kind": "task_completed",
+      "message": "Cinder completed Icon set refresh (Design)",
       "payload": {
-        "agentId": "civ-a-agent-1",
+        "taskId": "task-r2-3",
+        "quality": 0.6910939573310316,
+        "teamAgentIds": [
+          "civ-a-agent-2"
+        ]
+      }
+    },
+    {
+      "id": "evt-52",
+      "round": 1,
+      "kind": "skill_purchased",
+      "message": "Cinder bought Visual Composition",
+      "payload": {
+        "agentId": "civ-a-agent-2",
+        "skillId": "skill_design_basic",
+        "price": 80
+      }
+    },
+    {
+      "id": "evt-53",
+      "round": 1,
+      "kind": "skill_purchased",
+      "message": "Echo bought Literature Review",
+      "payload": {
+        "agentId": "civ-a-agent-4",
         "skillId": "skill_research_basic",
         "price": 80
       }
     },
     {
-      "id": "evt-52",
+      "id": "evt-54",
       "round": 1,
       "kind": "story",
       "message": "第 1 天，市集开门。",
@@ -4370,7 +4402,7 @@
       }
     },
     {
-      "id": "evt-53",
+      "id": "evt-55",
       "round": 1,
       "kind": "story",
       "message": "新到 3 单系统订单。",
@@ -4383,7 +4415,7 @@
       }
     },
     {
-      "id": "evt-54",
+      "id": "evt-56",
       "round": 1,
       "kind": "story",
       "message": "「材料原型试做」成了香饽饽，5 人报价。",
@@ -4391,7 +4423,7 @@
         "playerLine": "「材料原型试做」成了香饽饽，5 人报价。",
         "storyRole": "section",
         "section": "bids",
-        "summary": "抢单大战：「材料原型试做」5 人报价，Boreal 抢到手。",
+        "summary": "抢单大战：「材料原型试做」5 人报价，Echo 抢到手。",
         "details": [
           "Boreal：「材料原型试做」这活香，我先报个价碰碰运气～",
           "Delta：今天运势不错，「材料原型试做」冲一波！",
@@ -4424,13 +4456,13 @@
             }
           ],
           "winnerNames": [
-            "Boreal"
+            "Echo"
           ]
         }
       }
     },
     {
-      "id": "evt-55",
+      "id": "evt-57",
       "round": 1,
       "kind": "story",
       "message": "另有 2 单被抢下。",
@@ -4440,45 +4472,46 @@
         "section": "assign",
         "summary": "还有 2 单找到打工人。",
         "details": [
-          "Flux 拿下「图标套装焕新」（166 金）",
+          "Cinder 拿下「图标套装焕新」（166 金）",
           "Delta 拿下「修复网站登录问题」（100 金）"
         ]
       }
     },
     {
-      "id": "evt-56",
+      "id": "evt-58",
       "round": 1,
       "kind": "story",
-      "message": "交差 2 单，失手 1 单。",
+      "message": "顺利交差 3 单！",
       "payload": {
-        "playerLine": "交差 2 单，失手 1 单。",
+        "playerLine": "顺利交差 3 单！",
         "storyRole": "section",
         "section": "work",
-        "summary": "交差 2 单，失手 1 单。",
+        "summary": "顺利交差 3 单！",
         "details": [
           "✓ Delta 搞定「修复网站登录问题」，金币到账～",
-          "✓ Boreal 搞定「材料原型试做」，金币到账～",
-          "✗ Flux 「图标套装焕新」翻车了，下次再来。"
+          "✓ Echo 搞定「材料原型试做」，金币到账～",
+          "✓ Cinder 搞定「图标套装焕新」，金币到账～"
         ]
       }
     },
     {
-      "id": "evt-57",
+      "id": "evt-59",
       "round": 1,
       "kind": "story",
-      "message": "1 人投资了新技能。",
+      "message": "2 人投资了新技能。",
       "payload": {
-        "playerLine": "1 人投资了新技能。",
+        "playerLine": "2 人投资了新技能。",
         "storyRole": "section",
         "section": "shop",
-        "summary": "1 位居民去「技能铺」逛了一圈。",
+        "summary": "2 位居民去「技能铺」逛了一圈。",
         "details": [
-          "Boreal 买了「科研方法论」，准备接更狠的活。"
+          "Cinder 买了「视觉构图」，准备接更狠的活。",
+          "Echo 买了「科研方法论」，准备接更狠的活。"
         ]
       }
     },
     {
-      "id": "evt-58",
+      "id": "evt-60",
       "round": 1,
       "kind": "story",
       "message": "Delta 交差成功",

@@ -23,7 +23,7 @@ import { successProbability } from '../core/odds.js';
  * - `domainAffinity` weights expected value per task.
  * - `investAggression` is used later by the engine when deciding to buy a skill.
  */
-type RingPlan = { taskId: string; leaderId: string; partnerIds: string[] };
+type RingPlan = { taskId: string; leaderId: string; partnerIds: string[]; defectorId?: string };
 
 export class MockAgentDecisionProvider implements AgentDecisionProvider {
   constructor(private opts: { marketDepth?: boolean } = {}) {}
@@ -40,11 +40,7 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
     let ring: RingPlan | null = null;
     if (this.opts.marketDepth && civ.rules.allowCollaboration && playerTask) {
       const candidates = civ.agents
-        .filter(
-          (a) =>
-            (a.busyUntilRound ?? 0) <= ctx.round &&
-            (a.traits.cooperationPreference ?? 0) >= 0.55,
-        )
+        .filter((a) => (a.busyUntilRound ?? 0) <= ctx.round)
         .sort((a, b) => {
           const aa = effectiveAbility(a.abilities, a.skills.map((s) => s.skillId), civ.sharedSkillIds)[
             playerTask.requirements.domain
@@ -56,10 +52,14 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
         });
       const ringCandidates = candidates;
       if (ringCandidates.length >= 2) {
+        const leaderId = ringCandidates[0]!.id;
+        const partner = ringCandidates[1]!;
+        const defect = ctx.rng() < 0.5;
         ring = {
           taskId: playerTask.id,
-          leaderId: ringCandidates[0]!.id,
-          partnerIds: [ringCandidates[1]!.id],
+          leaderId,
+          partnerIds: defect ? [] : [partner.id],
+          defectorId: defect ? partner.id : undefined,
         };
       }
     }
@@ -168,9 +168,10 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
         personalGoalLabel: goal.label,
         observedCompetitors: entry.observed,
         reasonFactors: entry.reasonFactors,
-        ringAgentIds: ring && entry.task.id === ring.taskId && ring.leaderId === agent.id
+        ringAgentIds: ring && entry.task.id === ring.taskId && ring.leaderId === agent.id && ring.partnerIds.length
           ? [ring.leaderId, ...ring.partnerIds]
           : undefined,
+        ringDefected: !!ring && entry.task.id === ring.taskId && ring.defectorId === agent.id,
       };
     });
 

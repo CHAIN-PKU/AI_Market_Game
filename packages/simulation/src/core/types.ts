@@ -101,6 +101,7 @@ export type GameEventKind =
   | 'team_formed'
   | 'team_settled'
   | 'price_ring'
+  | 'ring_defected'
   | 'ring_payout'
   | 'task_completed'
   | 'task_failed'

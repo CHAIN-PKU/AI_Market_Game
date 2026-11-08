@@ -43,6 +43,8 @@ export function eventText(event: RawEvent, fixture: BidDemoFixture): string {
     case 'price_ring': {
       return `${agentName(p.agentId)} 遵守价格联盟`;
     }
+    case 'ring_defected':
+      return `${agentName(p.agentId)} 背叛了价格联盟`;
     case 'ring_payout':
       return `${agentName(p.agentId)} 给 ${agentName(p.partnerId)} 分了 ${p.amount ?? '?'} 金`;
 
