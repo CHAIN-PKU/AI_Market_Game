@@ -3862,3 +3862,18 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.g-cast-motto {
+  color: #7b6e5b;
+  font-size: 10px;
+  line-height: 1.35;
+  font-style: normal;
+  min-height: 27px;
+}
+
+.g-agent-bio {
+  margin: -4px 0 10px;
+  color: var(--g-muted);
+  font-size: var(--g-fs-small);
+  line-height: 1.5;
+}

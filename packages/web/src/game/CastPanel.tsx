@@ -3,6 +3,7 @@ import { CloseIcon } from './icons';
 import { gold } from './presentation';
 import { ROLE_KEY, ROLE_LABEL, type BidDemoFixture } from './types';
 import { makeResidentPortrait } from './characterArt';
+import { loreFor } from './agentLore';
 
 export function CastPanel({
   fixture,
@@ -48,6 +49,7 @@ export function CastPanel({
               <span className={`g-cast-role g-cast-role--${ROLE_KEY[agent.role]}`}>
                 {ROLE_LABEL[agent.role]} · {agent.personalityLabel}
               </span>
+              <em className="g-cast-motto">「{loreFor(agent.displayName).motto}」</em>
               <span className="g-cast-meta">
                 {gold(agent.walletBefore)} · 技能 {agent.skillsAfter.length}
               </span>

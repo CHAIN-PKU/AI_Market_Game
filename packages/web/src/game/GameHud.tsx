@@ -6,6 +6,7 @@ import { STEP_INDEX, TIMELINE, buildPlaybackCues, type StepId } from './playback
 import { eventText } from './eventText';
 import { downloadCompareCard } from './shareCard';
 import { makeResidentPortrait } from './characterArt';
+import { loreFor } from './agentLore';
 import {
   decisionBadge,
   decisionHeadline,
@@ -594,6 +595,7 @@ export function AgentPanel({
           </div>
         </div>
 
+        <p className="g-agent-bio">{loreFor(agent.displayName).bio}</p>
         <blockquote className="g-mood">「{publicLine(agent)}」</blockquote>
 
         <div className="g-agent-stats">
