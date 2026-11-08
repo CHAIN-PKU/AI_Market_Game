@@ -12,6 +12,7 @@ import { EnvironmentDetails } from './EnvironmentDetails';
 import { CozyBuilding } from './CozyBuilding';
 import { BuildingExtras } from './BuildingExtras';
 import { IslandLife } from './IslandLife';
+import { VillageDetails } from './VillageDetails';
 import { GridIcon, MarketIcon, PeopleIcon, RoleIcon, SkillIcon } from './icons';
 import { atLeast, type StepId } from './playback';
 import { gold } from './presentation';
@@ -240,6 +241,7 @@ export function GameScene({
       )}
       <IslandBase />
       <IslandLife />
+      <VillageDetails />
       <EnvironmentDetails />
 
       {BUILDING_SLOTS.map((slot) => {
