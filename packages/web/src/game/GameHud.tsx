@@ -422,9 +422,18 @@ export function LeftPanel({
                 </span>
               </div>
             ))}
+            {fixture.rival.crossCiv?.winner && (
+              <p className={`g-rivalbox-verdict ${fixture.rival.crossCiv.rivalLost ? '' : 'is-foe'}`}>
+                这把尺子下：
+                <b>
+                  {fixture.rival.crossCiv.winner.civ} · {fixture.rival.crossCiv.winner.who}
+                </b>
+                以 {fixture.rival.crossCiv.winner.score.toFixed(2)} 分拿下
+              </p>
+            )}
             <p className="g-rivalbox-note">
-              评分按「质量 0.55 + 价格 0.45」算：对岸共享技能、质量更高，这把尺子下会抢走单子。
-              当前仍是单岛演示，所以正片里中标的是本岛。
+              评分 = 质量 0.55 + 价格 0.45。对岸共享技能、质量更高，所以会赢。
+              当前仍是单岛演示，正片里中标的是本岛。
             </p>
           </div>
         )}
