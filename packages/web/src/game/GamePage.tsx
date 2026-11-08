@@ -7,6 +7,7 @@ import { GameScene } from './GameScene';
 import { CampaignHistory } from './CampaignHistory';
 import { Guide } from './Guide';
 import { CastPanel } from './CastPanel';
+import { NegotiationPanel } from './NegotiationPanel';
 import { InstitutionPanel, summarizeRun } from './InstitutionPanel';
 import { QUALITY, readQuality, writeQuality, type Quality } from './quality';
 import {
@@ -124,6 +125,7 @@ export function GamePage() {
   const [showHistory, setShowHistory] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [showCast, setShowCast] = useState(false);
+  const [showNegotiation, setShowNegotiation] = useState(false);
   const [campaignBusy, setCampaignBusy] = useState(false);
   const [compare, setCompare] = useState<RuleCompare | null>(null);
   const [quality, setQuality] = useState<Quality>(() => readQuality());
@@ -526,6 +528,13 @@ export function GamePage() {
       {showInstitutions && (
         <InstitutionPanel fixture={fixture} onClose={() => setShowInstitutions(false)} onApplied={applyRound} />
       )}
+
+      <button type="button" className="g-nego-open" onClick={() => setShowNegotiation(true)}>
+        <span>谈判室</span>
+        <em>合作？背叛？</em>
+      </button>
+
+      {showNegotiation && <NegotiationPanel fixture={fixture} onClose={() => setShowNegotiation(false)} />}
 
       {showCast && (
         <CastPanel fixture={fixture} onClose={() => setShowCast(false)} onSelect={setSelectedId} />
