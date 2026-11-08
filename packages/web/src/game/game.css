@@ -4924,3 +4924,17 @@
 }
 .g-source.is-live { background: #dfeee2; color: #2f6b3a; border: 1px solid #b6d8b6; }
 .g-source.is-static { background: #f3e6df; color: #a4452c; border: 1px solid #e8c3b4; }
+
+/* 制度对照：谁获得了新能力 */
+.g-new-skill {
+  margin: 8px 0 0;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-md);
+  background: #eef4ee;
+  border: 1px solid #c3dcc3;
+  display: grid;
+  gap: 2px;
+  font-size: var(--fs-12);
+}
+.g-new-skill span { font-size: var(--fs-11); color: var(--text-3); letter-spacing: var(--tracking-label); }
+.g-new-skill b { color: #2f6b3a; font-weight: 700; }

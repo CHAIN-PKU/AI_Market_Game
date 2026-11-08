@@ -386,6 +386,13 @@ export function GamePage() {
           f.agents.reduce((sum, a) => sum + (a.skillsAfter?.length ?? 0) * 80, 0);
         setCompare({
           decisions: diffDecisions(fixture, next),
+          newSkills: next.agents
+            .map((a) => {
+              const before = new Set((fixture.agents.find((x) => x.id === a.id)?.skillsAfter ?? []).map((s) => s.name));
+              const added = (a.skillsAfter ?? []).filter((s) => !before.has(s.name)).map((s) => s.name);
+              return added.length ? { name: a.displayName, skill: added.join('、') } : null;
+            })
+            .filter((x): x is { name: string; skill: string } => !!x),
           money: {
             beforePrivate: privateSpend(fixture),
             afterPrivate: privateSpend(next),

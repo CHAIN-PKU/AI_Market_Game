@@ -269,6 +269,8 @@ export type RoundHistory = {
 export type RuleCompare = {
   /** 改规则前后每个居民的决策差异（审查要求解释「为什么变」） */
   decisions?: { name: string; before: string; after: string; changed: boolean }[];
+  /** 谁在这次改规则后获得了新技能 */
+  newSkills?: { name: string; skill: string }[];
   /** 制度对照的资金去向分解（私人投资 vs 公共研发池） */
   money?: {
     beforePrivate: number;

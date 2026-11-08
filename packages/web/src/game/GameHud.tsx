@@ -336,6 +336,17 @@ export function LeftPanel({
           </div>
         )}
 
+        {!posted && compare?.newSkills && compare.newSkills.length > 0 && (
+          <div className="g-new-skill">
+            <span>谁获得了新能力</span>
+            {compare.newSkills.map((s) => (
+              <b key={s.name}>
+                {s.name}：{s.skill}
+              </b>
+            ))}
+          </div>
+        )}
+
         {!posted && compare?.money && (
           <div className="g-money-split">
             <header>
