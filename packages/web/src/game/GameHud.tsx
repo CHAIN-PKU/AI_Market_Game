@@ -338,6 +338,24 @@ export function LeftPanel({
               <span>技能</span>
               <b>{compare.beforeSkill ? '买了' : '没买'} → {compare.afterSkill ? '买了' : '没买'}</b>
             </div>
+            {compare.beforeBids !== undefined && (
+              <div className="g-compare-row">
+                <span>报价</span>
+                <b>{compare.beforeBids} 人 / 价差 {compare.beforeSpread} → {compare.afterBids} 人 / 价差 {compare.afterSpread}</b>
+              </div>
+            )}
+            {compare.beforeTeams !== undefined && (
+              <div className="g-compare-row">
+                <span>组队</span>
+                <b>{compare.beforeTeams} → {compare.afterTeams}</b>
+              </div>
+            )}
+            {compare.beforeRings !== undefined && (
+              <div className="g-compare-row">
+                <span>串标 / 举报</span>
+                <b>{compare.beforeRings} / {compare.beforeReports} → {compare.afterRings} / {compare.afterReports}</b>
+              </div>
+            )}
           </div>
         )}
         {!posted ? (

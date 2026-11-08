@@ -131,3 +131,28 @@ export function factorChips(agent: DemoAgent): { label: string; value: string; e
 export function waitLabel(agent: DemoAgent): string {
   return agent.decision.action === 'bid' ? `${agent.decision.bidAmount} 金` : '观望';
 }
+
+
+export type MarketStats = {
+  teams: number;
+  rings: number;
+  reports: number;
+  defections: number;
+  bids: number;
+  spread: number;
+  busy: number;
+};
+
+export function marketStats(fixture: import('./types').BidDemoFixture): MarketStats {
+  const amounts = fixture.bids.map((b) => b.bidAmount);
+  const spread = amounts.length ? Math.max(...amounts) - Math.min(...amounts) : 0;
+  return {
+    teams: fixture.bids.filter((b) => (b.teamAgentIds?.length ?? 0) > 1).length,
+    rings: fixture.bids.filter((b) => (b.ringAgentIds?.length ?? 0) > 1).length,
+    reports: fixture.rawEvents.filter((e) => e.kind === 'ring_reported').length,
+    defections: fixture.rawEvents.filter((e) => e.kind === 'ring_defected').length,
+    bids: fixture.bids.length,
+    spread,
+    busy: fixture.agents.filter((a) => (a.busyUntilRound ?? 0) > fixture.demoRound).length,
+  };
+}

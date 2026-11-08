@@ -28,6 +28,7 @@ import {
   type StepId,
 } from './playback';
 import type { BidDemoFixture, RoundHistory, RuleCompare } from './types';
+import { marketStats } from './presentation';
 import { CloseIcon } from './icons';
 import './game.css';
 
@@ -280,6 +281,8 @@ export function GamePage() {
           ? `改规则后：${beforeWinner} → ${afterWinner} · 到手 ${beforeNet} → ${afterNet} · 技能 ${beforeSkill ? '买了' : '没买'} → ${afterSkill ? '买了' : '没买'}`
           : summary;
       if (beforeNet !== undefined && afterNet !== undefined) {
+        const bm = marketStats(fixture);
+        const am = marketStats(next);
         setCompare({
           beforeWinner,
           afterWinner,
@@ -291,6 +294,16 @@ export function GamePage() {
           afterTax: next.civilization.rules.taxRate,
           beforeAbility,
           afterAbility,
+          beforeTeams: bm.teams,
+          afterTeams: am.teams,
+          beforeRings: bm.rings,
+          afterRings: am.rings,
+          beforeReports: bm.reports,
+          afterReports: am.reports,
+          beforeBids: bm.bids,
+          afterBids: am.bids,
+          beforeSpread: bm.spread,
+          afterSpread: am.spread,
         });
       }
 

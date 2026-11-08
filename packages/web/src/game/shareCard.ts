@@ -1,7 +1,7 @@
 import type { RuleCompare } from './types';
 
 const W = 1200;
-const H = 1200;
+const H = 1400;
 
 function money(n: number | null): string {
   return n === null ? '没赚到' : `${Math.round(n).toLocaleString('en-US')} 金`;
@@ -42,6 +42,15 @@ export function drawCompareCard(compare: RuleCompare, civilization: string): HTM
     ['技能', compare.beforeSkill ? '买了' : '没买', compare.afterSkill ? '买了' : '没买', compare.beforeSkill !== compare.afterSkill],
     ['本事', ability(compare.beforeAbility), ability(compare.afterAbility), compare.beforeAbility !== compare.afterAbility],
   ];
+  if (compare.beforeBids !== undefined) {
+    rows.push(['报价', `${compare.beforeBids} / 差 ${compare.beforeSpread}`, `${compare.afterBids} / 差 ${compare.afterSpread}`, compare.beforeBids !== compare.afterBids || compare.beforeSpread !== compare.afterSpread]);
+  }
+  if (compare.beforeTeams !== undefined) {
+    rows.push(['组队', String(compare.beforeTeams), String(compare.afterTeams), compare.beforeTeams !== compare.afterTeams]);
+  }
+  if (compare.beforeRings !== undefined) {
+    rows.push(['串标/举报', `${compare.beforeRings}/${compare.beforeReports}`, `${compare.afterRings}/${compare.afterReports}`, compare.beforeRings !== compare.afterRings || compare.beforeReports !== compare.afterReports]);
+  }
 
   let y = 280;
   for (const [label, before, after, changed] of rows) {
@@ -74,7 +83,7 @@ export function drawCompareCard(compare: RuleCompare, civilization: string): HTM
       ctx.font = '700 16px "PingFang SC", "Hiragino Sans GB", sans-serif';
       ctx.fillText('变了', W - 168, y + 3);
     }
-    y += 100;
+    y += 92;
   }
 
   ctx.fillStyle = '#587064';

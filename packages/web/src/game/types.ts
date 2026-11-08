@@ -224,4 +224,14 @@ export type RuleCompare = {
   afterTax: number;
   beforeAbility: number | null;
   afterAbility: number | null;
+  beforeTeams?: number;
+  afterTeams?: number;
+  beforeRings?: number;
+  afterRings?: number;
+  beforeReports?: number;
+  afterReports?: number;
+  beforeBids?: number;
+  afterBids?: number;
+  beforeSpread?: number;
+  afterSpread?: number;
 };
