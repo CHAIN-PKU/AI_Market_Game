@@ -1,7 +1,7 @@
 import { Html, useAnimations, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useEffect, useMemo, useRef } from 'react';
-import { Box3, Group, MathUtils, type Object3D } from 'three';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimationClip, Box3, Group, LoopRepeat, MathUtils, type AnimationAction, type Object3D } from 'three';
 import { clone as cloneWithSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { ROLE_KEY, ROLE_LABEL, type DemoAgent } from './types';
 import { RoleIcon } from './icons';
@@ -20,7 +20,11 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
     return { scale: 1.68 / h, minY: box.min.y };
   }, [gltf.scene]);
   const clone = useMemo(() => cloneWithSkeleton(gltf.scene) as Group, [gltf.scene]);
-  const { actions } = useAnimations(gltf.animations, clone);
+  const { actions, mixer } = useAnimations(gltf.animations, clone);
+  const [walkClip, setWalkClip] = useState<AnimationClip | null>(null);
+  const idleAction = useRef<AnimationAction | null>(null);
+  const walkAction = useRef<AnimationAction | null>(null);
+  const movingRef = useRef(false);
   const current = useRef<string | null>(null);
   const groupRef = useRef<Group>(null);
   const walkBones = useMemo(() => {
@@ -45,11 +49,53 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
   const baseY = start[1];
 
   useEffect(() => {
+    fetch('/assets/mixamo/walk.json')
+      .then((r) => r.json())
+      .then((data) => {
+        const clip = AnimationClip.parse(data);
+        clip.name = 'Walk';
+        clip.tracks.forEach((track) => {
+          if (!track.name.startsWith('mixamorig:')) {
+            track.name = track.name.replace(/^([^.]+)\./, 'mixamorig:$1.');
+          }
+        });
+        setWalkClip(clip);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     const a = Object.values(actions)[0];
     if (!a) return;
     a.reset().play();
+    idleAction.current = a;
     current.current = a.getClip().name;
-  }, [actions]);
+    if (walkClip) {
+      const w = mixer.clipAction(walkClip);
+      w.setLoop(LoopRepeat, Infinity);
+      w.enabled = false;
+      walkAction.current = w;
+      if (movingRef.current) {
+        a.fadeOut(0.12);
+        w.reset().fadeIn(0.12).play();
+      }
+    }
+    return () => {
+      walkAction.current?.stop();
+    };
+  }, [actions, mixer, walkClip]);
+
+  const setMoving = (moving: boolean) => {
+    if (movingRef.current === moving) return;
+    movingRef.current = moving;
+    if (moving) {
+      idleAction.current?.fadeOut(0.12);
+      walkAction.current?.reset().fadeIn(0.12).play();
+    } else {
+      walkAction.current?.fadeOut(0.12);
+      idleAction.current?.reset().fadeIn(0.12).play();
+    }
+  };
 
   useFrame((_, dt) => {
     const g = groupRef.current;
@@ -63,17 +109,21 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
       g.position.z += (dz / dist) * stepLen;
       g.rotation.y = MathUtils.damp(g.rotation.y, Math.atan2(dx, dz), 8, dt);
       walkPhase.current += dt * 9;
-      g.position.y = baseY + Math.abs(Math.sin(walkPhase.current)) * 0.035;
-      const s = Math.sin(walkPhase.current);
-      const b = walkBones;
-      if (b.legL) b.legL.rotation.x = b.legLBase.x + s * 0.55;
-      if (b.legR) b.legR.rotation.x = b.legRBase.x - s * 0.55;
-      if (b.armL) b.armL.rotation.x = b.armLBase.x - s * 0.35;
-      if (b.armR) b.armR.rotation.x = b.armRBase.x + s * 0.35;
-      if (b.spine) b.spine.rotation.z = b.spineBase.z + s * 0.03;
+      g.position.y = baseY + Math.abs(Math.sin(walkPhase.current)) * 0.02;
+      setMoving(true);
+      if (!walkAction.current) {
+        const s = Math.sin(walkPhase.current);
+        const b = walkBones;
+        if (b.legL) b.legL.rotation.x = b.legLBase.x + s * 0.55;
+        if (b.legR) b.legR.rotation.x = b.legRBase.x - s * 0.55;
+        if (b.armL) b.armL.rotation.x = b.armLBase.x - s * 0.35;
+        if (b.armR) b.armR.rotation.x = b.armRBase.x + s * 0.35;
+        if (b.spine) b.spine.rotation.z = b.spineBase.z + s * 0.03;
+      }
     } else {
       g.rotation.y = MathUtils.damp(g.rotation.y, (index % 8) * 0.06, 4, dt);
       g.position.y = MathUtils.damp(g.position.y, baseY, 10, dt);
+      setMoving(false);
     }
   });
 

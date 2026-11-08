@@ -27,7 +27,7 @@
 
 ## 动画
 
-每个 GLB 内嵌一个 `mixamo.com` 动画（idle）。移动时叠加程序化的腿/臂摆动 + 上下浮动（`GameAgent.tsx`），不是下载的 walk clip；下一步可换成真实 walk/run 动画。
+每个 GLB 内嵌一个 `mixamo.com` 动画（idle）。移动时从 three.ws 动画库加载 `walk.json`，把 track 前缀改写成 `mixamorig:` 后直接播放；如果加载失败，回退到程序化腿/臂摆动。
 
 ## 缩略图
 

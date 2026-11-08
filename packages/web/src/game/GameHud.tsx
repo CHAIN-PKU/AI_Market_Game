@@ -397,6 +397,10 @@ export function LeftPanel({
                   <span className={`g-avatar g-avatar--${ROLE_KEY[agent.role]}`}>{roleIcon(agent)}</span>
                   <span className="g-bid-name">
                     {bid.displayName}
+                    {bid.teamAgentIds && bid.teamAgentIds.length > 1
+                      ? ` + ${bid.teamAgentIds.slice(1).map((id) => fixture.agents.find((a) => a.id === id)?.displayName ?? id).join(' + ')}`
+                      : ''}
+                    {bid.teamAgentIds && bid.teamAgentIds.length > 1 && <em className="g-team-inline">组队</em>}
                     <em className={personalityTone(agent)}>{agent.personalityLabel}</em>
                   </span>
                   <span className="g-bid-amount">{gold(bid.bidAmount)}</span>
@@ -420,11 +424,6 @@ export function LeftPanel({
                     {bid.competitors !== undefined && (
                       <span>
                         对手 <b>{bid.competitors} 人</b>
-                      </span>
-                    )}
-                    {bid.teamAgentIds && bid.teamAgentIds.length > 1 && (
-                      <span className="g-team-tag">
-                        组队 <b>{bid.teamAgentIds.slice(1).map((id) => fixture.agents.find((a) => a.id === id)?.displayName ?? id).join(' + ')}</b>
                       </span>
                     )}
                   </span>
