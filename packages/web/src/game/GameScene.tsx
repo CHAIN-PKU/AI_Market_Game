@@ -10,6 +10,8 @@ import { NATIVE, WORLD, fitScale, sitOnGround } from '../visual-lab/assetScale';
 import { GameAgent, type AgentVisualState } from './GameAgent';
 import { EnvironmentDetails } from './EnvironmentDetails';
 import { CozyBuilding } from './CozyBuilding';
+import { BuildingExtras } from './BuildingExtras';
+import { IslandLife } from './IslandLife';
 import { GridIcon, MarketIcon, PeopleIcon, RoleIcon, SkillIcon } from './icons';
 import { atLeast, type StepId } from './playback';
 import { gold } from './presentation';
@@ -237,6 +239,7 @@ export function GameScene({
         <Sparkles count={38} scale={[18, 3.4, 18]} position={[0, 2.6, 0]} size={2.2} speed={0.16} opacity={0.32} color="#ffe8a8" />
       )}
       <IslandBase />
+      <IslandLife />
       <EnvironmentDetails />
 
       {BUILDING_SLOTS.map((slot) => {
@@ -245,6 +248,7 @@ export function GameScene({
         return (
           <group key={slot.id} position={slot.position} rotation={[0, slot.rotationY, 0]}>
             <CozyBuilding role={slot.role} height={height} width={width} />
+            <BuildingExtras role={slot.role} height={height} width={width} />
             <BuildingLabel x={0} z={0} label={slot.label} role={slot.role} height={height} />
           </group>
         );
