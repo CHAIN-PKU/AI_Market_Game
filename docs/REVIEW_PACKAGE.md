@@ -13,7 +13,8 @@
 | 三轮连续跑得通吗？ | 通，且技能影响下一轮 | `EVIDENCE_GATE1.md` + `evidence/campaign-3-rounds.json` |
 | 制度改动能解释吗？ | 能：谁的决策变了 + 钱去哪了 | `evidence/rule-diff-1920.png`、`evidence/rule-compare-full-1920.png` |
 | 两种分辨率可读吗？ | 1920 / 1366 均无横向溢出 | `evidence/live-round-1920.png`、`evidence/live-round-1366.png` |
-| 测试 | simulation 39 / web 12 全绿 | `npm test` |
+| 测试 | simulation **42** / web 12 全绿；三个包都能构建 | `npm test`、`npm run build -w <包名>` |
+| 技能是否影响下一轮 | 两条自动化测试：能力上升 + 决策改变（96/0.66 → 100/0.90） | `tests/skill-carries-over.test.ts`、`tests/skill-changes-decision.test.ts` |
 
 ---
 
@@ -58,8 +59,10 @@
    注：该分辨率下「改规则」面板底部按钮被裁的问题**已修**（矮屏压缩 + sticky 底栏）
 2. 「私人买技能」支出按基础价 80 金/件估算，是量级近似，不是逐笔账本
 3. 剧场台词仍是子 agent 预生成的脚本，不是每轮实时生成
-4. 3D 场景加载后约 2.3 秒有一次 `removeChild` 报错（生产构建同样复现），
-   已定位为 Suspense fallback 使用 drei `Html` 门户，**已修**；如仍复现请优先看这里
+4. 3D 场景加载后约 2.3 秒有一次 `removeChild` 报错，已定位为 Suspense fallback
+   使用 drei `Html` 门户，**已修**；如仍复现请优先看这里
+5. 尚未做「反事实重放」（同一局买/不买技能各跑一遍比较最终财富），这是 engine 新能力，不是测试能绕过的
+6. 界面来源徽章已上线：未跑过显示「演示数据 · 未接引擎」，跑过后显示「实时引擎」
 
 ---
 
