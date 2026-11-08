@@ -356,6 +356,23 @@ function BeachDetails() {
   );
 }
 
+function SeaStack({ x, z, scale = 1, palm = true }: { x: number; z: number; scale?: number; palm?: boolean }) {
+  return (
+    <group position={[x, -1.15, z]} scale={scale}>
+      <mesh castShadow receiveShadow position={[0, 0.8, 0]}>
+        <cylinderGeometry args={[0.38, 0.72, 1.8, 7]} />
+        <meshStandardMaterial color={ROCK_DARK} roughness={1} flatShading />
+      </mesh>
+      <mesh castShadow position={[0, 1.7, 0]}>
+        <cylinderGeometry args={[0.45, 0.38, 0.18, 7]} />
+        <meshStandardMaterial color="#6f9b62" roughness={1} />
+      </mesh>
+      <Rock x={0.35} z={-0.2} y={1.75} scale={0.32} />
+      {palm && <Palm x={0} z={0} scale={0.42} lean={0.08} />}
+    </group>
+  );
+}
+
 function DistantIsland({ x, z, scale = 1 }: { x: number; z: number; scale?: number }) {
   return (
     <group position={[x, -1.45, z]} scale={scale}>
@@ -423,6 +440,8 @@ export function IslandLife() {
       <Lighthouse />
       <Seagulls />
       <BeachDetails />
+      <SeaStack x={14.8} z={-2.0} scale={1.05} />
+      <SeaStack x={-14.9} z={-5.2} scale={0.8} palm={false} />
       <DistantIsland x={-15.5} z={-10.5} scale={0.85} />
       <DistantIsland x={15.2} z={-12.0} scale={0.65} />
     </group>
