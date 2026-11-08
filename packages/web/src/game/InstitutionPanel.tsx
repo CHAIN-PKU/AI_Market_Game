@@ -220,8 +220,8 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
         {experiment && (
           <div className="g-experiment">
             <div className="g-experiment-head">
-              <strong>5 轮制度实验</strong>
-              <span>{experiment.a.rules.name} vs {experiment.b.rules.name} · 种子 {experiment.seed}</span>
+              <strong>5 轮文明对抗</strong>
+              <span>{experiment.a.rules.name} vs {experiment.b.rules.name} · 同场抢单 · 种子 {experiment.seed}</span>
               <button
                 type="button"
                 className="g-btn g-btn--ghost g-experiment-download"

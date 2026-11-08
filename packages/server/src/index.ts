@@ -6,6 +6,12 @@ import {
   advanceBidDemoCampaign,
   buildBidDemoFixture,
   createBidDemoCampaign,
+  createDualCivilizationGame,
+  runSingleRound,
+  MockAgentDecisionProvider,
+  postPlayerTask,
+  createFreeMarketRules,
+  createPublicResearchRules,
   type BidDemoCampaign,
   type RulesPatch,
 } from '@ai-civ/simulation';
@@ -364,30 +370,71 @@ function runExperiment(input: {
 }) {
   const seed = Math.round(input.seed ?? 1);
   const maxRounds = Math.min(10, Math.max(1, Math.round(input.maxRounds ?? 5)));
-  const sides = [
-    { key: 'a' as const, rules: input.rulesA },
-    { key: 'b' as const, rules: input.rulesB },
-  ];
-  const out: Record<string, unknown> = { seed, maxRounds };
-  for (const side of sides) {
-    const campaign = createBidDemoCampaign({
-      seed,
-      maxRounds,
-      tasksPerRound: 2,
-      initialAbility: 28,
-      rules: side.rules,
-      marketDepth: true,
-    });
-    const fixtures: ReturnType<typeof advanceBidDemoCampaign>['fixture'][] = [];
-    for (let i = 0; i < maxRounds; i += 1) {
-      fixtures.push(advanceBidDemoCampaign(campaign).fixture);
-    }
-    out[side.key] = {
-      rules: campaign.rules,
-      stats: aggregateExperiment(fixtures),
-    };
+  const state = createDualCivilizationGame(
+    { seed, totalRounds: maxRounds, tasksPerRound: 2, initialAgentAbility: 28 },
+    createFreeMarketRules('自由市场'),
+    createPublicResearchRules('公共研发'),
+  );
+  if (input.rulesA || input.rulesB) {
+    // Apply clamps through the same helper used by the demo campaign.
+    const a = createBidDemoCampaign({ seed, maxRounds, rules: input.rulesA, marketDepth: true });
+    const b = createBidDemoCampaign({ seed, maxRounds, rules: input.rulesB, marketDepth: true });
+    state.civilizations[0]!.rules = a.rules;
+    state.civilizations[1]!.rules = b.rules;
   }
-  return out;
+  const provider = new MockAgentDecisionProvider({ marketDepth: true });
+  const domains = ['coding', 'research', 'design'] as const;
+  for (let i = 0; i < maxRounds; i += 1) {
+    postPlayerTask(state, {
+      title: `文明对抗 · 第 ${i + 1} 单`,
+      domain: domains[i % domains.length]!,
+      reward: 120,
+    });
+    runSingleRound(state, provider);
+  }
+
+  const statsFor = (civId: string): ExperimentStats => {
+    const civ = state.civilizations.find((c) => c.id === civId)!;
+    const agents = new Map(civ.agents.map((a) => [a.id, a]));
+    const events = state.events;
+    const bids = events.filter((e) => e.kind === 'bid_placed' && agents.has(String((e.payload as Record<string, unknown>)?.agentId ?? '')));
+    const assigned = events.filter((e) => e.kind === 'task_assigned' && agents.has(String((e.payload as Record<string, unknown>)?.agentId ?? '')));
+    const taxes = events.filter((e) => e.kind === 'tax_collected' && agents.has(String((e.payload as Record<string, unknown>)?.agentId ?? '')));
+    const skills = events.filter((e) => e.kind === 'skill_purchased' && agents.has(String((e.payload as Record<string, unknown>)?.agentId ?? '')));
+    const reports = events.filter((e) => e.kind === 'ring_reported' && agents.has(String((e.payload as Record<string, unknown>)?.agentId ?? '')));
+    const defections = events.filter((e) => e.kind === 'ring_defected' && agents.has(String((e.payload as Record<string, unknown>)?.agentId ?? '')));
+    const wins = assigned.length;
+    const totalNet = taxes.reduce((sum, e) => sum + Number((e.payload as Record<string, unknown>)?.net ?? 0), 0);
+    const totalTax = taxes.reduce((sum, e) => sum + Number((e.payload as Record<string, unknown>)?.tax ?? 0), 0);
+    const winningBids = assigned.map((e) => {
+      const taskId = String((e.payload as Record<string, unknown>)?.taskId ?? '');
+      return state.marketTasks.find((t) => t.id === taskId)?.winningBid ?? 0;
+    });
+    const wallets = civ.agents.map((a) => a.wallet);
+    return {
+      rounds: maxRounds,
+      wins,
+      totalNet,
+      totalTax,
+      avgWinningBid: wins ? Math.round(winningBids.reduce((a, b) => a + b, 0) / wins) : 0,
+      teamBids: bids.filter((e) => ((e.payload as Record<string, unknown>)?.teamAgentIds as string[] | undefined)?.length ?? 0 > 1).length,
+      ringBids: bids.filter((e) => ((e.payload as Record<string, unknown>)?.ringAgentIds as string[] | undefined)?.length ?? 0 > 1).length,
+      reports: reports.length,
+      defections: defections.length,
+      skills: skills.length,
+      treasuryEnd: civ.treasury,
+      gini: gini(wallets),
+      uniqueWinners: new Set(assigned.map((e) => String((e.payload as Record<string, unknown>)?.agentId ?? ''))).size,
+      finalWallets: wallets,
+    };
+  };
+
+  return {
+    seed,
+    maxRounds,
+    a: { rules: state.civilizations[0]!.rules, stats: statsFor('civ-a') },
+    b: { rules: state.civilizations[1]!.rules, stats: statsFor('civ-b') },
+  };
 }
 
 app.post<{
