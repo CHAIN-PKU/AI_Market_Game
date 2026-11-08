@@ -12,17 +12,18 @@ type Look = {
   shoes: string;
   accent: string;
   style: number;
+  face: number;
 };
 
 const LOOKS: Look[] = [
-  { skin: '#f4c9a4', skinShade: '#dfa982', hair: '#2f211b', hairDark: '#1c130f', shirt: '#3f8f96', shirtDark: '#2f6f75', pants: '#3d4657', shoes: '#4a3428', accent: '#e0a94f', style: 1 },
-  { skin: '#e7b48a', skinShade: '#cf956b', hair: '#5a3a25', hairDark: '#3d2517', shirt: '#8f7cc9', shirtDark: '#6d5aa6', pants: '#4f596b', shoes: '#54443a', accent: '#f0d38a', style: 3 },
-  { skin: '#c98d63', skinShade: '#ad724c', hair: '#1f2933', hairDark: '#10161d', shirt: '#d97a52', shirtDark: '#b85a3a', pants: '#5b4a44', shoes: '#3b2b22', accent: '#9fd8d2', style: 0 },
-  { skin: '#9c6644', skinShade: '#7e4e32', hair: '#1f2933', hairDark: '#0e1318', shirt: '#5fb3c3', shirtDark: '#3f8f96', pants: '#334b52', shoes: '#2d3b36', accent: '#f3a6b8', style: 2 },
-  { skin: '#f7d6b8', skinShade: '#dfb894', hair: '#c08a3e', hairDark: '#94672a', shirt: '#7cbf7a', shirtDark: '#4f8b52', pants: '#46513f', shoes: '#4a3428', accent: '#e8d8b8', style: 4 },
-  { skin: '#d9a078', skinShade: '#bd8560', hair: '#d9c8a0', hairDark: '#b3a37c', shirt: '#b8842f', shirtDark: '#8a5a2f', pants: '#5a4b63', shoes: '#4a3428', accent: '#f6d36b', style: 5 },
-  { skin: '#b97c55', skinShade: '#9b6242', hair: '#3b2a24', hairDark: '#211611', shirt: '#e0a94f', shirtDark: '#b8842f', pants: '#3f4a3d', shoes: '#3b2b22', accent: '#8f7cc9', style: 1 },
-  { skin: '#efc39b', skinShade: '#d5a57d', hair: '#6b3f2a', hairDark: '#47271a', shirt: '#c96f58', shirtDark: '#a04f3c', pants: '#4d4f5e', shoes: '#3b2b22', accent: '#7cbf7a', style: 3 },
+  { skin: '#f4c9a4', skinShade: '#dfa982', hair: '#2f211b', hairDark: '#1c130f', shirt: '#3f8f96', shirtDark: '#2f6f75', pants: '#3d4657', shoes: '#4a3428', accent: '#e0a94f', style: 1 , face: 1 },
+  { skin: '#e7b48a', skinShade: '#cf956b', hair: '#5a3a25', hairDark: '#3d2517', shirt: '#8f7cc9', shirtDark: '#6d5aa6', pants: '#4f596b', shoes: '#54443a', accent: '#f0d38a', style: 3 , face: 2 },
+  { skin: '#c98d63', skinShade: '#ad724c', hair: '#1f2933', hairDark: '#10161d', shirt: '#d97a52', shirtDark: '#b85a3a', pants: '#5b4a44', shoes: '#3b2b22', accent: '#9fd8d2', style: 0 , face: 0 },
+  { skin: '#9c6644', skinShade: '#7e4e32', hair: '#1f2933', hairDark: '#0e1318', shirt: '#5fb3c3', shirtDark: '#3f8f96', pants: '#334b52', shoes: '#2d3b36', accent: '#f3a6b8', style: 2 , face: 1 },
+  { skin: '#f7d6b8', skinShade: '#dfb894', hair: '#c08a3e', hairDark: '#94672a', shirt: '#7cbf7a', shirtDark: '#4f8b52', pants: '#46513f', shoes: '#4a3428', accent: '#e8d8b8', style: 4 , face: 0 },
+  { skin: '#d9a078', skinShade: '#bd8560', hair: '#d9c8a0', hairDark: '#b3a37c', shirt: '#b8842f', shirtDark: '#8a5a2f', pants: '#5a4b63', shoes: '#4a3428', accent: '#f6d36b', style: 5 , face: 2 },
+  { skin: '#b97c55', skinShade: '#9b6242', hair: '#3b2a24', hairDark: '#211611', shirt: '#e0a94f', shirtDark: '#b8842f', pants: '#3f4a3d', shoes: '#3b2b22', accent: '#8f7cc9', style: 1 , face: 1 },
+  { skin: '#efc39b', skinShade: '#d5a57d', hair: '#6b3f2a', hairDark: '#47271a', shirt: '#c96f58', shirtDark: '#a04f3c', pants: '#4d4f5e', shoes: '#3b2b22', accent: '#7cbf7a', style: 3 , face: 0 },
 ];
 
 const ROLE_SHIRT: Record<RoleKey, string> = {
@@ -479,9 +480,15 @@ function drawResident(ctx: CanvasRenderingContext2D, look: Look, role: RoleKey, 
   drawLegs(ctx, look, pose);
   drawBody(ctx, look, role);
   drawArms(ctx, look, pose);
+  const faceScale = look.face === 1 ? 1.05 : look.face === 2 ? 0.95 : 1;
+  ctx.save();
+  ctx.translate(341, 0);
+  ctx.scale(faceScale, 1);
+  ctx.translate(-341, 0);
   drawFace(ctx, look, role);
   drawHairFront(ctx, look);
   drawAccessory(ctx, look, role);
+  ctx.restore();
 }
 
 /** Two-frame atlas: left = idle, right = walk. */
