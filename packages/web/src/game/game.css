@@ -4527,3 +4527,86 @@
   letter-spacing: 0.08em;
   pointer-events: none;
 }
+
+/* 对手文明卡片：证明同一张单有两座文明在抢 */
+.g-rival {
+  position: fixed;
+  left: 22px;
+  bottom: 132px;
+  z-index: 33;
+  width: 208px;
+  padding: var(--sp-3);
+  border: var(--edge);
+  border-radius: var(--r-md);
+  background: var(--surface-base);
+  box-shadow: var(--shadow-hard), var(--shadow-soft);
+  display: grid;
+  gap: var(--sp-2);
+  animation: g-story-in 220ms ease-out;
+}
+.g-rival header { display: grid; gap: 2px; }
+.g-rival-tag {
+  justify-self: start;
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  background: #7a5c3a;
+  color: #fdf7ea;
+  font-size: 10px;
+  letter-spacing: var(--tracking-label);
+}
+.g-rival header b { font-size: var(--fs-15); color: var(--text-1); }
+.g-rival header em { font-size: var(--fs-11); font-style: normal; color: var(--text-3); }
+.g-rival-treasury {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--r-sm);
+  background: var(--surface-card);
+}
+.g-rival-treasury label { font-size: var(--fs-11); color: var(--text-3); }
+.g-rival-treasury b {
+  font-family: var(--font-data);
+  font-size: var(--fs-18);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+}
+.g-rival-bids { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.g-rival-bids li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: var(--fs-12);
+  color: var(--text-2);
+}
+.g-rival-bids b {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  color: #8f5f1c;
+}
+.g-rival-note { margin: 0; font-size: var(--fs-11); color: var(--text-3); }
+
+/* 左侧面板里的对手文明块 */
+.g-rivalbox {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding: 8px 9px;
+  border: 1px dashed #c9b48c;
+  border-radius: var(--r-sm);
+  background: #fdf7e8;
+}
+.g-bid--rival { display: flex; justify-content: space-between; font-size: var(--fs-12); color: var(--text-2); }
+.g-bid--rival .g-bid-amount {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  color: #8f5f1c;
+}
+.g-rivalbox-note { margin: 2px 0 0; font-size: var(--fs-11); color: var(--text-3); }
+
+/* 对手块的标题两行排：文明名 / 制度，避免挤成一行 */
+.g-rivalbox .g-bidbox-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}

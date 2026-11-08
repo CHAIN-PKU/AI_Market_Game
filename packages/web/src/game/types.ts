@@ -130,6 +130,23 @@ export type BidDemoFixture = {
     treasuryStart: number;
     treasuryAfter: number;
   };
+  /** 对手文明（多人对抗的第一块地基）：数据由引擎跑出，见 scripts/add-rival-demo.mjs */
+  rival?: {
+    id: string;
+    name: string;
+    rules: {
+      name: string;
+      taxRate: number;
+      publicResearchShare: number;
+      skillOwnership: string;
+      allowFreeHire: boolean;
+      allowCollaboration: boolean;
+    };
+    treasuryStart: number;
+    treasuryAfter: number;
+    generatedBy?: string;
+    bids: BidSummary[];
+  };
   treasuryBreakdown: {
     start: number;
     end: number;

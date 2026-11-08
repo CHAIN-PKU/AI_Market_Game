@@ -399,6 +399,22 @@ export function LeftPanel({
           <FocusCard agent={focusAgent} focusNumber={focusNumber} step={derived.step} />
         )}
 
+        {showBids && fixture.rival && (
+          <div className="g-rivalbox">
+            <div className="g-bidbox-head">
+              <span>对手文明 · {fixture.rival.name}</span>
+              <em>{fixture.rival.rules.name} · 税率 {Math.round(fixture.rival.rules.taxRate * 100)}%</em>
+            </div>
+            {fixture.rival.bids.slice(0, 3).map((bid) => (
+              <div key={bid.agentId} className="g-bid g-bid--rival">
+                <span className="g-bid-name">{bid.displayName}</span>
+                <span className="g-bid-amount">{bid.bidAmount} 金</span>
+              </div>
+            ))}
+            <p className="g-rivalbox-note">同一张单，两座岛都在抢（报价由引擎跑出）</p>
+          </div>
+        )}
+
         {showBids && (
           <div className="g-bidbox">
             <div className="g-bidbox-head">

@@ -4574,5 +4574,46 @@
       "research": 31,
       "design": 21
     }
+  },
+  "rival": {
+    "id": "civ-b",
+    "name": "远岸文明",
+    "rules": {
+      "name": "公共研发",
+      "taxRate": 0.22,
+      "publicResearchShare": 0.65,
+      "skillOwnership": "shared",
+      "allowFreeHire": false,
+      "allowCollaboration": true
+    },
+    "treasuryStart": 1000,
+    "treasuryAfter": 1000,
+    "generatedBy": "scripts/add-rival-demo.mjs (engine mock decisions)",
+    "bids": [
+      {
+        "agentId": "civ-b-agent-3",
+        "displayName": "Helix",
+        "bidAmount": 78,
+        "expectedQuality": 0.66,
+        "successProbability": 0.588,
+        "estimatedCost": 36
+      },
+      {
+        "agentId": "civ-b-agent-6",
+        "displayName": "Kite",
+        "bidAmount": 75,
+        "expectedQuality": 0.66,
+        "successProbability": 0.588,
+        "estimatedCost": 36
+      },
+      {
+        "agentId": "civ-b-agent-0",
+        "displayName": "Echo",
+        "bidAmount": 73,
+        "expectedQuality": 0.66,
+        "successProbability": 0.588,
+        "estimatedCost": 36
+      }
+    ]
   }
 }

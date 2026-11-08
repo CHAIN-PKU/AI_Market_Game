@@ -37,7 +37,7 @@ import { marketStats } from './presentation';
 import { CloseIcon } from './icons';
 import './game.css';
 
-const bundledFixture = fixtureJson as BidDemoFixture;
+const bundledFixture = fixtureJson as unknown as BidDemoFixture;
 
 const STATUS_LABEL: Record<StepId, string> = {
   idle: '等你发任务',
