@@ -77,7 +77,28 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
     ring: RingPlan | null
   ): AgentDecision {
     const goal = personalGoalFor(agent, civ);
-    const floor = riskComfortFloor(agent);
+    const defections = agent.stats.ringDefections ?? 0;
+    const adaptiveRisk = Math.max(
+      0.12,
+      Math.min(
+        0.9,
+        agent.traits.riskTolerance +
+          (agent.stats.tasksCompleted - agent.stats.tasksFailed) * 0.018 -
+          defections * 0.055,
+      ),
+    );
+    const adaptiveCoop = Math.max(
+      0.1,
+      Math.min(
+        0.95,
+        (agent.traits.cooperationPreference ?? 0.5) +
+          (agent.stats.tasksCompleted - agent.stats.tasksFailed) * 0.012 -
+          defections * 0.06,
+      ),
+    );
+    const floor = this.opts.marketDepth
+      ? 0.2 + (1 - adaptiveRisk) * 0.28
+      : riskComfortFloor(agent);
 
     const evaluated = openTasks.map((task) => {
       const quality = agentExpectedQuality(agent, civ, task);
@@ -150,6 +171,15 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
         const reputationPremium = (entry.reputation - 0.4) * 0.04;
         priceFactor = Math.max(0.5, Math.min(0.95, priceFactor - pressure + reputationPremium));
         priceFactor = Math.max(priceFactor, (entry.estimatedCost + 4) / entry.task.reward);
+        priceFactor = Math.max(
+          0.5,
+          Math.min(
+            0.95,
+            priceFactor +
+              (agent.traits.riskTolerance - adaptiveRisk) * 0.08 +
+              ((agent.traits.cooperationPreference ?? 0.5) - adaptiveCoop) * 0.03,
+          ),
+        );
       }
       return {
         taskId: entry.task.id,
