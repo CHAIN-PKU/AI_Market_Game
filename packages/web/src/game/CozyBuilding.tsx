@@ -193,6 +193,22 @@ export function CozyBuilding({ role, height, width }: { role: BuildingRole; heig
       {[0.35, 0.95].map((y) => (
         <Box key={`beam-${y}`} size={[w + 0.04, 0.055, d + 0.04]} position={[0, base + wallH * y, 0]} color={s.trim} roughness={0.9} />
       ))}
+      {/* stone foundation */}
+      <Box size={[w + 0.12, 0.16, d + 0.12]} position={[0, 0.08, 0]} color="#b9aa92" roughness={0.96} />
+      {/* front corner posts + cross beam */}
+      {[-w * 0.41, w * 0.41].map((x) => (
+        <Box key={`post-${x}`} size={[0.075, wallTop, 0.075]} position={[x, wallTop / 2, frontZ + 0.03]} color="#6b4a2f" roughness={0.9} />
+      ))}
+      <Box size={[w * 0.86, 0.065, 0.05]} position={[0, wallTop * 0.58, frontZ + 0.035]} color={s.trim} roughness={0.9} />
+      {['market', 'skill', 'homes'].includes(role) && [-1, 1].map((side) => (
+        <Box
+          key={`brace-${side}`}
+          size={[0.055, wallTop * 0.5, 0.05]}
+          position={[side * w * 0.2, wallTop * 0.3, frontZ + 0.04]}
+          color="#6b4a2f"
+          rotation={[0, 0, side * 0.55]}
+        />
+      ))}
       {/* door */}
       <Box size={[0.54, 0.68, 0.07]} position={[0, base + 0.36, frontZ]} color={s.door} />
       <Box size={[0.62, 0.74, 0.04]} position={[0, base + 0.36, frontZ + 0.02]} color={s.trim} />
