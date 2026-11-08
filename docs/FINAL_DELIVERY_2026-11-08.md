@@ -84,3 +84,35 @@ npm run demo:fixture
 - `docs/VISUAL_REBUILD_2026-11-08.md`
 - `docs/FINAL_ACCEPTANCE_2026-11-08.md`
 - `docs/CHARACTER_3D_PIPELINE.md`
+
+## 验收矩阵（2026-11-08）
+
+| 目标 | 状态 | 证据 |
+|---|---|---|
+| 居民从 2D 纸片人换 3D | 完成 | 8 个 Mixamo GLB，`idle-1920.png` |
+| glTF 原生动画 | 完成 | idle / walk / wave / celebrate |
+| 更好看的立绘 | 完成 | 512×768 Blender 透明立绘，`cast-1920.png` |
+| 真实报价 / 成本 / 利润 | 完成 | marketDepth fixture，面板显示成本/利润 |
+| 声誉 / 对手压力 | 完成 | 报价面板 + 决策卡 |
+| 组队 / 分账 | 完成 | Delta + Astra，70/30 |
+| 产能 / 档期 | 完成 | durationRounds + busyUntilRound |
+| 串标 / 背叛 / 举报 | 完成 | 串标标签、背叛标签、举报事件、声誉惩罚 |
+| 制度差异 | 完成 | 单轮对比、5 轮聚合、双制度 A/B |
+| 分享物料 | 完成 | 1600×1080 A/B 报告卡 + 文案 |
+| 自动化测试 | 完成 | 20/20 模拟 + 12/12 web |
+| 无视频 | 遵守 | 只发截图 |
+
+## 最新提交
+
+- `bce8919` — 去掉 StrictMode，减少 Html 噪音
+- `088c4d2` — 唯一 bid key + 最终 E2E 截图
+- `23b5a2d` — 交付包 + 分享文案
+- `9041628` — winner celebrate 验证
+- `f310198` — 可导出 A/B 报告卡
+
+## 已知非阻塞项
+
+- drei `<Html>` 卸载时仍可能打 `removeChild` 警告；功能正常，已记录。
+- 部分深色服装角色在场景中仍偏暗，已加正面补光。
+- 飞书 DSH 收信权限未配置，当前只能单向推送。
+- Mixamo 资产公开商用前需复核条款。
