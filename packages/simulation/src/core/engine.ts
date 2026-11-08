@@ -69,6 +69,11 @@ export function runSingleRound(
           expectedProfit: bid.expectedProfit,
           reputation: bid.reputation,
           competitors: bid.competitors,
+          teamAgentIds: bid.teamAgentIds,
+          teamQuality: bid.teamQuality,
+          teamProbability: bid.teamProbability,
+          teamCost: bid.teamCost,
+          teamProfit: bid.teamProfit,
           personalGoalId: bid.personalGoalId,
           personalGoalLabel: bid.personalGoalLabel,
           observedCompetitors: bid.observedCompetitors,
@@ -105,11 +110,20 @@ export function runSingleRound(
     task.status = 'assigned';
     task.assignedAgentId = bid.agentId;
     task.assignedCivilizationId = bid.civilizationId;
+    task.assignedTeamIds = bid.teamAgentIds ?? [bid.agentId];
     task.winningBid = bid.bidAmount;
     pushEvent(state, 'task_assigned', `${bid.agentId} assigned ${task.title}`, {
       taskId,
       agentId: bid.agentId,
+      teamAgentIds: bid.teamAgentIds ?? [bid.agentId],
     });
+    if (bid.teamAgentIds && bid.teamAgentIds.length > 1) {
+      pushEvent(state, 'team_formed', `${bid.teamAgentIds.join(' + ')} team up for ${task.title}`, {
+        taskId,
+        agentId: bid.agentId,
+        teamAgentIds: bid.teamAgentIds,
+      });
+    }
   }
 
   const assigned = state.marketTasks.filter((t) => t.status === 'assigned');

@@ -74,6 +74,11 @@ export type BidSummary = {
   expectedProfit?: number;
   reputation?: number;
   competitors?: number;
+  teamAgentIds?: string[];
+  teamQuality?: number;
+  teamProbability?: number;
+  teamCost?: number;
+  teamProfit?: number;
   personalGoalLabel: string;
   reasonFactors: ReasonFactor[];
 };
@@ -143,6 +148,7 @@ export type BidDemoFixture = {
     completed: boolean;
     failed: boolean;
     quality: number | null;
+    teamAgentIds?: string[];
   } | null;
   settlement: { gross: number; tax: number; net: number; walletBefore: number; walletAfter: number } | null;
   skillPurchase: { skillId: string; name: string; price: number; abilityBefore: number | null; abilityAfter: number | null }[];

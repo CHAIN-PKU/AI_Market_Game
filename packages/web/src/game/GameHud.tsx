@@ -422,6 +422,11 @@ export function LeftPanel({
                         对手 <b>{bid.competitors} 人</b>
                       </span>
                     )}
+                    {bid.teamAgentIds && bid.teamAgentIds.length > 1 && (
+                      <span className="g-team-tag">
+                        组队 <b>{bid.teamAgentIds.slice(1).map((id) => fixture.agents.find((a) => a.id === id)?.displayName ?? id).join(' + ')}</b>
+                      </span>
+                    )}
                   </span>
                   {isWinner && <span className="g-win-tag">中标</span>}
                 </div>
@@ -443,7 +448,10 @@ export function LeftPanel({
         {derived.assigned && winner && focusWinnerReaction && (
           <div className="g-reaction">
             <div className="g-reaction-head">
-              <CheckIcon size={15} /> {winner.displayName} 中标，价格 {gold(fixture.winner?.bidAmount ?? 0)}
+              <CheckIcon size={15} /> {fixture.winner?.teamAgentIds && fixture.winner.teamAgentIds.length > 1
+                ? fixture.winner.teamAgentIds.map((id) => fixture.agents.find((a) => a.id === id)?.displayName ?? id).join(' + ')
+                : winner.displayName}{' '}
+              中标，价格 {gold(fixture.winner?.bidAmount ?? 0)}
             </div>
             <p>「{focusWinnerReaction}」</p>
             {losers.map((a) => (
@@ -827,6 +835,8 @@ const EVENT_LABEL: Record<string, string> = {
   bid_placed: '报价',
   bid_declined: '不接',
   task_assigned: '选人',
+  team_formed: '组队',
+  team_settled: '分账',
   task_completed: '做完了',
   task_failed: '搞砸了',
   tax_collected: '交税',
@@ -844,6 +854,8 @@ export function EventDrawer({ fixture, step, onClose }: { fixture: BidDemoFixtur
     'bid_placed',
     'bid_declined',
     'task_assigned',
+    'team_formed',
+    'team_settled',
     'task_completed',
     'task_failed',
     'tax_collected',

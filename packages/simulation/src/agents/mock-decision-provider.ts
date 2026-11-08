@@ -12,6 +12,7 @@ import {
 } from '../market/bidding.js';
 import type { AgentState, CivilizationState, MarketTask } from '../core/types.js';
 import { effectiveAbility } from '../core/skills.js';
+import { successProbability } from '../core/odds.js';
 
 /**
  * Deterministic heuristic agents — no LLM, fully reproducible.
@@ -135,6 +136,71 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
         reasonFactors: entry.reasonFactors,
       };
     });
+
+    if (this.opts.marketDepth && civ.rules.allowCollaboration) {
+      const playerEntry = chosen.find(
+        (entry) => entry.task.source === 'player' && entry.task.requirements.difficulty >= 35,
+      );
+      if (playerEntry) {
+        const domain = playerEntry.task.requirements.domain;
+        const abilityOf = (a: AgentState) =>
+          effectiveAbility(a.abilities, a.skills.map((s) => s.skillId), civ.sharedSkillIds)[domain];
+        const ownAbility = abilityOf(agent);
+        const capable = civ.agents
+          .filter((a) => successProbabilityFor(a, civ, playerEntry.task) >= riskComfortFloor(a))
+          .sort((a, b) => abilityOf(b) - abilityOf(a) || a.id.localeCompare(b.id));
+        const best = capable[0]?.id === agent.id;
+        const partner = best
+          ? civ.agents
+              .filter((other) => other.id !== agent.id)
+              .sort((a, b) => abilityOf(b) - abilityOf(a))[0]
+          : undefined;
+        if (partner) {
+          const partnerQuality = agentExpectedQuality(partner, civ, playerEntry.task);
+          const teamAbility = Math.max(ownAbility, abilityOf(partner)) + Math.min(ownAbility, abilityOf(partner)) * 0.25;
+          const teamProbability = successProbability(
+            teamAbility,
+            playerEntry.task.requirements.difficulty,
+            playerEntry.task.requirements.minAbility,
+          );
+          const teamQuality = Math.min(1, Math.max(playerEntry.quality, partnerQuality) + 0.08);
+          const teamCost = Math.round(playerEntry.estimatedCost * 0.8);
+          const teamProfit = Math.round(teamQuality * playerEntry.task.reward - teamCost);
+          if (teamProfit >= 0) {
+            const teamBidAmount = Math.round(
+              playerEntry.task.reward * Math.max(0.58, Math.min(0.82, 0.64 + (1 - teamProbability) * 0.18)),
+            );
+            bids.push({
+              taskId: playerEntry.task.id,
+              agentId: agent.id,
+              civilizationId: civ.id,
+              bidAmount: Math.max(teamCost + 4, teamBidAmount),
+              expectedQuality: teamQuality,
+              successProbability: teamProbability,
+              riskComfortFloor: floor,
+              expectedReward: playerEntry.task.reward,
+              expectedValue: Math.round(teamProfit * 1.1),
+              estimatedCost: teamCost,
+              expectedProfit: teamProfit,
+              reputation: Math.round(playerEntry.reputation * 100) / 100,
+              competitors: playerEntry.rivals,
+              teamAgentIds: [agent.id, partner.id],
+              teamQuality,
+              teamProbability,
+              teamCost,
+              teamProfit,
+              personalGoalId: goal.id,
+              personalGoalLabel: goal.label,
+              observedCompetitors: playerEntry.observed,
+              reasonFactors: [
+                ...playerEntry.reasonFactors,
+                { key: 'team', label: '组队', value: partner.displayName },
+              ],
+            });
+          }
+        }
+      }
+    }
 
     const declines: BidDecline[] = evaluated
       .filter((entry) => !chosen.includes(entry))

@@ -1,4 +1,4 @@
-import { applyTaskPayout, markTaskFailed } from '../economy/settlement.js';
+import { applyTaskPayout, applyTeamPayout, markTaskFailed, markTeamFailed } from '../economy/settlement.js';
 import { resolveTaskOutcome } from '../evaluation/task-outcome.js';
 import { effectiveAbility } from '../core/skills.js';
 import { pushEvent } from '../core/events.js';
@@ -40,8 +40,21 @@ export function executeAssignedTask(state: GameState, task: MarketTask, rng: () 
   const agent = civ?.agents.find((a) => a.id === task.assignedAgentId);
   if (!civ || !agent) return;
 
+  const teamIds = task.assignedTeamIds?.length ? task.assignedTeamIds : [agent.id];
+  const team = teamIds
+    .map((id) => civ.agents.find((a) => a.id === id))
+    .filter((a): a is NonNullable<typeof a> => !!a);
   const owned = agent.skills.map((s) => s.skillId);
-  const abilities = effectiveAbility(agent.abilities, owned, civ.sharedSkillIds);
+  const abilities = { ...effectiveAbility(agent.abilities, owned, civ.sharedSkillIds) };
+  if (team.length > 1) {
+    const second = team[1]!;
+    const secondOwned = second.skills.map((s) => s.skillId);
+    const secondAbilities = effectiveAbility(second.abilities, secondOwned, civ.sharedSkillIds);
+    const domain = task.requirements.domain;
+    abilities[domain] =
+      Math.max(abilities[domain], secondAbilities[domain]) +
+      Math.min(abilities[domain], secondAbilities[domain]) * 0.25;
+  }
   const outcome = resolveTaskOutcome({
     abilities,
     domain: task.requirements.domain,
@@ -52,13 +65,22 @@ export function executeAssignedTask(state: GameState, task: MarketTask, rng: () 
 
   if (outcome.success) {
     task.status = 'completed';
-    applyTaskPayout(state, civ, agent, task, task.reward);
+    if (team.length > 1) {
+      applyTeamPayout(state, civ, team, task, task.reward);
+    } else {
+      applyTaskPayout(state, civ, agent, task, task.reward);
+    }
     pushEvent(state, 'task_completed', `${agent.displayName} completed ${task.title}`, {
       taskId: task.id,
       quality: outcome.quality,
+      teamAgentIds: team.map((a) => a.id),
     });
   } else {
     task.status = 'failed';
-    markTaskFailed(state, civ, agent, task);
+    if (team.length > 1) {
+      markTeamFailed(state, civ, team, task);
+    } else {
+      markTaskFailed(state, civ, agent, task);
+    }
   }
 }

@@ -31,8 +31,18 @@ export function eventText(event: RawEvent, fixture: BidDemoFixture): string {
       return `${agentName(p.agentId)} 报价 ${p.bidAmount ?? '?'} 金`;
     case 'bid_declined':
       return `${agentName(p.agentId)} 不接（${REASON[String(p.reasonCode)] ?? '另有打算'}）`;
-    case 'task_assigned':
-      return `选中 ${agentName(p.agentId)}`;
+    case 'task_assigned': {
+      const team = Array.isArray(p.teamAgentIds) ? p.teamAgentIds.map(agentName).join(' + ') : agentName(p.agentId);
+      return `选中 ${team}`;
+    }
+    case 'team_formed': {
+      const team = Array.isArray(p.teamAgentIds) ? p.teamAgentIds.map(agentName).join(' + ') : '两人';
+      return `${team} 组队接单`;
+    }
+    case 'team_settled': {
+      const team = Array.isArray(p.teamAgentIds) ? p.teamAgentIds.map(agentName).join(' + ') : '队伍';
+      return `${team} 分账 ${p.net ?? '?'} 金`;
+    }
     case 'task_completed':
       return `任务做完了${fixture.winner ? `：${fixture.winner.displayName} 交差` : ''}`;
     case 'task_failed':

@@ -349,6 +349,11 @@ function snapshotBidDemo(input: {
       expectedProfit: payload.expectedProfit as number | undefined,
       reputation: payload.reputation as number | undefined,
       competitors: payload.competitors as number | undefined,
+      teamAgentIds: payload.teamAgentIds as string[] | undefined,
+      teamQuality: payload.teamQuality as number | undefined,
+      teamProbability: payload.teamProbability as number | undefined,
+      teamCost: payload.teamCost as number | undefined,
+      teamProfit: payload.teamProfit as number | undefined,
       reasonFactors: payload.reasonFactors,
       personalGoalLabel: payload.personalGoalLabel as string,
     };
@@ -470,6 +475,7 @@ function snapshotBidDemo(input: {
           completed: !!completed,
           failed: !!failed,
           quality: (payloadOf(completed)?.quality as number | undefined) ?? null,
+          teamAgentIds: task.assignedTeamIds,
         }
       : null,
     settlement: completed

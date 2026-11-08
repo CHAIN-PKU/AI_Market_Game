@@ -13,6 +13,8 @@ describe('bid-demo fixture builder (engine truth)', () => {
     expect(typeof bid.reputation).toBe('number');
     expect(typeof bid.competitors).toBe('number');
     expect(f.agents.some((a) => a.decision.estimatedCost !== undefined)).toBe(true);
+    expect(f.bids.some((b) => (b.teamAgentIds?.length ?? 0) > 1)).toBe(true);
+    expect(f.winner?.teamAgentIds?.length).toBe(2);
   });
 
   it('is deterministic for identical options', () => {

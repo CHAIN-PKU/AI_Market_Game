@@ -41,7 +41,7 @@
     "totalTax": 20,
     "publicResearch": 2,
     "toTreasury": 18,
-    "completedTasks": 2,
+    "completedTasks": 3,
     "consistent": true
   },
   "focusAgentIds": [
@@ -74,7 +74,7 @@
         "design": 22
       },
       "walletBefore": 0,
-      "walletAfter": 0,
+      "walletAfter": 28,
       "skillsAfter": [],
       "publicRecord": {
         "tasksCompleted": 0,
@@ -448,13 +448,8 @@
         "design": 21
       },
       "walletBefore": 0,
-      "walletAfter": 12,
-      "skillsAfter": [
-        {
-          "id": "skill_coding_basic",
-          "name": "Clean Code Patterns"
-        }
-      ],
+      "walletAfter": 64,
+      "skillsAfter": [],
       "publicRecord": {
         "tasksCompleted": 0,
         "tasksFailed": 0,
@@ -1116,6 +1111,88 @@
       "personalGoalLabel": "攒钱买「Clean Code Patterns」"
     },
     {
+      "agentId": "civ-a-agent-3",
+      "displayName": "Delta",
+      "bidAmount": 71,
+      "expectedQuality": 0.45,
+      "successProbability": 0.6,
+      "estimatedCost": 34,
+      "expectedProfit": 19,
+      "reputation": 0.33,
+      "competitors": 2,
+      "teamAgentIds": [
+        "civ-a-agent-3",
+        "civ-a-agent-0"
+      ],
+      "teamQuality": 0.53,
+      "teamProbability": 0.6,
+      "teamCost": 34,
+      "teamProfit": 19,
+      "reasonFactors": [
+        {
+          "key": "successProbability",
+          "label": "自估成功率",
+          "value": 0.35
+        },
+        {
+          "key": "riskComfortFloor",
+          "label": "风险安全线",
+          "value": 0.284
+        },
+        {
+          "key": "expectedReward",
+          "label": "订单奖励",
+          "value": 100
+        },
+        {
+          "key": "expectedValue",
+          "label": "风险调整后价值",
+          "value": 6
+        },
+        {
+          "key": "wallet",
+          "label": "当前钱包",
+          "value": 0
+        },
+        {
+          "key": "personalGoal",
+          "label": "当前目标",
+          "value": "攒钱买「Clean Code Patterns」"
+        },
+        {
+          "key": "observedStronger",
+          "label": "同行中更强的人",
+          "value": 0
+        },
+        {
+          "key": "estimatedCost",
+          "label": "预估成本",
+          "value": 42
+        },
+        {
+          "key": "expectedProfit",
+          "label": "预计利润",
+          "value": 3
+        },
+        {
+          "key": "reputation",
+          "label": "履约声誉",
+          "value": 0.33
+        },
+        {
+          "key": "competitors",
+          "label": "同域对手",
+          "value": 2
+        },
+        {
+          "key": "team",
+          "label": "组队",
+          "value": "Astra"
+        }
+      ],
+      "personalGoalLabel": "攒钱买「Clean Code Patterns」"
+    },
+    {
       "agentId": "civ-a-agent-6",
       "displayName": "Grove",
       "bidAmount": 72,
@@ -1214,34 +1291,29 @@
   "winner": {
     "agentId": "civ-a-agent-3",
     "displayName": "Delta",
-    "bidAmount": 68,
+    "bidAmount": 71,
     "completed": true,
     "failed": false,
-    "quality": 0.5085459419991821
+    "quality": 0.8085459419991822,
+    "teamAgentIds": [
+      "civ-a-agent-3",
+      "civ-a-agent-0"
+    ]
   },
   "settlement": {
     "gross": 100,
-    "tax": 8,
-    "net": 92,
+    "tax": 6,
+    "net": 64,
     "walletBefore": 0,
-    "walletAfter": 12
+    "walletAfter": 64
   },
-  "skillPurchase": [
-    {
-      "skillId": "skill_coding_basic",
-      "name": "Clean Code Patterns",
-      "domain": "coding",
-      "price": 80,
-      "abilityBefore": 40,
-      "abilityAfter": 48
-    }
-  ],
+  "skillPurchase": [],
   "nextRound": {
     "domain": "coding",
     "abilityBefore": 40,
-    "abilityAfter": 48,
+    "abilityAfter": 40,
     "successBefore": 0.35,
-    "successAfter": 0.55
+    "successAfter": 0.35
   },
   "otherTasks": [
     {
@@ -2482,6 +2554,104 @@
     {
       "id": "evt-20",
       "round": 1,
+      "kind": "bid_placed",
+      "message": "Delta bid on player-task-1-r0",
+      "payload": {
+        "taskId": "player-task-1-r0",
+        "agentId": "civ-a-agent-3",
+        "bidAmount": 71,
+        "decisionSource": "mock",
+        "expectedQuality": 0.53,
+        "successProbability": 0.6,
+        "riskComfortFloor": 0.28400000000000003,
+        "expectedReward": 100,
+        "expectedValue": 21,
+        "estimatedCost": 34,
+        "expectedProfit": 19,
+        "reputation": 0.33,
+        "competitors": 2,
+        "teamAgentIds": [
+          "civ-a-agent-3",
+          "civ-a-agent-0"
+        ],
+        "teamQuality": 0.53,
+        "teamProbability": 0.6,
+        "teamCost": 34,
+        "teamProfit": 19,
+        "personalGoalId": "save_for_skill",
+        "personalGoalLabel": "攒钱买「Clean Code Patterns」",
+        "observedCompetitors": {
+          "strongerSpecialists": 0,
+          "topEarnerName": "Astra",
+          "topEarnerEarnings": 0
+        },
+        "reasonFactors": [
+          {
+            "key": "successProbability",
+            "label": "自估成功率",
+            "value": 0.35
+          },
+          {
+            "key": "riskComfortFloor",
+            "label": "风险安全线",
+            "value": 0.284
+          },
+          {
+            "key": "expectedReward",
+            "label": "订单奖励",
+            "value": 100
+          },
+          {
+            "key": "expectedValue",
+            "label": "风险调整后价值",
+            "value": 6
+          },
+          {
+            "key": "wallet",
+            "label": "当前钱包",
+            "value": 0
+          },
+          {
+            "key": "personalGoal",
+            "label": "当前目标",
+            "value": "攒钱买「Clean Code Patterns」"
+          },
+          {
+            "key": "observedStronger",
+            "label": "同行中更强的人",
+            "value": 0
+          },
+          {
+            "key": "estimatedCost",
+            "label": "预估成本",
+            "value": 42
+          },
+          {
+            "key": "expectedProfit",
+            "label": "预计利润",
+            "value": 3
+          },
+          {
+            "key": "reputation",
+            "label": "履约声誉",
+            "value": 0.33
+          },
+          {
+            "key": "competitors",
+            "label": "同域对手",
+            "value": 2
+          },
+          {
+            "key": "team",
+            "label": "组队",
+            "value": "Astra"
+          }
+        ]
+      }
+    },
+    {
+      "id": "evt-21",
+      "round": 1,
       "kind": "bid_declined",
       "message": "Delta passed on task-r2-3",
       "payload": {
@@ -2564,7 +2734,7 @@
       }
     },
     {
-      "id": "evt-21",
+      "id": "evt-22",
       "round": 1,
       "kind": "bid_declined",
       "message": "Delta passed on task-r2-4",
@@ -2648,7 +2818,7 @@
       }
     },
     {
-      "id": "evt-22",
+      "id": "evt-23",
       "round": 1,
       "kind": "bid_placed",
       "message": "Echo bid on task-r2-2",
@@ -2733,7 +2903,7 @@
       }
     },
     {
-      "id": "evt-23",
+      "id": "evt-24",
       "round": 1,
       "kind": "bid_declined",
       "message": "Echo passed on player-task-1-r0",
@@ -2817,7 +2987,7 @@
       }
     },
     {
-      "id": "evt-24",
+      "id": "evt-25",
       "round": 1,
       "kind": "bid_declined",
       "message": "Echo passed on task-r2-3",
@@ -2901,7 +3071,7 @@
       }
     },
     {
-      "id": "evt-25",
+      "id": "evt-26",
       "round": 1,
       "kind": "bid_declined",
       "message": "Echo passed on task-r2-4",
@@ -2985,7 +3155,7 @@
       }
     },
     {
-      "id": "evt-26",
+      "id": "evt-27",
       "round": 1,
       "kind": "bid_placed",
       "message": "Flux bid on task-r2-3",
@@ -3070,7 +3240,7 @@
       }
     },
     {
-      "id": "evt-27",
+      "id": "evt-28",
       "round": 1,
       "kind": "bid_declined",
       "message": "Flux passed on player-task-1-r0",
@@ -3154,7 +3324,7 @@
       }
     },
     {
-      "id": "evt-28",
+      "id": "evt-29",
       "round": 1,
       "kind": "bid_declined",
       "message": "Flux passed on task-r2-2",
@@ -3238,7 +3408,7 @@
       }
     },
     {
-      "id": "evt-29",
+      "id": "evt-30",
       "round": 1,
       "kind": "bid_declined",
       "message": "Flux passed on task-r2-4",
@@ -3322,7 +3492,7 @@
       }
     },
     {
-      "id": "evt-30",
+      "id": "evt-31",
       "round": 1,
       "kind": "bid_placed",
       "message": "Grove bid on player-task-1-r0",
@@ -3407,7 +3577,7 @@
       }
     },
     {
-      "id": "evt-31",
+      "id": "evt-32",
       "round": 1,
       "kind": "bid_placed",
       "message": "Grove bid on task-r2-2",
@@ -3492,7 +3662,7 @@
       }
     },
     {
-      "id": "evt-32",
+      "id": "evt-33",
       "round": 1,
       "kind": "bid_declined",
       "message": "Grove passed on task-r2-3",
@@ -3576,7 +3746,7 @@
       }
     },
     {
-      "id": "evt-33",
+      "id": "evt-34",
       "round": 1,
       "kind": "bid_declined",
       "message": "Grove passed on task-r2-4",
@@ -3660,7 +3830,7 @@
       }
     },
     {
-      "id": "evt-34",
+      "id": "evt-35",
       "round": 1,
       "kind": "bid_placed",
       "message": "Helix bid on task-r2-2",
@@ -3745,7 +3915,7 @@
       }
     },
     {
-      "id": "evt-35",
+      "id": "evt-36",
       "round": 1,
       "kind": "bid_declined",
       "message": "Helix passed on player-task-1-r0",
@@ -3829,7 +3999,7 @@
       }
     },
     {
-      "id": "evt-36",
+      "id": "evt-37",
       "round": 1,
       "kind": "bid_declined",
       "message": "Helix passed on task-r2-3",
@@ -3913,7 +4083,7 @@
       }
     },
     {
-      "id": "evt-37",
+      "id": "evt-38",
       "round": 1,
       "kind": "bid_declined",
       "message": "Helix passed on task-r2-4",
@@ -3997,60 +4167,120 @@
       }
     },
     {
-      "id": "evt-38",
+      "id": "evt-39",
       "round": 1,
       "kind": "task_assigned",
       "message": "civ-a-agent-5 assigned Icon set refresh (Design)",
       "payload": {
         "taskId": "task-r2-3",
-        "agentId": "civ-a-agent-5"
-      }
-    },
-    {
-      "id": "evt-39",
-      "round": 1,
-      "kind": "task_assigned",
-      "message": "civ-a-agent-1 assigned Prototype material (Research)",
-      "payload": {
-        "taskId": "task-r2-2",
-        "agentId": "civ-a-agent-1"
+        "agentId": "civ-a-agent-5",
+        "teamAgentIds": [
+          "civ-a-agent-5"
+        ]
       }
     },
     {
       "id": "evt-40",
       "round": 1,
       "kind": "task_assigned",
-      "message": "civ-a-agent-3 assigned 修复网站登录问题",
+      "message": "civ-a-agent-1 assigned Prototype material (Research)",
       "payload": {
-        "taskId": "player-task-1-r0",
-        "agentId": "civ-a-agent-3"
+        "taskId": "task-r2-2",
+        "agentId": "civ-a-agent-1",
+        "teamAgentIds": [
+          "civ-a-agent-1"
+        ]
       }
     },
     {
       "id": "evt-41",
       "round": 1,
-      "kind": "tax_collected",
-      "message": "Delta paid 8 tax on 修复网站登录问题",
+      "kind": "task_assigned",
+      "message": "civ-a-agent-3 assigned 修复网站登录问题",
       "payload": {
-        "agentId": "civ-a-agent-3",
-        "civilizationId": "civ-a",
         "taskId": "player-task-1-r0",
-        "tax": 8,
-        "net": 92
+        "agentId": "civ-a-agent-3",
+        "teamAgentIds": [
+          "civ-a-agent-3",
+          "civ-a-agent-0"
+        ]
       }
     },
     {
       "id": "evt-42",
       "round": 1,
-      "kind": "task_completed",
-      "message": "Delta completed 修复网站登录问题",
+      "kind": "team_formed",
+      "message": "civ-a-agent-3 + civ-a-agent-0 team up for 修复网站登录问题",
       "payload": {
         "taskId": "player-task-1-r0",
-        "quality": 0.5085459419991821
+        "agentId": "civ-a-agent-3",
+        "teamAgentIds": [
+          "civ-a-agent-3",
+          "civ-a-agent-0"
+        ]
       }
     },
     {
       "id": "evt-43",
+      "round": 1,
+      "kind": "tax_collected",
+      "message": "Delta paid 6 tax on 修复网站登录问题",
+      "payload": {
+        "agentId": "civ-a-agent-3",
+        "civilizationId": "civ-a",
+        "taskId": "player-task-1-r0",
+        "tax": 6,
+        "net": 64,
+        "teamLead": "civ-a-agent-3"
+      }
+    },
+    {
+      "id": "evt-44",
+      "round": 1,
+      "kind": "tax_collected",
+      "message": "Astra paid 2 tax on 修复网站登录问题",
+      "payload": {
+        "agentId": "civ-a-agent-0",
+        "civilizationId": "civ-a",
+        "taskId": "player-task-1-r0",
+        "tax": 2,
+        "net": 28,
+        "teamLead": "civ-a-agent-3"
+      }
+    },
+    {
+      "id": "evt-45",
+      "round": 1,
+      "kind": "team_settled",
+      "message": "Delta + Astra split 修复网站登录问题",
+      "payload": {
+        "agentId": "civ-a-agent-3",
+        "taskId": "player-task-1-r0",
+        "teamAgentIds": [
+          "civ-a-agent-3",
+          "civ-a-agent-0"
+        ],
+        "gross": 100,
+        "tax": 8,
+        "net": 92
+      }
+    },
+    {
+      "id": "evt-46",
+      "round": 1,
+      "kind": "task_completed",
+      "message": "Delta completed 修复网站登录问题",
+      "payload": {
+        "taskId": "player-task-1-r0",
+        "quality": 0.8085459419991822,
+        "teamAgentIds": [
+          "civ-a-agent-3",
+          "civ-a-agent-0"
+        ]
+      }
+    },
+    {
+      "id": "evt-47",
       "round": 1,
       "kind": "tax_collected",
       "message": "Boreal paid 12 tax on Prototype material (Research)",
@@ -4063,17 +4293,20 @@
       }
     },
     {
-      "id": "evt-44",
+      "id": "evt-48",
       "round": 1,
       "kind": "task_completed",
       "message": "Boreal completed Prototype material (Research)",
       "payload": {
         "taskId": "task-r2-2",
-        "quality": 0.9480764986667782
+        "quality": 0.9480764986667782,
+        "teamAgentIds": [
+          "civ-a-agent-1"
+        ]
       }
     },
     {
-      "id": "evt-45",
+      "id": "evt-49",
       "round": 1,
       "kind": "task_failed",
       "message": "Flux failed: Icon set refresh (Design)",
@@ -4083,7 +4316,7 @@
       }
     },
     {
-      "id": "evt-46",
+      "id": "evt-50",
       "round": 1,
       "kind": "skill_purchased",
       "message": "Boreal bought Literature Review",
@@ -4094,18 +4327,7 @@
       }
     },
     {
-      "id": "evt-47",
-      "round": 1,
-      "kind": "skill_purchased",
-      "message": "Delta bought Clean Code Patterns",
-      "payload": {
-        "agentId": "civ-a-agent-3",
-        "skillId": "skill_coding_basic",
-        "price": 80
-      }
-    },
-    {
-      "id": "evt-48",
+      "id": "evt-51",
       "round": 1,
       "kind": "story",
       "message": "第 1 天，市集开门。",
@@ -4118,7 +4340,7 @@
       }
     },
     {
-      "id": "evt-49",
+      "id": "evt-52",
       "round": 1,
       "kind": "story",
       "message": "新到 3 单系统订单。",
@@ -4131,7 +4353,7 @@
       }
     },
     {
-      "id": "evt-50",
+      "id": "evt-53",
       "round": 1,
       "kind": "story",
       "message": "「材料原型试做」成了香饽饽，5 人报价。",
@@ -4178,7 +4400,7 @@
       }
     },
     {
-      "id": "evt-51",
+      "id": "evt-54",
       "round": 1,
       "kind": "story",
       "message": "另有 2 单被抢下。",
@@ -4194,7 +4416,7 @@
       }
     },
     {
-      "id": "evt-52",
+      "id": "evt-55",
       "round": 1,
       "kind": "story",
       "message": "交差 2 单，失手 1 单。",
@@ -4211,23 +4433,22 @@
       }
     },
     {
-      "id": "evt-53",
+      "id": "evt-56",
       "round": 1,
       "kind": "story",
-      "message": "2 人投资了新技能。",
+      "message": "1 人投资了新技能。",
       "payload": {
-        "playerLine": "2 人投资了新技能。",
+        "playerLine": "1 人投资了新技能。",
         "storyRole": "section",
         "section": "shop",
-        "summary": "2 位居民去「技能铺」逛了一圈。",
+        "summary": "1 位居民去「技能铺」逛了一圈。",
         "details": [
-          "Boreal 买了「科研方法论」，准备接更狠的活。",
-          "Delta 买了「编程基本功」，准备接更狠的活。"
+          "Boreal 买了「科研方法论」，准备接更狠的活。"
         ]
       }
     },
     {
-      "id": "evt-54",
+      "id": "evt-57",
       "round": 1,
       "kind": "story",
       "message": "Delta 交差成功",
