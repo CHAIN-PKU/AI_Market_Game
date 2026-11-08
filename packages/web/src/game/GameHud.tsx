@@ -103,6 +103,7 @@ export function TopBar({
   onNextCampaign,
   onOpenHistory,
   onOpenGuide,
+  onOpenCast,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
@@ -114,6 +115,7 @@ export function TopBar({
   onNextCampaign: () => void;
   onOpenHistory: () => void;
   onOpenGuide: () => void;
+  onOpenCast: () => void;
 }) {
   return (
     <header className="g-top">
@@ -177,6 +179,9 @@ export function TopBar({
         )}
         <button type="button" className="g-btn g-btn--ghost g-rules-btn" onClick={onOpenInstitutions}>
           改规则
+        </button>
+        <button type="button" className="g-icon-btn" onClick={onOpenCast} aria-label="居民图鉴" title="居民图鉴">
+          <PeopleIcon size={16} />
         </button>
         <button type="button" className="g-icon-btn g-guide-open" onClick={onOpenGuide} aria-label="怎么玩" title="怎么玩">
           ?

@@ -6,6 +6,7 @@ import fixtureJson from '../demo/bid-demo.fixture.json';
 import { GameScene } from './GameScene';
 import { CampaignHistory } from './CampaignHistory';
 import { Guide } from './Guide';
+import { CastPanel } from './CastPanel';
 import { InstitutionPanel, summarizeRun } from './InstitutionPanel';
 import { QUALITY, readQuality, writeQuality, type Quality } from './quality';
 import {
@@ -121,6 +122,7 @@ export function GamePage() {
   } | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const [showCast, setShowCast] = useState(false);
   const [campaignBusy, setCampaignBusy] = useState(false);
   const [compare, setCompare] = useState<RuleCompare | null>(null);
   const [quality, setQuality] = useState<Quality>(() => readQuality());
@@ -431,6 +433,7 @@ export function GamePage() {
         onNextCampaign={nextCampaign}
         onOpenHistory={() => setShowHistory(true)}
         onOpenGuide={() => setShowGuide(true)}
+        onOpenCast={() => setShowCast(true)}
       />
 
       <main className={`g-stage ${view === '2d' ? 'g-stage--2d' : ''}`}>
@@ -509,6 +512,10 @@ export function GamePage() {
 
       {showInstitutions && (
         <InstitutionPanel fixture={fixture} onClose={() => setShowInstitutions(false)} onApplied={applyRound} />
+      )}
+
+      {showCast && (
+        <CastPanel fixture={fixture} onClose={() => setShowCast(false)} onSelect={setSelectedId} />
       )}
 
       {showGuide && (

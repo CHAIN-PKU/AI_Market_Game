@@ -53,6 +53,7 @@
 - `docs/screenshots/visual-rebuild/idle-1366.png`
 - `docs/screenshots/visual-rebuild/astra-focus-1920.png`
 - `docs/screenshots/visual-rebuild/dossier-delta.png`
+- `docs/screenshots/visual-rebuild/cast-1920.png`
 
 ## 4. 诚实边界
 
