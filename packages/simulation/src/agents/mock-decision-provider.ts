@@ -11,6 +11,7 @@ import {
   type Bid,
 } from '../market/bidding.js';
 import type { AgentState, CivilizationState, MarketTask } from '../core/types.js';
+import { effectiveAbility } from '../core/skills.js';
 
 /**
  * Deterministic heuristic agents — no LLM, fully reproducible.
@@ -22,6 +23,8 @@ import type { AgentState, CivilizationState, MarketTask } from '../core/types.js
  * - `investAggression` is used later by the engine when deciding to buy a skill.
  */
 export class MockAgentDecisionProvider implements AgentDecisionProvider {
+  constructor(private opts: { marketDepth?: boolean } = {}) {}
+
   decideForCivilization(ctx: AgentDecisionContext): AgentDecision[] {
     const civ = ctx.getCivilization(ctx.civilizationId);
     if (!civ) return [];
@@ -46,8 +49,32 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
       const quality = agentExpectedQuality(agent, civ, task);
       const probability = successProbabilityFor(agent, civ, task);
       const observed = observedCompetitorsFor(agent, civ, task.requirements.domain);
-      const affinity = agent.traits.domainAffinity[task.requirements.domain];
-      const expectedValue = quality * task.reward * (1 + affinity);
+      const domain = task.requirements.domain;
+      const ownAbility = effectiveAbility(
+        agent.abilities,
+        agent.skills.map((s) => s.skillId),
+        civ.sharedSkillIds,
+      )[domain];
+      const rivals = civ.agents.filter((other) => {
+        if (other.id === agent.id) return false;
+        const ability = effectiveAbility(
+          other.abilities,
+          other.skills.map((s) => s.skillId),
+          civ.sharedSkillIds,
+        )[domain];
+        return ability >= ownAbility - 5;
+      }).length;
+      const affinity = agent.traits.domainAffinity[domain];
+      const reputation =
+        (agent.stats.tasksCompleted + 1) /
+        (agent.stats.tasksCompleted + agent.stats.tasksFailed + 3);
+      const estimatedCost = Math.round(
+        task.reward * (0.3 + (1 - quality) * 0.15 + (1 - probability) * 0.05),
+      );
+      const expectedProfit = Math.round(quality * task.reward - estimatedCost);
+      const expectedValue = this.opts.marketDepth
+        ? Math.max(0, expectedProfit) * (1 + affinity) * (task.source === 'player' ? 1.25 : 1)
+        : quality * task.reward * (1 + affinity);
       const reasonFactors = buildReasonFactors({
         agent,
         successProbability: probability,
@@ -57,17 +84,37 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
         goal,
         observed,
       });
-      const eligible = probability >= floor && expectedValue >= 25;
-      return { task, quality, probability, expectedValue, observed, reasonFactors, eligible };
+      if (this.opts.marketDepth) {
+        reasonFactors.push(
+          { key: 'estimatedCost', label: '预估成本', value: estimatedCost },
+          { key: 'expectedProfit', label: '预计利润', value: expectedProfit },
+          { key: 'reputation', label: '履约声誉', value: Math.round(reputation * 100) / 100 },
+          { key: 'competitors', label: '同域对手', value: rivals },
+        );
+      }
+      const eligible = this.opts.marketDepth
+        ? probability >= floor && expectedProfit >= 1
+        : probability >= floor && expectedValue >= 25;
+      return { task, quality, probability, expectedValue, observed, rivals, reputation, estimatedCost, expectedProfit, reasonFactors, eligible };
     });
 
     const eligible = evaluated
       .filter((entry) => entry.eligible)
-      .sort((a, b) => b.expectedValue - a.expectedValue);
+      .sort((a, b) => {
+        const playerDelta =
+          (b.task.source === 'player' ? 1 : 0) - (a.task.source === 'player' ? 1 : 0);
+        return playerDelta || b.expectedValue - a.expectedValue;
+      });
 
     const chosen = eligible.slice(0, 2);
     const bids: Bid[] = chosen.map((entry) => {
-      const priceFactor = bidPriceFactor(agent, { savingForSkill: goal.id === 'save_for_skill' }, ctx.rng);
+      let priceFactor = bidPriceFactor(agent, { savingForSkill: goal.id === 'save_for_skill' }, ctx.rng);
+      if (this.opts.marketDepth) {
+        const pressure = Math.min(0.12, entry.rivals * 0.015);
+        const reputationPremium = (entry.reputation - 0.4) * 0.04;
+        priceFactor = Math.max(0.5, Math.min(0.95, priceFactor - pressure + reputationPremium));
+        priceFactor = Math.max(priceFactor, (entry.estimatedCost + 4) / entry.task.reward);
+      }
       return {
         taskId: entry.task.id,
         agentId: agent.id,
@@ -78,6 +125,10 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
         riskComfortFloor: floor,
         expectedReward: entry.task.reward,
         expectedValue: Math.round(entry.expectedValue),
+        estimatedCost: entry.estimatedCost,
+        expectedProfit: entry.expectedProfit,
+        reputation: Math.round(entry.reputation * 100) / 100,
+        competitors: entry.rivals,
         personalGoalId: goal.id,
         personalGoalLabel: goal.label,
         observedCompetitors: entry.observed,
@@ -101,6 +152,10 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
         riskComfortFloor: floor,
         expectedReward: entry.task.reward,
         expectedValue: Math.round(entry.expectedValue),
+        estimatedCost: entry.estimatedCost,
+        expectedProfit: entry.expectedProfit,
+        reputation: Math.round(entry.reputation * 100) / 100,
+        competitors: entry.rivals,
         personalGoalId: goal.id,
         personalGoalLabel: goal.label,
         observedCompetitors: entry.observed,

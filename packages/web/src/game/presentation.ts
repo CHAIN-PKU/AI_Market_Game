@@ -112,9 +112,12 @@ export function factorChips(agent: DemoAgent): { label: string; value: string; e
   const chips: { label: string; value: string; emphasis?: boolean }[] = [
     { label: '有把握', value: pct(d.successProbability) },
     { label: '它要求', value: pct(d.riskComfortFloor) },
-    { label: '这单值', value: String(d.expectedValue) },
+    { label: d.expectedProfit !== undefined ? '预计利润' : '这单值', value: String(d.expectedProfit ?? d.expectedValue) },
     { label: '钱包', value: gold(agent.walletBefore) },
   ];
+  if (d.estimatedCost !== undefined) chips.push({ label: '预估成本', value: `${d.estimatedCost} 金` });
+  if (d.reputation !== undefined) chips.push({ label: '履约声誉', value: `${Math.round(d.reputation * 100)}%` });
+  if (d.competitors !== undefined) chips.push({ label: '同域对手', value: `${d.competitors} 人` });
   if (agent.goal.price !== null) {
     chips.push({ label: '想要', value: agent.goal.label, emphasis: true });
   }

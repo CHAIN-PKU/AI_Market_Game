@@ -29,6 +29,10 @@ export type DemoDecision = {
   riskComfortFloor: number;
   expectedReward: number;
   expectedValue: number;
+  estimatedCost?: number;
+  expectedProfit?: number;
+  reputation?: number;
+  competitors?: number;
   reasonFactors: ReasonFactor[];
   observedCompetitors: ObservedCompetitors;
   personalGoal: { id: string; label: string };
@@ -66,6 +70,10 @@ export type BidSummary = {
   bidAmount: number;
   expectedQuality: number;
   successProbability: number;
+  estimatedCost?: number;
+  expectedProfit?: number;
+  reputation?: number;
+  competitors?: number;
   personalGoalLabel: string;
   reasonFactors: ReasonFactor[];
 };

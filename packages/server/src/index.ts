@@ -211,6 +211,7 @@ function loadCampaign(id: string): CampaignRecord | null {
       scenarios: data.scenarios ?? [data.scenario],
       maxRounds: data.maxRounds,
       completedRounds: data.completedRounds,
+      marketDepth: true,
     };
     return {
       campaign,
@@ -258,6 +259,7 @@ function startDemoCampaign(body: DemoCreateBody) {
     initialAbility: body.initialAbility ?? 28,
     rules: body.rules,
     maxRounds,
+    marketDepth: true,
   });
   const { fixture } = advanceBidDemoCampaign(campaign);
   const id = randomUUID();

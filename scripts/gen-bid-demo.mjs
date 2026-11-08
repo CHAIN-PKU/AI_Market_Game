@@ -57,7 +57,7 @@ const seed = Number(process.env.DEMO_SEED ?? 12);
 const tasksPerRound = Number(process.env.DEMO_TASKS ?? 3);
 const warmupRounds = Number(process.env.DEMO_WARMUP ?? 0);
 const initialAbility = Number(process.env.DEMO_ABILITY ?? 28);
-const fixture = buildBidDemoFixture({ seed, tasksPerRound, warmupRounds, initialAbility });
+const fixture = buildBidDemoFixture({ seed, tasksPerRound, warmupRounds, initialAbility, marketDepth: true });
 const outDir = path.join(process.cwd(), 'packages/web/src/demo');
 fs.mkdirSync(outDir, { recursive: true });
 const outFile = path.join(outDir, 'bid-demo.fixture.json');

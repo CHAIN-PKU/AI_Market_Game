@@ -15,6 +15,6 @@ describe('plain event text', () => {
 
   it('turns skill purchase into the skill name', () => {
     const skill = fixture.rawEvents.find((e) => e.kind === 'skill_purchased')!;
-    expect(eventText(skill as RawEvent, fixture)).toContain('Clean Code Patterns');
+    expect(eventText(skill as RawEvent, fixture)).toMatch(/买了「.+」/);
   });
 });

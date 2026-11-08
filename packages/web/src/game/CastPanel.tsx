@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { CloseIcon } from './icons';
 import { gold, investLabel, riskLabel } from './presentation';
 import { ROLE_KEY, ROLE_LABEL, type BidDemoFixture } from './types';
-import { makeResidentPortrait } from './characterArt';
+import { MIXAMO_AVATARS } from './avatarAssets';
 import { loreFor } from './agentLore';
 import { downloadCastPoster } from './castPoster';
 
@@ -16,10 +16,6 @@ export function CastPanel({
   onSelect: (id: string) => void;
 }) {
   const [pickedId, setPickedId] = useState<string | null>(null);
-  const portraits = useMemo(
-    () => fixture.agents.map((agent, i) => makeResidentPortrait(i, ROLE_KEY[agent.role])),
-    [fixture.agents],
-  );
   const pickedIndex = pickedId ? fixture.agents.findIndex((a) => a.id === pickedId) : -1;
   const picked = pickedIndex >= 0 ? fixture.agents[pickedIndex] : null;
 
@@ -41,7 +37,7 @@ export function CastPanel({
           </header>
 
           <div className="g-sheet">
-            <img className="g-sheet-portrait" src={portraits[pickedIndex]} alt={`${picked.displayName} 立绘`} />
+            <img className="g-sheet-portrait" src={MIXAMO_AVATARS[pickedIndex % MIXAMO_AVATARS.length]!.thumb} alt={`${picked.displayName} 立绘`} />
             <div className="g-sheet-body">
               <span className={`g-cast-role g-cast-role--${role}`}>
                 {ROLE_LABEL[picked.role]} · {picked.personalityLabel}
@@ -112,7 +108,7 @@ export function CastPanel({
               className="g-cast-card"
               onClick={() => setPickedId(agent.id)}
             >
-              <img src={portraits[i]} alt={`${agent.displayName} 立绘`} />
+              <img src={MIXAMO_AVATARS[i % MIXAMO_AVATARS.length]!.thumb} alt={`${agent.displayName} 立绘`} />
               <strong>{agent.displayName}</strong>
               <span className={`g-cast-role g-cast-role--${ROLE_KEY[agent.role]}`}>
                 {ROLE_LABEL[agent.role]} · {agent.personalityLabel}

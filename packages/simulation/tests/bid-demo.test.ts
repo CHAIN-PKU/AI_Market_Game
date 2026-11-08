@@ -4,6 +4,17 @@ import { advanceBidDemoCampaign, buildBidDemoFixture, createBidDemoCampaign } fr
 const BASE = { seed: 20, tasksPerRound: 2, warmupRounds: 0, initialAbility: 28 };
 
 describe('bid-demo fixture builder (engine truth)', () => {
+  it('market depth exposes cost, profit, reputation and rivals', () => {
+    const f = buildBidDemoFixture({ seed: 1, marketDepth: true });
+    expect(f.bids.length).toBeGreaterThan(0);
+    const bid = f.bids[0]!;
+    expect(typeof bid.estimatedCost).toBe('number');
+    expect(typeof bid.expectedProfit).toBe('number');
+    expect(typeof bid.reputation).toBe('number');
+    expect(typeof bid.competitors).toBe('number');
+    expect(f.agents.some((a) => a.decision.estimatedCost !== undefined)).toBe(true);
+  });
+
   it('is deterministic for identical options', () => {
     const a = buildBidDemoFixture(BASE);
     const b = buildBidDemoFixture(BASE);

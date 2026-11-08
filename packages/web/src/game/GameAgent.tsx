@@ -1,50 +1,37 @@
-import { Html } from '@react-three/drei';
+import { Html, useAnimations, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Group, MathUtils } from 'three';
+import { useEffect, useMemo, useRef } from 'react';
+import { Box3, Group, MathUtils } from 'three';
+import { clone as cloneWithSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { ROLE_KEY, ROLE_LABEL, type DemoAgent } from './types';
 import { RoleIcon } from './icons';
-import { makeResidentAtlas } from './characterArt';
+import { MIXAMO_AVATARS } from './avatarAssets';
 
 export type AgentVisualState = 'idle' | 'watching' | 'bidding' | 'selected' | 'working' | 'done' | 'shopping';
+const STATE_LABEL: Record<AgentVisualState, string> = { idle: '待机', watching: '观望', bidding: '竞标中', selected: '已中标', working: '工作中', done: '已完成', shopping: '去技能铺' };
 
-const STATE_LABEL: Record<AgentVisualState, string> = {
-  idle: '待机',
-  watching: '观望',
-  bidding: '竞标中',
-  selected: '已中标',
-  working: '工作中',
-  done: '已完成',
-  shopping: '去技能铺',
-};
-
-type Props = {
-  agent: DemoAgent;
-  index: number;
-  start: [number, number, number];
-  target: [number, number, number];
-  state: AgentVisualState;
-  selected: boolean;
-  focused?: boolean;
-  outline?: boolean;
-  onSelect: (id: string) => void;
-};
-
-const HEIGHT = 1.68;
+type Props = { agent: DemoAgent; index: number; start: [number, number, number]; target: [number, number, number]; state: AgentVisualState; selected: boolean; focused?: boolean; outline?: boolean; onSelect: (id: string) => void };
 
 export function GameAgent({ agent, index, start, target, state, selected, focused = false, onSelect }: Props) {
+  const gltf = useGLTF(MIXAMO_AVATARS[index % MIXAMO_AVATARS.length]!.url);
+  const dims = useMemo(() => {
+    const box = new Box3().setFromObject(gltf.scene);
+    const h = Math.max(0.001, box.max.y - box.min.y);
+    return { scale: 1.68 / h, minY: box.min.y };
+  }, [gltf.scene]);
+  const clone = useMemo(() => cloneWithSkeleton(gltf.scene) as Group, [gltf.scene]);
+  const { actions } = useAnimations(gltf.animations, clone);
+  const current = useRef<string | null>(null);
   const groupRef = useRef<Group>(null);
-  const spriteRef = useRef<Group>(null);
-  const [moving, setMoving] = useState(false);
-  const movingRef = useRef(false);
-  const phase = useRef(index * 1.7);
-  const facing = useRef(1);
-  const roleKey = ROLE_KEY[agent.role];
-  const texture = useMemo(() => makeResidentAtlas(index, roleKey), [index, roleKey]);
-  const walkFrame = useRef(0);
-  const walkClock = useRef(0);
+  const walkPhase = useRef(0);
+  const baseY = start[1];
 
-  useEffect(() => () => texture.dispose(), [texture]);
+  useEffect(() => {
+    const a = Object.values(actions)[0];
+    if (!a) return;
+    a.reset().play();
+    current.current = a.getClip().name;
+  }, [actions]);
 
   useFrame((_, dt) => {
     const g = groupRef.current;
@@ -57,106 +44,31 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
       g.position.x += (dx / dist) * stepLen;
       g.position.z += (dz / dist) * stepLen;
       g.rotation.y = MathUtils.damp(g.rotation.y, Math.atan2(dx, dz), 8, dt);
-      if (Math.abs(dx) > 0.02) facing.current = dx < 0 ? -1 : 1;
-      phase.current += dt * 9;
-      if (!movingRef.current) {
-        movingRef.current = true;
-        setMoving(true);
-      }
+      walkPhase.current += dt * 9;
+      g.position.y = baseY + Math.abs(Math.sin(walkPhase.current)) * 0.035;
     } else {
       g.rotation.y = MathUtils.damp(g.rotation.y, (index % 8) * 0.06, 4, dt);
-      if (movingRef.current) {
-        movingRef.current = false;
-        setMoving(false);
-      }
-      phase.current += dt * 1.5;
-    }
-    if (moving) {
-      walkClock.current += dt;
-      if (walkClock.current > 0.18) {
-        walkClock.current = 0;
-        walkFrame.current = walkFrame.current === 0 ? 1 : 0;
-        texture.offset.x = walkFrame.current * 0.5;
-      }
-    } else if (walkFrame.current !== 0) {
-      walkFrame.current = 0;
-      texture.offset.x = 0;
-    }
-    if (spriteRef.current) {
-      const bob = moving ? Math.abs(Math.sin(phase.current)) * 0.04 : Math.sin(phase.current * 0.7) * 0.012;
-      spriteRef.current.position.y = bob;
-      spriteRef.current.rotation.z = moving ? Math.sin(phase.current) * 0.025 : 0;
-      const targetScale = focused ? 1.07 : 1;
-      const current = Math.abs(spriteRef.current.scale.x);
-      const next = MathUtils.damp(current, targetScale, 5, dt) * facing.current;
-      spriteRef.current.scale.x = next;
-      spriteRef.current.scale.y = MathUtils.damp(spriteRef.current.scale.y, targetScale, 5, dt);
+      g.position.y = MathUtils.damp(g.position.y, baseY, 10, dt);
     }
   });
 
-  const focusedLine = agent.decision.action === 'bid' ? `${agent.decision.bidAmount} 金` : '先观望';
-  const bubble = focused
-    ? focusedLine
-    : state === 'bidding' && agent.decision.action === 'bid'
-      ? `${agent.decision.bidAmount} 金`
-      : state === 'selected'
-        ? '中标'
-        : state === 'working'
-          ? '工作中…'
-          : state === 'shopping'
-            ? '去技能铺…'
-            : state === 'done'
-              ? '✓ 交差'
-              : null;
-  const roleVisible =
-    focused || selected || state === 'bidding' || state === 'selected' || state === 'working' || state === 'done' || state === 'shopping';
+  const roleKey = ROLE_KEY[agent.role];
+  const bubble = state === 'selected' ? '中标' : state === 'working' ? '工作中…' : state === 'shopping' ? '去技能铺…' : state === 'done' ? '✓ 交差' : focused ? (agent.decision.action === 'bid' ? `${agent.decision.bidAmount} 金` : '先观望') : null;
+  const roleVisible = focused || selected || state === 'bidding' || state === 'selected' || state === 'working' || state === 'done' || state === 'shopping';
   const badgeY = 1.9 + (index % 2) * 0.28;
-  const bubbleY = badgeY + 0.55;
 
   return (
-    <group
-      ref={groupRef}
-      position={start}
-      onClick={(e) => {
-        e.stopPropagation();
-        onSelect(agent.id);
-      }}
-      onPointerOver={() => {
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerOut={() => {
-        document.body.style.cursor = '';
-      }}
-    >
-      <group ref={spriteRef}>
-        <sprite scale={[HEIGHT * (2 / 3), HEIGHT, 1]} position={[0, HEIGHT / 2, 0]}>
-          <spriteMaterial map={texture} transparent alphaTest={0.03} toneMapped={false} />
-        </sprite>
-      </group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.018, 0.04]}>
-        <circleGeometry args={[0.32, 24]} />
-        <meshBasicMaterial color="#3b3024" transparent opacity={0.2} depthWrite={false} />
-      </mesh>
-      {selected && (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]}>
-          <ringGeometry args={[0.5, 0.66, 40]} />
-          <meshBasicMaterial color="#2f6f75" transparent opacity={0.9} />
-        </mesh>
-      )}
+    <group ref={groupRef} position={start} onClick={(e) => { e.stopPropagation(); onSelect(agent.id); }}>
+      <primitive object={clone} scale={dims.scale} position={[0, -dims.minY * dims.scale, 0]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.018, 0]}><circleGeometry args={[0.3, 24]} /><meshBasicMaterial color="#3b3024" transparent opacity={0.2} depthWrite={false} /></mesh>
+      {selected && <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]}><ringGeometry args={[0.5, 0.66, 40]} /><meshBasicMaterial color="#2f6f75" transparent opacity={0.9} /></mesh>}
       <Html center position={[0, badgeY, 0]} zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
         <div className={`ga-badge ga-role-${roleKey} ${selected ? 'is-selected' : ''} ${state !== 'idle' ? 'is-active' : ''}`}>
-          <RoleIcon role={roleKey} size={11} />
-          <span className="ga-badge-name">{agent.displayName}</span>
-          {roleVisible && (
-            <span className="ga-badge-role">
-              {ROLE_LABEL[agent.role]} · {STATE_LABEL[state]}
-            </span>
-          )}
+          <RoleIcon role={roleKey} size={11} /><span className="ga-badge-name">{agent.displayName}</span>
+          {roleVisible && <span className="ga-badge-role">{ROLE_LABEL[agent.role]} · {STATE_LABEL[state]}</span>}
         </div>
       </Html>
-      <Html center position={[0, bubbleY, 0]} zIndexRange={[21, 0]} style={{ pointerEvents: 'none' }}>
-        {bubble ? <div className={`ga-bubble ga-bubble--${state}`}>{bubble}</div> : null}
-      </Html>
+      <Html center position={[0, badgeY + 0.55, 0]} zIndexRange={[21, 0]} style={{ pointerEvents: 'none' }}>{bubble ? <div className={`ga-bubble ga-bubble--${state}`}>{bubble}</div> : null}</Html>
     </group>
   );
 }

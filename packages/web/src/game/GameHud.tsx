@@ -5,7 +5,7 @@ import { QUALITY, type Quality } from './quality';
 import { STEP_INDEX, TIMELINE, buildPlaybackCues, type StepId } from './playback';
 import { eventText } from './eventText';
 import { downloadCompareCard } from './shareCard';
-import { makeResidentPortrait } from './characterArt';
+import { MIXAMO_AVATARS } from './avatarAssets';
 import { loreFor } from './agentLore';
 import {
   decisionBadge,
@@ -407,6 +407,21 @@ export function LeftPanel({
                     <span>
                       质量 <b>{pct(bid.expectedQuality)}</b>
                     </span>
+                    {bid.expectedProfit !== undefined && (
+                      <span>
+                        利润 <b>{bid.expectedProfit} 金</b>
+                      </span>
+                    )}
+                    {bid.reputation !== undefined && (
+                      <span>
+                        声誉 <b>{Math.round(bid.reputation * 100)}%</b>
+                      </span>
+                    )}
+                    {bid.competitors !== undefined && (
+                      <span>
+                        对手 <b>{bid.competitors} 人</b>
+                      </span>
+                    )}
                   </span>
                   {isWinner && <span className="g-win-tag">中标</span>}
                 </div>
@@ -565,7 +580,7 @@ export function AgentPanel({
   const agent = fixture.agents.find((a) => a.id === selectedId) ?? null;
   const agentIndex = agent ? fixture.agents.findIndex((a) => a.id === agent.id) : -1;
   const portrait = useMemo(
-    () => (agent && agentIndex >= 0 ? makeResidentPortrait(agentIndex, ROLE_KEY[agent.role]) : ''),
+    () => (agent && agentIndex >= 0 ? MIXAMO_AVATARS[agentIndex % MIXAMO_AVATARS.length]!.thumb : ''),
     [agent, agentIndex],
   );
 

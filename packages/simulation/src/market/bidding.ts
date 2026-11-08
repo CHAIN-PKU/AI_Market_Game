@@ -27,6 +27,11 @@ export interface Bid {
   riskComfortFloor?: number;
   expectedReward?: number;
   expectedValue?: number;
+  /** Market-depth fields; absent in the classic demo. */
+  estimatedCost?: number;
+  expectedProfit?: number;
+  reputation?: number;
+  competitors?: number;
   personalGoalId?: string;
   personalGoalLabel?: string;
   observedCompetitors?: ObservedCompetitors;
@@ -45,6 +50,10 @@ export interface BidDecline {
   riskComfortFloor: number;
   expectedReward: number;
   expectedValue: number;
+  estimatedCost?: number;
+  expectedProfit?: number;
+  reputation?: number;
+  competitors?: number;
   personalGoalId: string;
   personalGoalLabel: string;
   observedCompetitors: ObservedCompetitors;

@@ -1,4 +1,4 @@
-import { makeResidentPortrait } from './characterArt';
+import { MIXAMO_AVATARS } from './avatarAssets';
 import { loreFor } from './agentLore';
 import { ROLE_KEY, ROLE_LABEL, type BidDemoFixture } from './types';
 
@@ -26,7 +26,7 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 
 export async function downloadCastPoster(fixture: BidDemoFixture): Promise<void> {
   const portraits = await Promise.all(
-    fixture.agents.map((agent, i) => load(makeResidentPortrait(i, ROLE_KEY[agent.role]))),
+    fixture.agents.map((_, i) => load(MIXAMO_AVATARS[i % MIXAMO_AVATARS.length]!.thumb)),
   );
 
   const canvas = document.createElement('canvas');

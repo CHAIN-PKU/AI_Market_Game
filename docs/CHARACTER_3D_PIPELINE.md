@@ -1,6 +1,8 @@
 # 3D 卡通角色管线试验 — Kenney Protagonists
 
 > 2026-11-08 · 目标：把居民从 2D 纸片人升级到 3D 卡通角色，参考迪士尼式比例/大眼/圆润造型。
+>
+> **后续：Kenney FBX 放弃；`/game` 已改用 Mixamo glTF 原生角色，见 `docs/CHARACTER_ASSETS.md`。**
 
 ## 1. 用的公开资产 / 工具
 

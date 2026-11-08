@@ -1,5 +1,7 @@
 # 居民角色风格指南 — Disney-inspired Cartoon Appeal
 
+> **2026-11-08 更新：** `/game` 已切到 8 个 Mixamo 3D 角色，本文的 2D 规则保留为历史/局部参考；3D 资产与许可见 `docs/CHARACTER_ASSETS.md`。
+
 > 2026-11-08 · 只参考迪士尼式卡通的比例、表情、线条、剪影、大鞋大眼等 **design language**；不复制任何受版权角色。
 
 ## 1. 一句话

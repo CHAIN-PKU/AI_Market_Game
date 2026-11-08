@@ -10,6 +10,7 @@
  */
 import { createDualCivilizationGame, createFreeMarketRules } from '../core/factory.js';
 import { runSingleRound } from '../core/engine.js';
+import { MockAgentDecisionProvider } from '../agents/mock-decision-provider.js';
 import { effectiveAbility, getSkillById } from '../core/skills.js';
 import { successProbability } from '../core/odds.js';
 import { clampRules, type RulesPatch } from '../core/rules-clamp.js';
@@ -166,6 +167,8 @@ export interface BuildBidDemoOptions {
   scenarios?: Array<{ title?: string; titleEn?: string; domain?: TaskDomain; reward?: number; description?: string }>;
   /** Engine round cap; campaigns pass their own. */
   totalRounds?: number;
+  /** Richer cost/profit/reputation/competition model. Default false keeps the classic fixture. */
+  marketDepth?: boolean;
 }
 
 type ResolvedScenario = ScenarioSpec;
@@ -319,6 +322,10 @@ function snapshotBidDemo(input: {
         expectedValue:
           decisionPayload?.expectedValue ??
           Math.round(quality * task.reward * (1 + previous.traits.domainAffinity[scenario.domain])),
+        estimatedCost: decisionPayload?.estimatedCost as number | undefined,
+        expectedProfit: decisionPayload?.expectedProfit as number | undefined,
+        reputation: decisionPayload?.reputation as number | undefined,
+        competitors: decisionPayload?.competitors as number | undefined,
         reasonFactors,
         observedCompetitors: decisionPayload?.observedCompetitors ?? observed,
         personalGoal: { id: goal.id, label: goal.label },
@@ -338,6 +345,10 @@ function snapshotBidDemo(input: {
       bidAmount: payload.bidAmount as number,
       expectedQuality: agent.decision.expectedQuality,
       successProbability: payload.successProbability as number,
+      estimatedCost: payload.estimatedCost as number | undefined,
+      expectedProfit: payload.expectedProfit as number | undefined,
+      reputation: payload.reputation as number | undefined,
+      competitors: payload.competitors as number | undefined,
       reasonFactors: payload.reasonFactors,
       personalGoalLabel: payload.personalGoalLabel as string,
     };
@@ -500,7 +511,10 @@ export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
   const { state, civ, seed, tasksPerRound, initialAbility, scenario } = createBidDemoState(options);
   const warmupRounds = options.warmupRounds ?? 0;
 
-  for (let i = 0; i < warmupRounds; i += 1) runSingleRound(state);
+  const provider = options.marketDepth
+    ? new MockAgentDecisionProvider({ marketDepth: true })
+    : undefined;
+  for (let i = 0; i < warmupRounds; i += 1) runSingleRound(state, provider);
 
   const before = structuredClone(civ.agents);
   const treasuryStart = civ.treasury;
@@ -512,7 +526,7 @@ export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
     reward: scenario.reward,
   });
 
-  runSingleRound(state);
+  runSingleRound(state, provider);
 
   return snapshotBidDemo({
     state,
@@ -541,7 +555,7 @@ export function createBidDemoCampaign(options: BuildBidDemoOptions & { maxRounds
     scenario: scenarios[0],
     totalRounds: Math.max(30, maxRounds + 1),
   });
-  return { ...base, scenarios, maxRounds, completedRounds: 0 };
+  return { ...base, scenarios, maxRounds, completedRounds: 0, marketDepth: options.marketDepth ?? false };
 }
 
 /** Advance the campaign by one real engine round; state (wallets, skills) is preserved. */
@@ -562,7 +576,10 @@ export function advanceBidDemoCampaign(campaign: BidDemoCampaign) {
     reward: scenario.reward,
   });
 
-  runSingleRound(state);
+  const provider = campaign.marketDepth
+    ? new MockAgentDecisionProvider({ marketDepth: true })
+    : undefined;
+  runSingleRound(state, provider);
   campaign.completedRounds = state.round;
 
   const fixture = snapshotBidDemo({
