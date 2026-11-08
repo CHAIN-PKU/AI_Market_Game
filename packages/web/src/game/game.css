@@ -2867,7 +2867,7 @@
 
 .g-lab {
   width: min(560px, 100%);
-  max-height: min(88vh, 760px);
+  max-height: min(92vh, 960px);
   overflow-y: auto;
   padding: 22px 24px 20px;
   border-radius: 20px;
@@ -3986,3 +3986,32 @@
   display: flex;
   gap: 8px;
 }
+
+.g-experiment {
+  margin: 14px 0 4px;
+  border: 1px solid #e4d9c4;
+  border-radius: 14px;
+  background: #fffdf7;
+  padding: 12px 14px;
+  min-height: 230px;
+  max-height: 310px;
+  flex-shrink: 0;
+  overflow: auto;
+}
+.g-experiment-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.g-experiment-head strong { color: #22322b; font-size: 15px; }
+.g-experiment-head span { color: #8a7e6c; font-size: 12px; }
+.g-experiment table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.g-experiment th, .g-experiment td {
+  padding: 5px 6px;
+  border-bottom: 1px solid #f0e8d8;
+  text-align: right;
+}
+.g-experiment th:first-child, .g-experiment td:first-child { text-align: left; color: #7b6e5b; }
+.g-experiment th { color: #5d5143; font-weight: 700; }

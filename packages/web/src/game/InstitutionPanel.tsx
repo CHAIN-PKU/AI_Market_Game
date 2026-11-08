@@ -24,6 +24,29 @@ export function summarizeRun(fixture: BidDemoFixture): string {
   return `${head} · ${parts.join(' · ')}`;
 }
 
+type ExperimentStats = {
+  rounds: number;
+  wins: number;
+  totalNet: number;
+  totalTax: number;
+  avgWinningBid: number;
+  teamBids: number;
+  ringBids: number;
+  reports: number;
+  defections: number;
+  skills: number;
+  treasuryEnd: number;
+  gini: number;
+  uniqueWinners: number;
+};
+
+type ExperimentReport = {
+  seed: number;
+  maxRounds: number;
+  a: { rules: { name: string; taxRate: number }; stats: ExperimentStats };
+  b: { rules: { name: string; taxRate: number }; stats: ExperimentStats };
+};
+
 function rulesName(taxPct: number, ownership: 'private' | 'shared'): string {
   if (ownership === 'shared') return '公共研发';
   if (taxPct >= 25) return '高税再分配';
@@ -38,7 +61,38 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
   const [ownership, setOwnership] = useState<'private' | 'shared'>(rules.skillOwnership === 'shared' ? 'shared' : 'private');
   const [seed, setSeed] = useState(String(fixture.seed));
   const [running, setRunning] = useState(false);
+  const [experimentBusy, setExperimentBusy] = useState(false);
+  const [experiment, setExperiment] = useState<ExperimentReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  async function runExperiment() {
+    setExperimentBusy(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/experiment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          seed: Number(seed) || fixture.seed,
+          maxRounds: 5,
+          rulesA: fixture.civilization.rules,
+          rulesB: {
+            name: rulesName(taxPct, ownership),
+            taxRate: taxPct / 100,
+            publicResearchShare: sharePct / 100,
+            skillOwnership: ownership,
+          },
+        }),
+      });
+      if (!res.ok) throw new Error(`引擎返回 ${res.status}`);
+      const data = (await res.json()) as ExperimentReport;
+      setExperiment(data);
+    } catch (err) {
+      setError(err instanceof Error ? `5 轮实验失败：${err.message}` : '5 轮实验失败');
+    } finally {
+      setExperimentBusy(false);
+    }
+  }
 
   async function runRound() {
     setRunning(true);
@@ -184,13 +238,49 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
           </div>
         )}
 
+        {experiment && (
+          <div className="g-experiment">
+            <div className="g-experiment-head">
+              <strong>5 轮制度实验</strong>
+              <span>{experiment.a.rules.name} vs {experiment.b.rules.name} · 种子 {experiment.seed}</span>
+            </div>
+            <table>
+              <thead>
+                <tr><th>指标</th><th>{experiment.a.rules.name}</th><th>{experiment.b.rules.name}</th></tr>
+              </thead>
+              <tbody>
+                {[
+                  ['总到手', experiment.a.stats.totalNet, experiment.b.stats.totalNet, true],
+                  ['总税', experiment.a.stats.totalTax, experiment.b.stats.totalTax, true],
+                  ['平均中标价', experiment.a.stats.avgWinningBid, experiment.b.stats.avgWinningBid, true],
+                  ['组队', experiment.a.stats.teamBids, experiment.b.stats.teamBids, false],
+                  ['串标', experiment.a.stats.ringBids, experiment.b.stats.ringBids, false],
+                  ['举报', experiment.a.stats.reports, experiment.b.stats.reports, false],
+                  ['买技能', experiment.a.stats.skills, experiment.b.stats.skills, false],
+                  ['唯一赢家', experiment.a.stats.uniqueWinners, experiment.b.stats.uniqueWinners, false],
+                  ['基尼', experiment.a.stats.gini, experiment.b.stats.gini, false],
+                ].map(([label, a, b, money]) => (
+                  <tr key={String(label)}>
+                    <td>{label}</td>
+                    <td>{money ? `${a} 金` : a}</td>
+                    <td>{money ? `${b} 金` : b}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
         <footer className="g-rules-foot">
           <span className="g-muted">同一批角色，换个规则，结果就不一样。</span>
           <div>
             <button type="button" className="g-btn g-btn--ghost" onClick={onClose} disabled={running}>
               算了
             </button>
-            <button type="button" className="g-btn g-btn--primary" onClick={runRound} disabled={running}>
+            <button type="button" className="g-btn g-btn--ghost" onClick={runExperiment} disabled={experimentBusy || running}>
+              {experimentBusy ? '跑 5 轮…' : '跑 5 轮 A/B'}
+            </button>
+            <button type="button" className="g-btn g-btn--primary" onClick={runRound} disabled={running || experimentBusy}>
               {running ? '正在算…' : '用这套规则再跑一轮'}
             </button>
           </div>

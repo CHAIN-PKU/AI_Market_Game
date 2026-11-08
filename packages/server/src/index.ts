@@ -304,6 +304,96 @@ function advanceDemoCampaign(id: string, record: CampaignRecord) {
   return demoGamePayload(id, record);
 }
 
+function gini(values: number[]): number {
+  const clean = values.filter((v) => Number.isFinite(v) && v >= 0).sort((a, b) => a - b);
+  const n = clean.length;
+  if (!n || clean[n - 1] === 0) return 0;
+  let sum = 0;
+  for (let i = 0; i < n; i += 1) sum += (2 * (i + 1) - n - 1) * clean[i]!;
+  return Math.round((sum / (n * clean.reduce((a, b) => a + b, 0))) * 1000) / 1000;
+}
+
+type ExperimentStats = {
+  rounds: number;
+  wins: number;
+  totalNet: number;
+  totalTax: number;
+  avgWinningBid: number;
+  teamBids: number;
+  ringBids: number;
+  reports: number;
+  defections: number;
+  skills: number;
+  treasuryEnd: number;
+  gini: number;
+  uniqueWinners: number;
+  finalWallets: number[];
+};
+
+function aggregateExperiment(
+  fixtures: ReturnType<typeof advanceBidDemoCampaign>['fixture'][],
+): ExperimentStats {
+  const bids = fixtures.flatMap((f) => f.bids);
+  const last = fixtures[fixtures.length - 1];
+  const wallets = last ? last.agents.map((a) => a.walletAfter) : [];
+  return {
+    rounds: fixtures.length,
+    wins: fixtures.filter((f) => !!f.winner).length,
+    totalNet: fixtures.reduce((sum, f) => sum + (f.settlement?.net ?? 0), 0),
+    totalTax: fixtures.reduce((sum, f) => sum + (f.settlement?.tax ?? 0), 0),
+    avgWinningBid: fixtures.length
+      ? Math.round(fixtures.reduce((sum, f) => sum + (f.winner?.bidAmount ?? 0), 0) / fixtures.length)
+      : 0,
+    teamBids: bids.filter((b) => (b.teamAgentIds?.length ?? 0) > 1).length,
+    ringBids: bids.filter((b) => (b.ringAgentIds?.length ?? 0) > 1).length,
+    reports: fixtures.flatMap((f) => f.rawEvents).filter((e) => e.kind === 'ring_reported').length,
+    defections: fixtures.flatMap((f) => f.rawEvents).filter((e) => e.kind === 'ring_defected').length,
+    skills: fixtures.reduce((sum, f) => sum + f.skillPurchase.length, 0),
+    treasuryEnd: last?.civilization.treasuryAfter ?? 0,
+    gini: gini(wallets),
+    uniqueWinners: new Set(fixtures.map((f) => f.winner?.agentId).filter(Boolean)).size,
+    finalWallets: wallets,
+  };
+}
+
+function runExperiment(input: {
+  seed?: number;
+  maxRounds?: number;
+  rulesA?: RulesPatch;
+  rulesB?: RulesPatch;
+}) {
+  const seed = Math.round(input.seed ?? 1);
+  const maxRounds = Math.min(10, Math.max(1, Math.round(input.maxRounds ?? 5)));
+  const sides = [
+    { key: 'a' as const, rules: input.rulesA },
+    { key: 'b' as const, rules: input.rulesB },
+  ];
+  const out: Record<string, unknown> = { seed, maxRounds };
+  for (const side of sides) {
+    const campaign = createBidDemoCampaign({
+      seed,
+      maxRounds,
+      tasksPerRound: 2,
+      initialAbility: 28,
+      rules: side.rules,
+      marketDepth: true,
+    });
+    const fixtures: ReturnType<typeof advanceBidDemoCampaign>['fixture'][] = [];
+    for (let i = 0; i < maxRounds; i += 1) {
+      fixtures.push(advanceBidDemoCampaign(campaign).fixture);
+    }
+    out[side.key] = {
+      rules: campaign.rules,
+      stats: aggregateExperiment(fixtures),
+    };
+  }
+  return out;
+}
+
+app.post<{
+  Body: { seed?: number; maxRounds?: number; rulesA?: RulesPatch; rulesB?: RulesPatch };
+}>('/api/experiment', async (req) => runExperiment(req.body ?? {}));
+
 app.post<{
   Body: {
     seed?: number;
