@@ -1,4 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { BufferAttribute, BufferGeometry } from 'three';
 
 const FLOWER_COLORS = ['#f3a6b8', '#f6d36b', '#f7efe0', '#d9a6e8', '#f08a6a'];
 const BUSH = '#5f9e62';
@@ -66,6 +68,7 @@ function Lamp({ x, z }: { x: number; z: number }) {
         <coneGeometry args={[0.2, 0.16, 6]} />
         <meshStandardMaterial color="#3f8f96" roughness={0.7} />
       </mesh>
+      <pointLight position={[0, 1.55, 0]} intensity={0.35} distance={2.6} decay={2} color="#ffd98a" />
     </group>
   );
 }
@@ -106,6 +109,45 @@ function Cloud({ x, y, z, scale = 1 }: { x: number; y: number; z: number; scale?
         </mesh>
       ))}
     </group>
+  );
+}
+
+function Petals() {
+  const points = useRef<BufferGeometry>(null);
+  const data = useMemo(() => {
+    const rand = seeded(91);
+    const arr = new Float32Array(42 * 3);
+    for (let i = 0; i < 42; i += 1) {
+      arr[i * 3] = (rand() - 0.5) * 18;
+      arr[i * 3 + 1] = 0.4 + rand() * 4.2;
+      arr[i * 3 + 2] = (rand() - 0.5) * 16;
+    }
+    return arr;
+  }, []);
+
+  useFrame((_, dt) => {
+    const geo = points.current;
+    if (!geo) return;
+    const attr = geo.getAttribute('position') as BufferAttribute;
+    const arr = attr.array as Float32Array;
+    for (let i = 0; i < arr.length; i += 3) {
+      arr[i + 1] -= dt * (0.09 + (i % 7) * 0.012);
+      arr[i] += Math.sin(arr[i + 1] * 0.7) * dt * 0.02;
+      if (arr[i + 1] < 0.15) {
+        arr[i + 1] = 4.2;
+        arr[i] = ((i * 37) % 180) / 10 - 9;
+      }
+    }
+    attr.needsUpdate = true;
+  });
+
+  return (
+    <points>
+      <bufferGeometry ref={points}>
+        <bufferAttribute attach="attributes-position" args={[data, 3]} />
+      </bufferGeometry>
+      <pointsMaterial color="#f4b7bd" size={0.045} transparent opacity={0.55} depthWrite={false} sizeAttenuation />
+    </points>
   );
 }
 
@@ -176,6 +218,7 @@ export function EnvironmentDetails() {
       <Bench x={-4.4} z={8.35} rotation={0.35} />
       <Cloud x={-9.5} y={7.6} z={-8.0} scale={0.8} />
       <Cloud x={9.5} y={8.1} z={-6.0} scale={0.65} />
+      <Petals />
     </group>
   );
 }

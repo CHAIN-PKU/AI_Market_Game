@@ -1,4 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import type { Mesh, MeshBasicMaterial } from 'three';
 import { ISLAND } from './islandLayout';
 import { makeGrassTexture, makePlazaTexture } from './textures';
 
@@ -6,6 +8,17 @@ import { makeGrassTexture, makePlazaTexture } from './textures';
 export function IslandBase() {
   const grass = useMemo(() => makeGrassTexture(), []);
   const plaza = useMemo(() => makePlazaTexture(), []);
+  const ringA = useRef<Mesh>(null);
+  const ringB = useRef<Mesh>(null);
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    for (const [ref, offset] of [[ringA, 0], [ringB, 2.4]] as const) {
+      if (!ref.current) continue;
+      const k = ((t + offset) % 4.8) / 4.8;
+      ref.current.scale.setScalar(0.92 + k * 0.22);
+      (ref.current.material as MeshBasicMaterial).opacity = 0.28 * (1 - k);
+    }
+  });
   return (
     <group>
       {/* soil side — gives the island a table-top model thickness */}
@@ -37,9 +50,13 @@ export function IslandBase() {
         <circleGeometry args={[ISLAND.waterRadius, 80]} />
         <meshStandardMaterial color="#5fb3c3" transparent opacity={0.92} roughness={0.16} metalness={0.12} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, ISLAND.waterY + 0.02, 0]}>
+      <mesh ref={ringA} rotation={[-Math.PI / 2, 0, 0]} position={[0, ISLAND.waterY + 0.02, 0]}>
         <ringGeometry args={[ISLAND.grassRadius + 0.15, ISLAND.grassRadius + 0.85, 80]} />
-        <meshBasicMaterial color="#eaf7f2" transparent opacity={0.32} depthWrite={false} />
+        <meshBasicMaterial color="#eaf7f2" transparent opacity={0.28} depthWrite={false} />
+      </mesh>
+      <mesh ref={ringB} rotation={[-Math.PI / 2, 0, 0]} position={[0, ISLAND.waterY + 0.02, 0]}>
+        <ringGeometry args={[ISLAND.grassRadius + 0.15, ISLAND.grassRadius + 0.85, 80]} />
+        <meshBasicMaterial color="#eaf7f2" transparent opacity={0.18} depthWrite={false} />
       </mesh>
     </group>
   );

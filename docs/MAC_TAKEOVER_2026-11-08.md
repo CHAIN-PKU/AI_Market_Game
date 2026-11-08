@@ -55,7 +55,7 @@
 - 7 栋楼改为自定义 CozyBuilding：坡屋顶/瓦片/木梁/窗户/花箱/雨棚/烟囱/角色屋顶装饰。
 - 草地/广场程序纹理，花/灌木/草/路灯/长椅/云。
 - 高画质 DPR 2–2.5，Neutral tone mapping，5 阶 toon ramp。
-- 人物仍是 Quaternius chibi，只重做脸部 overlay；不是最终角色资产。
+- 人物改为 2D paper-diorama cutout（Canvas 贴图），不再使用 3D chibi。
 - 详情：`docs/VISUAL_REBUILD_2026-11-08.md`
 - 飞书单聊诊断：`docs/FEISHU_DSH_DM_FIX.md`
 

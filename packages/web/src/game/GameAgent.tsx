@@ -1,31 +1,10 @@
-import { Html, useAnimations, useGLTF } from '@react-three/drei';
+import { Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BackSide, Group, MathUtils, MeshBasicMaterial, SkinnedMesh, type AnimationAction, type Material } from 'three';
-import { clone as cloneWithSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
-import { QUAT_AGENTS } from '../visual-lab/assetUrls';
-import { resolveGlbUrl } from '../visual-lab/GlbInstance';
-import { NATIVE, WORLD, fitScale } from '../visual-lab/assetScale';
-import { toToonMaterial } from './toon';
-
-const SKIN = ['#f4c9a4', '#e7b48c', '#c98d63', '#9a6040'];
-const HAIR = ['#2f211b', '#5a3a25', '#c08a3e', '#1f2933', '#7a4b2a', '#d9c8a0'];
-const SHIRT: Record<string, string> = { coding: '#3f8f96', research: '#8f7cc9', design: '#d97a52' };
-
-function characterColor(materialName: string, index: number, roleKey: string): string | undefined {
-  const n = materialName.toLowerCase();
-  if (n.includes('face')) return SKIN[index % SKIN.length]!;
-  if (n.includes('skin')) return SKIN[index % SKIN.length]!;
-  if (n.includes('hair')) return HAIR[index % HAIR.length]!;
-  if (n.includes('shirt')) return SHIRT[roleKey] ?? '#3f8f96';
-  if (n.includes('vest')) return '#b8842f';
-  if (n.includes('pants')) return '#3d4657';
-  if (n.includes('belt')) return '#6b4a2f';
-  if (n.includes('hat')) return '#e0a94f';
-  return undefined;
-}
+import { Group, MathUtils } from 'three';
 import { ROLE_KEY, ROLE_LABEL, type DemoAgent } from './types';
 import { RoleIcon } from './icons';
+import { makeResidentTexture } from './characterArt';
 
 export type AgentVisualState = 'idle' | 'watching' | 'bidding' | 'selected' | 'working' | 'done' | 'shopping';
 
@@ -51,70 +30,18 @@ type Props = {
   onSelect: (id: string) => void;
 };
 
-export function GameAgent({ agent, index, start, target, state, selected, focused = false, outline = true, onSelect }: Props) {
-  const gltf = useGLTF(resolveGlbUrl(QUAT_AGENTS[index]!));
-  const clone = useMemo(() => {
-    const g = cloneWithSkeleton(gltf.scene) as Group;
-    const skinned: SkinnedMesh[] = [];
-    g.traverse((obj) => {
-      if ('castShadow' in obj) obj.castShadow = true;
-      if ('receiveShadow' in obj) obj.receiveShadow = true;
-      if ((obj as { isMesh?: boolean }).isMesh) {
-        const mesh = obj as unknown as { material: Material | Material[] };
-        const roleKey = ROLE_KEY[agent.role];
-        mesh.material = Array.isArray(mesh.material)
-          ? mesh.material.map((m) => toToonMaterial(m, characterColor(m.name, index, roleKey)))
-          : toToonMaterial(mesh.material, characterColor(mesh.material.name, index, roleKey));
-      }
-      if ((obj as SkinnedMesh).isSkinnedMesh) skinned.push(obj as SkinnedMesh);
-    });
+const HEIGHT = 1.68;
 
-    // Inverted hull outline: a second skinned copy with back-face material.
-    for (const mesh of outline ? skinned : []) {
-      const outline = new SkinnedMesh(
-        mesh.geometry,
-        new MeshBasicMaterial({ color: '#2a1d18', side: BackSide, toneMapped: false }),
-      );
-      outline.name = `${mesh.name || 'char'}-outline`;
-      outline.bind(mesh.skeleton, mesh.bindMatrix);
-      outline.position.copy(mesh.position);
-      outline.quaternion.copy(mesh.quaternion);
-      outline.scale.copy(mesh.scale).multiplyScalar(1.045);
-      outline.castShadow = false;
-      outline.receiveShadow = false;
-      outline.frustumCulled = false;
-      mesh.parent?.add(outline);
-    }
-    return g;
-  }, [gltf.scene]);
-
-  const { actions } = useAnimations(gltf.animations, clone);
-  const idleName = useMemo(() => gltf.animations.find((a) => /^idle$/i.test(a.name))?.name, [gltf.animations]);
-  const walkName = useMemo(() => gltf.animations.find((a) => /^walk$/i.test(a.name))?.name, [gltf.animations]);
-  const currentAction = useRef<AnimationAction | null>(null);
+export function GameAgent({ agent, index, start, target, state, selected, focused = false, onSelect }: Props) {
+  const groupRef = useRef<Group>(null);
+  const spriteRef = useRef<Group>(null);
   const [moving, setMoving] = useState(false);
   const movingRef = useRef(false);
-  const groupRef = useRef<Group>(null);
+  const phase = useRef(index * 1.7);
+  const roleKey = ROLE_KEY[agent.role];
+  const texture = useMemo(() => makeResidentTexture(index, roleKey), [index, roleKey]);
 
-  const scale = fitScale(NATIVE.quatAgentHeight[index]!, WORLD.agentHeight);
-  const faceY = index * 0.08;
-
-  useEffect(() => {
-    const name = moving ? walkName : idleName;
-    if (!name) return;
-    const next = actions[name];
-    if (!next || next === currentAction.current) return;
-    currentAction.current?.fadeOut(0.15);
-    next.reset().fadeIn(0.15).play();
-    currentAction.current = next;
-  }, [actions, moving, idleName, walkName]);
-
-
-  useEffect(() => {
-    return () => {
-      currentAction.current?.stop();
-    };
-  }, []);
+  useEffect(() => () => texture.dispose(), [texture]);
 
   useFrame((_, dt) => {
     const g = groupRef.current;
@@ -126,24 +53,31 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
       const stepLen = Math.min(dist, dt * 1.7);
       g.position.x += (dx / dist) * stepLen;
       g.position.z += (dz / dist) * stepLen;
-      const desired = Math.atan2(dx, dz);
-      g.rotation.y = MathUtils.damp(g.rotation.y, desired, 8, dt);
+      g.rotation.y = MathUtils.damp(g.rotation.y, Math.atan2(dx, dz), 8, dt);
+      phase.current += dt * 9;
       if (!movingRef.current) {
         movingRef.current = true;
         setMoving(true);
       }
     } else {
-      g.rotation.y = MathUtils.damp(g.rotation.y, faceY, 4, dt);
+      g.rotation.y = MathUtils.damp(g.rotation.y, (index % 8) * 0.06, 4, dt);
       if (movingRef.current) {
         movingRef.current = false;
         setMoving(false);
       }
+      phase.current += dt * 1.5;
+    }
+    if (spriteRef.current) {
+      const bob = moving ? Math.abs(Math.sin(phase.current)) * 0.04 : Math.sin(phase.current * 0.7) * 0.012;
+      spriteRef.current.position.y = bob;
+      spriteRef.current.rotation.z = moving ? Math.sin(phase.current) * 0.025 : 0;
+      const targetScale = focused ? 1.07 : 1;
+      spriteRef.current.scale.x = MathUtils.damp(spriteRef.current.scale.x, targetScale, 5, dt);
+      spriteRef.current.scale.y = MathUtils.damp(spriteRef.current.scale.y, targetScale, 5, dt);
     }
   });
 
-  const roleKey = ROLE_KEY[agent.role];
-  const focusedLine =
-    agent.decision.action === 'bid' ? `${agent.decision.bidAmount} 金` : '先观望';
+  const focusedLine = agent.decision.action === 'bid' ? `${agent.decision.bidAmount} 金` : '先观望';
   const bubble = focused
     ? focusedLine
     : state === 'bidding' && agent.decision.action === 'bid'
@@ -158,13 +92,7 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
               ? '✓ 交差'
               : null;
   const roleVisible =
-    focused ||
-    selected ||
-    state === 'bidding' ||
-    state === 'selected' ||
-    state === 'working' ||
-    state === 'done' ||
-    state === 'shopping';
+    focused || selected || state === 'bidding' || state === 'selected' || state === 'working' || state === 'done' || state === 'shopping';
   const badgeY = 1.9 + (index % 2) * 0.28;
   const bubbleY = badgeY + 0.55;
 
@@ -183,18 +111,15 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
         document.body.style.cursor = '';
       }}
     >
-      <primitive object={clone} scale={scale} position={[0, 0.004, 0]} />
-      <Html center position={[0, 1.25, 0.05]} distanceFactor={10} zIndexRange={[18, 0]} style={{ pointerEvents: 'none' }}>
-        <div className={`ga-face ga-face--${roleKey}`} aria-hidden>
-          <i />
-          <i />
-          <b />
-          <span className="ga-brow ga-brow--l" />
-          <span className="ga-brow ga-brow--r" />
-          <span className="ga-nose" />
-        </div>
-      </Html>
-
+      <group ref={spriteRef}>
+        <sprite scale={[HEIGHT * (2 / 3), HEIGHT, 1]} position={[0, HEIGHT / 2, 0]}>
+          <spriteMaterial map={texture} transparent alphaTest={0.03} toneMapped={false} />
+        </sprite>
+      </group>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.018, 0.04]}>
+        <circleGeometry args={[0.32, 24]} />
+        <meshBasicMaterial color="#3b3024" transparent opacity={0.2} depthWrite={false} />
+      </mesh>
       {selected && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]}>
           <ringGeometry args={[0.5, 0.66, 40]} />
