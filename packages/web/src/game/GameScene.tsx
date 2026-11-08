@@ -204,8 +204,8 @@ export function GameScene({
       <Sky sunPosition={[60, 30, 40]} turbidity={0.45} rayleigh={0.32} />
       <fog attach="fog" args={['#d8edf0', 42, 92]} />
       {quality.softShadows && <SoftShadows size={28} samples={16} focus={0.8} />}
-      <ambientLight intensity={0.5} color="#fff9ed" />
-      <hemisphereLight intensity={0.65} color="#c9efff" groundColor="#86c083" />
+      <ambientLight intensity={0.68} color="#fff9ed" />
+      <hemisphereLight intensity={0.72} color="#c9efff" groundColor="#86c083" />
       <directionalLight
         castShadow
         position={[16, 26, 14]}
@@ -219,7 +219,8 @@ export function GameScene({
         shadow-camera-top={24}
         shadow-camera-bottom={-24}
       />
-      <directionalLight position={[-14, 9, 10]} intensity={0.5} color="#b9ddff" />
+      <directionalLight position={[-14, 9, 10]} intensity={0.55} color="#b9ddff" />
+      <directionalLight position={[0, 7, 22]} intensity={0.65} color="#fff4e2" />
       <directionalLight position={[-8, 14, -18]} intensity={1.25} color="#7fe0ea" />
       {quality.contactShadows && (
         <ContactShadows
