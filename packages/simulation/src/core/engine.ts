@@ -111,7 +111,17 @@ export function runSingleRound(
     task.assignedAgentId = bid.agentId;
     task.assignedCivilizationId = bid.civilizationId;
     task.assignedTeamIds = bid.teamAgentIds ?? [bid.agentId];
+    task.durationRounds = task.durationRounds ?? 1;
+    task.assignedRound = state.round;
     task.winningBid = bid.bidAmount;
+    const civ = state.civilizations.find((c) => c.id === bid.civilizationId);
+    if (civ) {
+      const until = state.round + task.durationRounds;
+      for (const id of task.assignedTeamIds) {
+        const worker = civ.agents.find((a) => a.id === id);
+        if (worker) worker.busyUntilRound = Math.max(worker.busyUntilRound ?? 0, until);
+      }
+    }
     pushEvent(state, 'task_assigned', `${bid.agentId} assigned ${task.title}`, {
       taskId,
       agentId: bid.agentId,
@@ -126,7 +136,11 @@ export function runSingleRound(
     }
   }
 
-  const assigned = state.marketTasks.filter((t) => t.status === 'assigned');
+  const assigned = state.marketTasks.filter((t) => {
+    if (t.status !== 'assigned') return false;
+    const ready = (t.assignedRound ?? 0) + (t.durationRounds ?? 1) - 1;
+    return state.round >= ready;
+  });
   for (const task of assigned) {
     executeAssignedTask(state, task, rng);
   }

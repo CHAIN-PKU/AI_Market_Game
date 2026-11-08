@@ -28,6 +28,7 @@ export function applyTaskPayout(
   agent.stats.grossEarnings += grossReward;
   agent.stats.taxPaid += tax;
   agent.stats.tasksCompleted += 1;
+  agent.busyUntilRound = 0;
 
   civ.treasury += tax;
   const toPublic = Math.round(tax * civ.rules.publicResearchShare);
@@ -53,6 +54,7 @@ export function markTaskFailed(
   task: MarketTask,
 ): void {
   agent.stats.tasksFailed += 1;
+  agent.busyUntilRound = 0;
   state.metricsByCiv[civ.id]!.tasksFailed += 1;
   pushEvent(state, 'task_failed', `${agent.displayName} failed: ${task.title}`, {
     agentId: agent.id,
@@ -95,6 +97,7 @@ export function applyTeamPayout(
     agent.stats.grossEarnings += Math.round(grossReward * share);
     agent.stats.taxPaid += Math.round(tax * share);
     agent.stats.tasksCompleted += 1;
+    agent.busyUntilRound = 0;
     pushEvent(state, 'tax_collected', `${agent.displayName} paid ${Math.round(tax * share)} tax on ${task.title}`, {
       agentId: agent.id,
       civilizationId: civ.id,
@@ -131,6 +134,7 @@ export function markTeamFailed(
 ): void {
   for (const agent of team) {
     agent.stats.tasksFailed += 1;
+    agent.busyUntilRound = 0;
     pushEvent(state, 'task_failed', `${agent.displayName} failed: ${task.title}`, {
       agentId: agent.id,
       taskId: task.id,

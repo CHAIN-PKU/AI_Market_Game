@@ -3,7 +3,7 @@ import type { GameState, MarketTask, TaskDomain } from '../core/types.js';
 
 export function postPlayerTask(
   state: GameState,
-  input: { title: string; domain: TaskDomain; reward: number },
+  input: { title: string; domain: TaskDomain; reward: number; durationRounds?: number },
 ): MarketTask {
   const difficulty = 40;
   const task: MarketTask = {
@@ -18,6 +18,7 @@ export function postPlayerTask(
       difficulty,
     },
     reward: Math.max(50, Math.min(500, Math.round(input.reward))),
+    durationRounds: Math.max(1, Math.min(3, Math.round(input.durationRounds ?? 1))),
     deadlineRound: state.round + 4,
     status: 'open',
   };

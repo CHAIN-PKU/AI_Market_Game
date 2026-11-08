@@ -34,7 +34,10 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
       .map((id) => ctx.getTask(id))
       .filter((t): t is MarketTask => !!t && t.status === 'open');
 
-    return civ.agents.map((agent) => this.decideForAgent(agent, civ, openTasks, ctx));
+    return civ.agents.map((agent) => {
+      if ((agent.busyUntilRound ?? 0) > ctx.round) return { bids: [], declines: [] };
+      return this.decideForAgent(agent, civ, openTasks, ctx);
+    });
   }
 
   private decideForAgent(

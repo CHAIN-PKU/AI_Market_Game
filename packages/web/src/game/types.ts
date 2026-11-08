@@ -62,6 +62,7 @@ export type DemoAgent = {
   goal: { id: string; label: string; skillId: string | null; skillName: string | null; price: number | null };
   decision: DemoDecision;
   isFocus: boolean;
+  busyUntilRound?: number;
 };
 
 export type BidSummary = {
@@ -110,6 +111,7 @@ export type BidDemoFixture = {
     difficulty: number;
     minAbility: number;
     source: string;
+    durationRounds?: number;
   };
   civilization: {
     id: string;

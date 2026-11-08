@@ -29,6 +29,7 @@ type ScenarioSpec = {
   domain: TaskDomain;
   reward: number;
   description: string;
+  durationRounds?: number;
 };
 
 const DEMO_SCENARIOS: ScenarioSpec[] = [
@@ -52,6 +53,7 @@ const DEMO_SCENARIOS: ScenarioSpec[] = [
     domain: 'design',
     reward: 120,
     description: '新品牌要一套能直接上手的视觉规范与首屏。',
+    durationRounds: 2,
   },
 ];
 
@@ -162,9 +164,9 @@ export interface BuildBidDemoOptions {
   /** Institutions the player wants to test. Values are clamped by the engine. */
   rules?: RulesPatch;
   /** Optional task override (kept stable for institution comparisons). */
-  scenario?: { title?: string; titleEn?: string; domain?: TaskDomain; reward?: number; description?: string };
+  scenario?: { title?: string; titleEn?: string; domain?: TaskDomain; reward?: number; description?: string; durationRounds?: number };
   /** Campaign task rotation; defaults to coding -> research -> design. */
-  scenarios?: Array<{ title?: string; titleEn?: string; domain?: TaskDomain; reward?: number; description?: string }>;
+  scenarios?: Array<{ title?: string; titleEn?: string; domain?: TaskDomain; reward?: number; description?: string; durationRounds?: number }>;
   /** Engine round cap; campaigns pass their own. */
   totalRounds?: number;
   /** Richer cost/profit/reputation/competition model. Default false keeps the classic fixture. */
@@ -332,6 +334,7 @@ function snapshotBidDemo(input: {
         result: isWinner ? (completed ? 'won' : 'failed') : action === 'pass' ? 'passed' : 'lost',
         reaction,
       },
+      busyUntilRound: agent.busyUntilRound ?? 0,
       isFocus: index === 0 || index === 3 || index === 6,
     };
   });
@@ -451,6 +454,7 @@ function snapshotBidDemo(input: {
       difficulty: task.requirements.difficulty,
       minAbility: task.requirements.minAbility,
       source: task.source,
+      durationRounds: task.durationRounds ?? 1,
     },
     civilization: {
       id: civ.id,
@@ -530,6 +534,7 @@ export function buildBidDemoFixture(options: BuildBidDemoOptions = {}) {
     title: scenario.title,
     domain: scenario.domain,
     reward: scenario.reward,
+    durationRounds: scenario.durationRounds,
   });
 
   runSingleRound(state, provider);
@@ -580,6 +585,7 @@ export function advanceBidDemoCampaign(campaign: BidDemoCampaign) {
     title: scenario.title,
     domain: scenario.domain,
     reward: scenario.reward,
+    durationRounds: scenario.durationRounds,
   });
 
   const provider = campaign.marketDepth

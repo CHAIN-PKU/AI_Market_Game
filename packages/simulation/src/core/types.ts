@@ -41,6 +41,8 @@ export interface AgentState {
   wallet: number;
   abilities: Abilities;
   skills: OwnedSkill[];
+  /** Round until which this agent is occupied by an assigned task (0 = free). */
+  busyUntilRound?: number;
   traits: AgentTraits;
   /** Lifetime stats for reporting. */
   stats: {
@@ -81,6 +83,8 @@ export interface MarketTask {
   status: TaskStatus;
   source?: 'system' | 'player';
   playerTitle?: string;
+  durationRounds?: number;
+  assignedRound?: number;
   assignedAgentId?: string;
   assignedCivilizationId?: string;
   assignedTeamIds?: string[];
