@@ -12,13 +12,12 @@ const WOOD_DARK = '#5e3d24';
 const LEAF = '#4f9b57';
 const LEAF_LIGHT = '#72b86a';
 
-function makeBeachShape(segments = 96) {
+function makeCoastShape(segments = 96) {
   const shape = new Shape();
   for (let i = 0; i <= segments; i += 1) {
     const a = (i / segments) * Math.PI * 2;
     const radius =
       ISLAND.grassRadius +
-      1.55 +
       Math.sin(a * 3 + 0.4) * 0.85 +
       Math.sin(a * 5 - 1.2) * 0.5 +
       Math.sin(a * 7 + 2.1) * 0.25;
@@ -28,6 +27,26 @@ function makeBeachShape(segments = 96) {
     else shape.lineTo(x, y);
   }
   shape.closePath();
+  return shape;
+}
+
+function makeBeachShape(segments = 96) {
+  const shape = new Shape();
+  for (let i = 0; i <= segments; i += 1) {
+    const a = (i / segments) * Math.PI * 2;
+    const radius =
+      ISLAND.grassRadius +
+      2.2 +
+      Math.sin(a * 3 + 0.4) * 0.85 +
+      Math.sin(a * 5 - 1.2) * 0.5 +
+      Math.sin(a * 7 + 2.1) * 0.25;
+    const x = Math.cos(a) * radius;
+    const y = Math.sin(a) * radius;
+    if (i === 0) shape.moveTo(x, y);
+    else shape.lineTo(x, y);
+  }
+  shape.closePath();
+  shape.holes.push(makeCoastShape(segments));
   return shape;
 }
 
@@ -366,8 +385,17 @@ export function IslandLife() {
   );
   return (
     <group>
-      <mesh geometry={beachGeo} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.004, 0]} receiveShadow>
+      <mesh geometry={beachGeo} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.009, 0]} receiveShadow>
         <meshStandardMaterial color={SAND} roughness={1} />
+      </mesh>
+      {/* explicit wide beach band: visible above grass at the shore */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]} receiveShadow>
+        <ringGeometry args={[11.35, 13.7, 96]} />
+        <meshStandardMaterial color="#f0d7a4" roughness={1} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
+        <ringGeometry args={[13.05, 13.7, 96]} />
+        <meshStandardMaterial color="#d9b982" roughness={0.8} transparent opacity={0.85} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]} receiveShadow>
         <ringGeometry args={[ISLAND.grassRadius + 0.9, ISLAND.grassRadius + 2.2, 80]} />
