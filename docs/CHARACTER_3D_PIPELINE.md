@@ -52,3 +52,13 @@ bpy.ops.export_scene.gltf(filepath='idle.glb', export_format='GLB', export_anima
 ---
 
 当前上线的是 2D 纸片人：`docs/VISUAL_REBUILD_2026-11-08.md`
+
+## 5. 后续两次尝试（仍未上线）
+
+1. **NLA 合并**：在 Blender 里把 `Root.001|Root|Idle` 和 `Root.001|Root|Run` 挂到 `characterMedium` 的同一 armature，导出 `character_anim.glb`。
+   - GLB 检查：`animations = ['Idle','Run']`，`meshes = 1`，`skins = 1`。
+   - three.js `useAnimations` 播放后仍然是 T-pose，说明 action 没有绑定到克隆后的骨骼路径。
+2. **烘焙姿势**：把 Idle 第 10 帧设为当前姿势，`pose.armature_apply()` 后导出 `character_posed.glb`（无动画）。
+   - three.js 里仍然 T-pose，说明 glTF 的 skin bind/pose 与导出结果不一致，不能靠“烘焙一帧”绕过。
+
+结论：需要 **显式 retarget**（`SkeletonUtils.retargetClip` 或 Blender 里重建骨骼动画），不是换模型/换 action 名能解决。当前继续用 2D paper-diorama。
