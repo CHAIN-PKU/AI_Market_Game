@@ -57,6 +57,7 @@
 - 高画质 DPR 2–2.5，Neutral tone mapping，5 阶 toon ramp。
 - 人物仍是 Quaternius chibi，只重做脸部 overlay；不是最终角色资产。
 - 详情：`docs/VISUAL_REBUILD_2026-11-08.md`
+- 飞书单聊诊断：`docs/FEISHU_DSH_DM_FIX.md`
 
 ### 3.14 大白话 UI 与演示视频
 
