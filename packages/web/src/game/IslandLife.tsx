@@ -391,6 +391,51 @@ function Mound({ x, z, sx = 2.2, sy = 0.5, sz = 1.6, rotation = 0 }: { x: number
   );
 }
 
+function Windmill() {
+  const blades = useRef<Group>(null);
+  useFrame((_, dt) => {
+    if (blades.current) blades.current.rotation.z += dt * 0.8;
+  });
+  return (
+    <group position={[12.4, 0, -6.2]} rotation={[0, -0.4, 0]}>
+      <mesh castShadow receiveShadow position={[0, 1.7, 0]}>
+        <cylinderGeometry args={[0.55, 0.9, 3.4, 8]} />
+        <meshStandardMaterial color="#e8dcc8" roughness={0.9} />
+      </mesh>
+      <mesh castShadow position={[0, 3.55, 0]}>
+        <coneGeometry args={[0.85, 0.75, 8]} />
+        <meshStandardMaterial color="#8a5a34" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, 3.85, 0]}>
+        <sphereGeometry args={[0.09, 7, 5]} />
+        <meshStandardMaterial color="#e0a94f" emissive="#e0a94f" emissiveIntensity={0.5} />
+      </mesh>
+      <group ref={blades} position={[0, 3.3, 0.62]}>
+        {[0, 1, 2, 3].map((i) => (
+          <group key={i} rotation={[0, 0, (i / 4) * Math.PI * 2]}>
+            <mesh castShadow position={[0, 1.05, 0]}>
+              <boxGeometry args={[0.22, 1.9, 0.06]} />
+              <meshStandardMaterial color="#f7ead2" roughness={0.85} />
+            </mesh>
+            <mesh position={[0, 0.1, 0]}>
+              <cylinderGeometry args={[0.06, 0.06, 0.25, 6]} />
+              <meshStandardMaterial color={WOOD_DARK} roughness={0.9} />
+            </mesh>
+          </group>
+        ))}
+      </group>
+      <mesh castShadow position={[0.55, 0.9, 0]}>
+        <boxGeometry args={[0.8, 1.0, 0.6]} />
+        <meshStandardMaterial color="#f7ead2" roughness={0.9} />
+      </mesh>
+      <mesh position={[0.95, 1.25, 0]}>
+        <sphereGeometry args={[0.08, 7, 5]} />
+        <meshStandardMaterial color="#ffd98a" emissive="#e0a94f" emissiveIntensity={0.8} />
+      </mesh>
+    </group>
+  );
+}
+
 function DistantIsland({ x, z, scale = 1 }: { x: number; z: number; scale?: number }) {
   return (
     <group position={[x, -1.45, z]} scale={scale}>
@@ -404,6 +449,25 @@ function DistantIsland({ x, z, scale = 1 }: { x: number; z: number; scale?: numb
       </mesh>
       <Palm x={0.3} z={0.2} scale={0.55} lean={0.1} />
       <Rock x={-0.7} z={-0.4} scale={0.5} y={0.2} />
+      {/* rival civilization silhouette */}
+      <Box size={[0.38, 0.3, 0.3]} position={[-0.35, 0.78, 0.15]} color="#f2e7d4" />
+      <mesh position={[-0.35, 0.98, 0.15]} castShadow>
+        <coneGeometry args={[0.3, 0.24, 4]} />
+        <meshStandardMaterial color="#c96d52" roughness={0.85} />
+      </mesh>
+      <Box size={[0.3, 0.22, 0.26]} position={[0.5, 0.74, -0.2]} color="#e8dcc8" />
+      <mesh position={[0.5, 0.9, -0.2]} castShadow>
+        <coneGeometry args={[0.25, 0.2, 4]} />
+        <meshStandardMaterial color="#6f9dc9" roughness={0.85} />
+      </mesh>
+      <mesh position={[-0.35, 1.2, 0.15]}>
+        <cylinderGeometry args={[0.012, 0.018, 0.6, 4]} />
+        <meshStandardMaterial color={WOOD_DARK} roughness={0.9} />
+      </mesh>
+      <mesh position={[-0.15, 1.42, 0.15]}>
+        <planeGeometry args={[0.32, 0.2]} />
+        <meshStandardMaterial color="#c96d52" roughness={0.9} side={2} />
+      </mesh>
     </group>
   );
 }
@@ -462,6 +526,7 @@ export function IslandLife() {
       <Mound x={11.1} z={6.2} sx={2.0} sy={0.42} sz={1.3} rotation={-0.2} />
       <Mound x={-11.4} z={-2.4} sx={1.7} sy={0.38} sz={1.4} rotation={0.7} />
       <Mound x={11.4} z={-4.4} sx={1.8} sy={0.36} sz={1.1} rotation={-0.4} />
+      <Windmill />
       <SeaStack x={14.8} z={-2.0} scale={1.05} />
       <SeaStack x={-14.9} z={-5.2} scale={0.8} palm={false} />
       <DistantIsland x={-15.5} z={-10.5} scale={0.85} />
