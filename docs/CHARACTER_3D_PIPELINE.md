@@ -62,3 +62,11 @@ bpy.ops.export_scene.gltf(filepath='idle.glb', export_format='GLB', export_anima
    - three.js 里仍然 T-pose，说明 glTF 的 skin bind/pose 与导出结果不一致，不能靠“烘焙一帧”绕过。
 
 结论：需要 **显式 retarget**（`SkeletonUtils.retargetClip` 或 Blender 里重建骨骼动画），不是换模型/换 action 名能解决。当前继续用 2D paper-diorama。
+
+## 6. 单 action 直接导出（仍失败）
+
+- 把 `Idle` action 直接挂到 `characterMedium` 的 armature，删除 idle armature，`export_animation_mode='ACTIVE_ACTIONS'` 导出 `character_idle.glb`。
+- GLB：`animations=['Animation']`，`meshes=1`，`skins=1`。
+- three.js 播放后仍然 T-pose。
+
+结论：Kenney 这套 FBX 的 skin/bind 与 glTF 导出在 three.js 里不兼容；不再在这套资产上继续投入，除非做显式 retarget 或换一套 glTF-native 角色。
