@@ -28,6 +28,10 @@
 - 未用它的浮空岛相机/材质，保持我们现有 village 布局
 - 未复制角色资产（角色仍是 Mixamo）
 
+## 已借鉴光照
+
+- 金色时刻天空/暖雾/暖环境光，参考 three.ws diorama 的 mood palette
+
 ## 下一步
 
 - 从 renderer.js 借鉴 mood lighting / sky gradient，替换当前平面天空

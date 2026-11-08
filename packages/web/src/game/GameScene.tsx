@@ -204,16 +204,16 @@ export function GameScene({
   return (
     <>
       <CameraRig fixture={fixture} step={step} focusAgentId={focusAgentId} />
-      <Sky sunPosition={[60, 30, 40]} turbidity={0.45} rayleigh={0.32} />
-      <fog attach="fog" args={['#d8edf0', 42, 92]} />
+      <Sky sunPosition={[70, 18, 30]} turbidity={5.5} rayleigh={1.15} mieCoefficient={0.004} mieDirectionalG={0.82} />
+      <fog attach="fog" args={['#f6ddc0', 44, 96]} />
       {quality.softShadows && <SoftShadows size={28} samples={16} focus={0.8} />}
-      <ambientLight intensity={0.68} color="#fff9ed" />
-      <hemisphereLight intensity={0.72} color="#c9efff" groundColor="#86c083" />
+      <ambientLight intensity={0.58} color="#ffe9d2" />
+      <hemisphereLight intensity={0.65} color="#ffd9b5" groundColor="#7e9b67" />
       <directionalLight
         castShadow
         position={[16, 26, 14]}
-        intensity={2.1}
-        color="#fff1d2"
+        intensity={2.35}
+        color="#ffd2a3"
         shadow-mapSize={[quality.shadowMap, quality.shadowMap]}
         shadow-bias={-0.0003}
         shadow-camera-far={80}
