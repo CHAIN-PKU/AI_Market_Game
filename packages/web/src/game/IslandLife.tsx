@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { CatmullRomCurve3, TubeGeometry, Vector3, type Group } from 'three';
+import { CatmullRomCurve3, Shape, ShapeGeometry, TubeGeometry, Vector3, type Group } from 'three';
 import { ISLAND } from '../visual-lab/islandLayout';
 
 const SAND = '#e8d3a8';
@@ -11,6 +11,25 @@ const WOOD = '#8a5a34';
 const WOOD_DARK = '#5e3d24';
 const LEAF = '#4f9b57';
 const LEAF_LIGHT = '#72b86a';
+
+function makeBeachShape(segments = 96) {
+  const shape = new Shape();
+  for (let i = 0; i <= segments; i += 1) {
+    const a = (i / segments) * Math.PI * 2;
+    const radius =
+      ISLAND.grassRadius +
+      1.55 +
+      Math.sin(a * 3 + 0.4) * 0.85 +
+      Math.sin(a * 5 - 1.2) * 0.5 +
+      Math.sin(a * 7 + 2.1) * 0.25;
+    const x = Math.cos(a) * radius;
+    const y = Math.sin(a) * radius;
+    if (i === 0) shape.moveTo(x, y);
+    else shape.lineTo(x, y);
+  }
+  shape.closePath();
+  return shape;
+}
 
 function Box({ size, position, color, rotation }: { size: [number, number, number]; position: [number, number, number]; color: string; rotation?: [number, number, number] }) {
   return (
@@ -336,6 +355,7 @@ function DistantIsland({ x, z, scale = 1 }: { x: number; z: number; scale?: numb
 }
 
 export function IslandLife() {
+  const beachGeo = useMemo(() => new ShapeGeometry(makeBeachShape()), []);
   const rocks = useMemo(
     () => [
       [11.3, 2.1, 0.95, 0.6], [10.9, -6.2, 0.7, 0.8], [8.4, 9.4, 1.0, 0.5],
@@ -346,8 +366,7 @@ export function IslandLife() {
   );
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0]} receiveShadow>
-        <ringGeometry args={[ISLAND.grassRadius - 0.25, ISLAND.grassRadius + 0.95, 80]} />
+      <mesh geometry={beachGeo} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.004, 0]} receiveShadow>
         <meshStandardMaterial color={SAND} roughness={1} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]} receiveShadow>

@@ -1,13 +1,35 @@
 import { useMemo, useRef } from 'react';
+import { ExtrudeGeometry, Shape, ShapeGeometry } from 'three';
 import { useFrame } from '@react-three/fiber';
 import type { Mesh, MeshBasicMaterial } from 'three';
 import { ISLAND } from './islandLayout';
 import { makeGrassTexture, makePlazaTexture } from './textures';
 
+function makeCoastShape(segments = 96) {
+  const shape = new Shape();
+  for (let i = 0; i <= segments; i += 1) {
+    const a = (i / segments) * Math.PI * 2;
+    const radius =
+      ISLAND.grassRadius +
+      Math.sin(a * 3 + 0.4) * 0.85 +
+      Math.sin(a * 5 - 1.2) * 0.5 +
+      Math.sin(a * 7 + 2.1) * 0.25;
+    const x = Math.cos(a) * radius;
+    const y = Math.sin(a) * radius;
+    if (i === 0) shape.moveTo(x, y);
+    else shape.lineTo(x, y);
+  }
+  shape.closePath();
+  return shape;
+}
+
 /** Diorama terrain: soil thickness + grass top + plaza road ring + water. No procedural buildings. */
 export function IslandBase() {
   const grass = useMemo(() => makeGrassTexture(), []);
   const plaza = useMemo(() => makePlazaTexture(), []);
+  const coast = useMemo(() => makeCoastShape(), []);
+  const grassGeo = useMemo(() => new ShapeGeometry(coast), [coast]);
+  const soilGeo = useMemo(() => new ExtrudeGeometry(coast, { depth: ISLAND.grassHeight, bevelEnabled: false, steps: 1 }), [coast]);
   const ringA = useRef<Mesh>(null);
   const ringB = useRef<Mesh>(null);
   useFrame(({ clock }) => {
@@ -21,15 +43,13 @@ export function IslandBase() {
   });
   return (
     <group>
-      {/* soil side — gives the island a table-top model thickness */}
-      <mesh position={[0, -ISLAND.grassHeight / 2, 0]} receiveShadow castShadow>
-        <cylinderGeometry args={[ISLAND.grassRadius, ISLAND.grassRadius * 0.92, ISLAND.grassHeight, 64]} />
+      {/* extruded soil gives the island a table-top model thickness and an irregular coast */}
+      <mesh geometry={soilGeo} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow castShadow>
         <meshStandardMaterial color="#8a6a4b" roughness={1} />
       </mesh>
 
-      {/* grass top */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-        <circleGeometry args={[ISLAND.grassRadius, 64]} />
+      {/* grass top follows the same irregular coastline */}
+      <mesh geometry={grassGeo} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.006, 0]} receiveShadow>
         <meshStandardMaterial map={grass} color="#ffffff" roughness={0.95} />
       </mesh>
 
