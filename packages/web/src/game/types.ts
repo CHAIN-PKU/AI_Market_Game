@@ -267,6 +267,8 @@ export type RoundHistory = {
 };
 
 export type RuleCompare = {
+  /** 改规则前后每个居民的决策差异（审查要求解释「为什么变」） */
+  decisions?: { name: string; before: string; after: string; changed: boolean }[];
   beforeWinner: string;
   afterWinner: string;
   beforeNet: number | null;

@@ -13,7 +13,7 @@ import { EvolutionPanel } from './EvolutionPanel';
 import { AModePanel } from './AModePanel';
 import { StoryOverlay } from './StoryOverlay';
 import { BARGAIN_LENGTH } from './bargainScript';
-import { InstitutionPanel, summarizeRun } from './InstitutionPanel';
+import { InstitutionPanel, diffDecisions, summarizeRun } from './InstitutionPanel';
 import { QUALITY, readQuality, writeQuality, type Quality } from './quality';
 import {
   AgentPanel,
@@ -383,6 +383,7 @@ export function GamePage() {
         const bm = marketStats(fixture);
         const am = marketStats(next);
         setCompare({
+          decisions: diffDecisions(fixture, next),
           beforeWinner,
           afterWinner,
           beforeNet,

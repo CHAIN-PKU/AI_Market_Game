@@ -309,6 +309,27 @@ export function LeftPanel({
           </div>
         </div>
 
+        {!posted && compare && compare.decisions && compare.decisions.length > 0 && (
+          <div className="g-rule-diff">
+            <header>
+              <b>谁的决策变了</b>
+              <em>
+                {compare.decisions.filter((d) => d.changed).length} / {compare.decisions.length} 人改变
+              </em>
+            </header>
+            <ul>
+              {compare.decisions.map((d) => (
+                <li key={d.name} className={d.changed ? 'is-changed' : ''}>
+                  <span>{d.name}</span>
+                  <b>{d.before}</b>
+                  <i>→</i>
+                  <b>{d.after}</b>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {!posted && compare && (
           <div className="g-compare">
             <div className="g-compare-head">

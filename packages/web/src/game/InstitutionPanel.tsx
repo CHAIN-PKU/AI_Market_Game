@@ -33,6 +33,22 @@ function rulesName(taxPct: number, ownership: 'private' | 'shared'): string {
   return '自由市场';
 }
 
+function describeDecision(agent: { decision: { action: string; bidAmount: number | null } }): string {
+  return agent.decision.action === 'bid' && agent.decision.bidAmount != null
+    ? `报价 ${agent.decision.bidAmount}`
+    : '不接';
+}
+
+/** 同一个居民在两套规则下的决策差异（按名字对齐，人不变，只有决策会变） */
+export function diffDecisions(before: BidDemoFixture, after: BidDemoFixture) {
+  return before.agents.map((old) => {
+    const now = after.agents.find((a) => a.displayName === old.displayName);
+    const b = describeDecision(old);
+    const a = now ? describeDecision(now) : '—';
+    return { name: old.displayName, before: b, after: a, changed: b !== a };
+  });
+}
+
 export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
   const rules = fixture.civilization.rules;
   const [taxPct, setTaxPct] = useState(Math.round(rules.taxRate * 100));
@@ -44,6 +60,7 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
   const [experiment, setExperiment] = useState<ExperimentReport | null>(null);
   const [copiedExperiment, setCopiedExperiment] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
 
   async function runExperiment() {
     setExperimentBusy(true);
