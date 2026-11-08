@@ -83,20 +83,38 @@ function drawLegs(ctx: CanvasRenderingContext2D, l: Look, pose = 0) {
       ctx.quadraticCurveTo(38, 120, 34, 0);
       ctx.closePath();
     }, l.pants);
+    // oversized cartoon shoe
     path(ctx, () => {
-      ctx.moveTo(-33, 198);
-      ctx.quadraticCurveTo(0, 188, 33, 198);
-      ctx.lineTo(37, 244);
-      ctx.quadraticCurveTo(0, 258, -37, 244);
+      ctx.moveTo(-36, 190);
+      ctx.quadraticCurveTo(-52, 218, -44, 244);
+      ctx.quadraticCurveTo(0, 266, 44, 244);
+      ctx.quadraticCurveTo(52, 218, 36, 190);
       ctx.closePath();
     }, l.shoes);
-    ctx.restore();
-  }
-  // soles
-  for (const x of [-52 - (pose ? 14 : 0), 52 + (pose ? 14 : 0)]) {
     path(ctx, () => {
-      ctx.ellipse(341 + x, 936, 39, 12, 0, 0, Math.PI * 2);
-    }, '#2b1f19');
+      ctx.ellipse(0, 244, 34, 13, 0, 0, Math.PI * 2);
+    }, '#2b1f19', false);
+    path(ctx, () => {
+      ctx.ellipse(0, 236, 29, 8, 0, 0, Math.PI * 2);
+    }, '#e8d8c4', false);
+    ctx.save();
+    ctx.globalAlpha = 0.4;
+    ctx.beginPath();
+    ctx.arc(-14, 222, 13, Math.PI * 1.1, Math.PI * 1.7);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.restore();
+    // laces
+    ctx.strokeStyle = '#f7ead2';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 3; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(-12, 204 + i * 7);
+      ctx.quadraticCurveTo(0, 199 + i * 7, 12, 204 + i * 7);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 }
 
@@ -180,8 +198,13 @@ function drawArms(ctx: CanvasRenderingContext2D, l: Look, pose = 0) {
   path(ctx, () => { ctx.ellipse(238 + swing, 630 - swing, 25, 18, 0, 0, Math.PI * 2); }, l.accent);
   path(ctx, () => { ctx.ellipse(444 - swing, 630 + swing, 25, 18, 0, 0, Math.PI * 2); }, l.accent);
   // hands
-  path(ctx, () => { ctx.ellipse(238 + swing, 660 - swing, 27, 31, -0.08, 0, Math.PI * 2); }, l.skin);
-  path(ctx, () => { ctx.ellipse(444 - swing, 660 + swing, 27, 31, 0.08, 0, Math.PI * 2); }, l.skin);
+  path(ctx, () => { ctx.ellipse(238 + swing, 660 - swing, 29, 34, -0.08, 0, Math.PI * 2); }, l.skin);
+  path(ctx, () => { ctx.ellipse(444 - swing, 660 + swing, 29, 34, 0.08, 0, Math.PI * 2); }, l.skin);
+  // thumb + cuff
+  path(ctx, () => { ctx.ellipse(218 + swing, 650 - swing, 10, 17, -0.45, 0, Math.PI * 2); }, l.skin);
+  path(ctx, () => { ctx.ellipse(464 - swing, 650 + swing, 10, 17, 0.45, 0, Math.PI * 2); }, l.skin);
+  path(ctx, () => { ctx.ellipse(238 + swing, 630 - swing, 23, 11, 0, 0, Math.PI * 2); }, l.accent);
+  path(ctx, () => { ctx.ellipse(444 - swing, 630 + swing, 23, 11, 0, 0, Math.PI * 2); }, l.accent);
 }
 
 function drawHairBack(ctx: CanvasRenderingContext2D, l: Look) {
