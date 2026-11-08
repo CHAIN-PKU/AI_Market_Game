@@ -1,4 +1,5 @@
 import type { AgentTrace, GameMeta, GameState } from './types';
+import { apiUrl } from './apiBase';
 
 export class ApiError extends Error {
   constructor(
@@ -11,13 +12,13 @@ export class ApiError extends Error {
 }
 
 export async function fetchMeta(): Promise<GameMeta> {
-  const res = await fetch('/api/meta');
+  const res = await fetch(apiUrl('/api/meta'));
   if (!res.ok) throw new Error('API unreachable');
   return res.json() as Promise<GameMeta>;
 }
 
 export async function createGame(): Promise<{ id: string; state: GameState }> {
-  const res = await fetch('/api/games', {
+  const res = await fetch(apiUrl('/api/games'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ rounds: 30 }),
@@ -55,7 +56,7 @@ export async function advanceGame(id: string, options?: AdvanceGameOptions): Pro
   const signal = options?.signal
     ? AbortSignal.any([options.signal, timeoutSignal])
     : timeoutSignal;
-  const res = await fetch(`/api/games/${id}/advance`, {
+  const res = await fetch(apiUrl(`/api/games/${id}/advance`), {
     method: 'POST',
     signal,
   });
@@ -92,7 +93,7 @@ export async function submitPlayerTask(
   id: string,
   task: { title: string; domain: 'coding' | 'research' | 'design'; reward: number },
 ): Promise<GameState> {
-  const res = await fetch(`/api/games/${id}/player-tasks`, {
+  const res = await fetch(apiUrl(`/api/games/${id}/player-tasks`), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(task),
@@ -114,7 +115,7 @@ export async function publishRules(
     }
   >,
 ): Promise<GameState> {
-  const res = await fetch(`/api/games/${id}/rules`, {
+  const res = await fetch(apiUrl(`/api/games/${id}/rules`), {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ civilizations }),
@@ -129,7 +130,7 @@ export async function stepGame(id: string): Promise<StepResult> {
 }
 
 export async function resetGame(id: string): Promise<{ id: string; state: GameState }> {
-  const res = await fetch(`/api/games/${id}/reset`, {
+  const res = await fetch(apiUrl(`/api/games/${id}/reset`), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ rounds: 30 }),
