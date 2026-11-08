@@ -122,8 +122,12 @@ function Boat() {
 
 function Lighthouse() {
   return (
-    <group position={[-12.3, -0.6, 4.2]}>
-      <mesh receiveShadow castShadow scale={[2.2, 1.4, 2.0]}>
+    <group position={[-12.3, -0.9, 4.2]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.34, 0]} receiveShadow>
+        <circleGeometry args={[1.35, 18]} />
+        <meshStandardMaterial color={SAND_DARK} roughness={1} />
+      </mesh>
+      <mesh receiveShadow castShadow position={[0, 0.18, 0]} scale={[3.0, 1.7, 2.8]}>
         <dodecahedronGeometry args={[0.8, 0]} />
         <meshStandardMaterial color={ROCK_DARK} roughness={1} flatShading />
       </mesh>
@@ -214,6 +218,23 @@ function BeachSpot({ x, z, umbrella = '#d97a52' }: { x: number; z: number; umbre
   );
 }
 
+function DistantIsland({ x, z, scale = 1 }: { x: number; z: number; scale?: number }) {
+  return (
+    <group position={[x, -1.45, z]} scale={scale}>
+      <mesh castShadow receiveShadow position={[0, 0.3, 0]}>
+        <cylinderGeometry args={[1.5, 1.8, 0.55, 16]} />
+        <meshStandardMaterial color="#7fa96b" roughness={1} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.59, 0]}>
+        <circleGeometry args={[1.45, 16]} />
+        <meshStandardMaterial color={SAND} roughness={1} />
+      </mesh>
+      <Palm x={0.3} z={0.2} scale={0.55} lean={0.1} />
+      <Rock x={-0.7} z={-0.4} scale={0.5} y={0.2} />
+    </group>
+  );
+}
+
 export function IslandLife() {
   const rocks = useMemo(
     () => [
@@ -254,6 +275,8 @@ export function IslandLife() {
       <BeachSpot x={-9.2} z={7.9} umbrella="#3f8f96" />
       <Lighthouse />
       <Seagulls />
+      <DistantIsland x={-15.5} z={-10.5} scale={0.85} />
+      <DistantIsland x={15.2} z={-12.0} scale={0.65} />
     </group>
   );
 }

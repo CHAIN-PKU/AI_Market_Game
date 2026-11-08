@@ -206,7 +206,7 @@ function RoleDetails({ role }: { role: BuildingRole }) {
 }
 
 function Signature({ role, height, width }: { role: BuildingRole; height: number; width: number }) {
-  const y = height * 0.9;
+  const y = height + 0.08;
   if (role === 'research') {
     return (
       <group position={[0, y, 0]}>
