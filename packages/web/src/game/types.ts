@@ -241,3 +241,26 @@ export type RuleCompare = {
   beforeSpread?: number;
   afterSpread?: number;
 };
+
+export type ExperimentStats = {
+  rounds: number;
+  wins: number;
+  totalNet: number;
+  totalTax: number;
+  avgWinningBid: number;
+  teamBids: number;
+  ringBids: number;
+  reports: number;
+  defections: number;
+  skills: number;
+  treasuryEnd: number;
+  gini: number;
+  uniqueWinners: number;
+};
+
+export type ExperimentReport = {
+  seed: number;
+  maxRounds: number;
+  a: { rules: { name: string; taxRate: number }; stats: ExperimentStats };
+  b: { rules: { name: string; taxRate: number }; stats: ExperimentStats };
+};

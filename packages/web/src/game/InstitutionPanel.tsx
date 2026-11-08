@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { DOMAIN_LABEL, type BidDemoFixture } from './types';
+import { DOMAIN_LABEL, type BidDemoFixture, type ExperimentReport } from './types';
+import { downloadExperimentCard } from './shareCard';
 import { CloseIcon, CoinIcon, PeopleIcon, SkillIcon } from './icons';
 
 type Props = {
@@ -23,29 +24,6 @@ export function summarizeRun(fixture: BidDemoFixture): string {
   }
   return `${head} · ${parts.join(' · ')}`;
 }
-
-type ExperimentStats = {
-  rounds: number;
-  wins: number;
-  totalNet: number;
-  totalTax: number;
-  avgWinningBid: number;
-  teamBids: number;
-  ringBids: number;
-  reports: number;
-  defections: number;
-  skills: number;
-  treasuryEnd: number;
-  gini: number;
-  uniqueWinners: number;
-};
-
-type ExperimentReport = {
-  seed: number;
-  maxRounds: number;
-  a: { rules: { name: string; taxRate: number }; stats: ExperimentStats };
-  b: { rules: { name: string; taxRate: number }; stats: ExperimentStats };
-};
 
 function rulesName(taxPct: number, ownership: 'private' | 'shared'): string {
   if (ownership === 'shared') return '公共研发';
@@ -243,6 +221,9 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
             <div className="g-experiment-head">
               <strong>5 轮制度实验</strong>
               <span>{experiment.a.rules.name} vs {experiment.b.rules.name} · 种子 {experiment.seed}</span>
+              <button type="button" className="g-btn g-btn--ghost g-experiment-download" onClick={() => downloadExperimentCard(experiment)}>
+                存成图片
+              </button>
             </div>
             <table>
               <thead>

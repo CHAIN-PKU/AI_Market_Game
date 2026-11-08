@@ -4015,3 +4015,10 @@
 }
 .g-experiment th:first-child, .g-experiment td:first-child { text-align: left; color: #7b6e5b; }
 .g-experiment th { color: #5d5143; font-weight: 700; }
+
+.g-experiment-download {
+  margin-left: auto;
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  font-size: 11px;
+}
