@@ -38,6 +38,7 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
   const [moving, setMoving] = useState(false);
   const movingRef = useRef(false);
   const phase = useRef(index * 1.7);
+  const facing = useRef(1);
   const roleKey = ROLE_KEY[agent.role];
   const texture = useMemo(() => makeResidentAtlas(index, roleKey), [index, roleKey]);
   const walkFrame = useRef(0);
@@ -56,6 +57,7 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
       g.position.x += (dx / dist) * stepLen;
       g.position.z += (dz / dist) * stepLen;
       g.rotation.y = MathUtils.damp(g.rotation.y, Math.atan2(dx, dz), 8, dt);
+      if (Math.abs(dx) > 0.02) facing.current = dx < 0 ? -1 : 1;
       phase.current += dt * 9;
       if (!movingRef.current) {
         movingRef.current = true;
@@ -85,7 +87,9 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
       spriteRef.current.position.y = bob;
       spriteRef.current.rotation.z = moving ? Math.sin(phase.current) * 0.025 : 0;
       const targetScale = focused ? 1.07 : 1;
-      spriteRef.current.scale.x = MathUtils.damp(spriteRef.current.scale.x, targetScale, 5, dt);
+      const current = Math.abs(spriteRef.current.scale.x);
+      const next = MathUtils.damp(current, targetScale, 5, dt) * facing.current;
+      spriteRef.current.scale.x = next;
       spriteRef.current.scale.y = MathUtils.damp(spriteRef.current.scale.y, targetScale, 5, dt);
     }
   });

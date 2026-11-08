@@ -585,7 +585,7 @@ export function AgentPanel({
           <CloseIcon size={15} />
         </button>
         <div className="g-agent-head">
-          <img className="g-agent-portrait" src={portrait} alt={`${agent.displayName} 立绘`} />
+          <img key={agent.id} className="g-agent-portrait" src={portrait} alt={`${agent.displayName} 立绘`} />
           <div>
             <h2>{agent.displayName}</h2>
             <span className="g-agent-role">

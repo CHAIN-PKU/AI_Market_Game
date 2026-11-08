@@ -1,4 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import type { Mesh, MeshStandardMaterial } from 'three';
 import { BufferGeometry, DoubleSide, Float32BufferAttribute } from 'three';
 import type { BuildingRole } from '../visual-lab/islandLayout';
 
@@ -78,6 +80,30 @@ function Window({
           ))}
         </group>
       )}
+    </group>
+  );
+}
+
+function ChimneySmoke({ x, y, z }: { x: number; y: number; z: number }) {
+  const puffs = useRef<(Mesh | null)[]>([]);
+  useFrame(({ clock }) => {
+    for (let i = 0; i < 3; i += 1) {
+      const mesh = puffs.current[i];
+      if (!mesh) continue;
+      const t = ((clock.elapsedTime * 0.18 + i * 0.33) % 1);
+      mesh.position.set(x + i * 0.06 + Math.sin(t * 4 + i) * 0.06, y + t * 0.62, z);
+      mesh.scale.setScalar(0.55 + t * 0.9);
+      (mesh.material as MeshStandardMaterial).opacity = 0.26 * (1 - t);
+    }
+  });
+  return (
+    <group>
+      {[0, 1, 2].map((i) => (
+        <mesh key={i} ref={(m) => { puffs.current[i] = m; }}>
+          <sphereGeometry args={[0.08 + i * 0.025, 8, 6]} />
+          <meshStandardMaterial color="#f5f1e8" transparent opacity={0.22} roughness={1} depthWrite={false} />
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -278,12 +304,7 @@ export function CozyBuilding({ role, height, width }: { role: BuildingRole; heig
       </mesh>
       {/* chimney + smoke */}
       <Box size={[0.2, 0.5, 0.2]} position={[w * 0.25, peak - 0.08, -d * 0.22]} color="#b98d60" />
-      {[0, 1, 2].map((i) => (
-        <mesh key={`smoke-${i}`} position={[w * 0.25 + i * 0.06, peak + 0.22 + i * 0.14, -d * 0.22]}>
-          <sphereGeometry args={[0.07 + i * 0.03, 7, 5]} />
-          <meshStandardMaterial color="#f5f1e8" transparent opacity={0.26 - i * 0.05} roughness={1} depthWrite={false} />
-        </mesh>
-      ))}
+      <ChimneySmoke x={w * 0.25} y={peak + 0.18} z={-d * 0.22} />
     </group>
   );
 }
