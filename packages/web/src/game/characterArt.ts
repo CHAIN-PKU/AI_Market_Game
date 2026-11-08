@@ -13,17 +13,19 @@ type Look = {
   accent: string;
   style: number;
   face: number;
+  build: number;
+  expression: number;
 };
 
 const LOOKS: Look[] = [
-  { skin: '#f4c9a4', skinShade: '#dfa982', hair: '#2f211b', hairDark: '#1c130f', shirt: '#3f8f96', shirtDark: '#2f6f75', pants: '#3d4657', shoes: '#4a3428', accent: '#e0a94f', style: 1 , face: 1 },
-  { skin: '#e7b48a', skinShade: '#cf956b', hair: '#5a3a25', hairDark: '#3d2517', shirt: '#8f7cc9', shirtDark: '#6d5aa6', pants: '#4f596b', shoes: '#54443a', accent: '#f0d38a', style: 3 , face: 2 },
-  { skin: '#c98d63', skinShade: '#ad724c', hair: '#1f2933', hairDark: '#10161d', shirt: '#d97a52', shirtDark: '#b85a3a', pants: '#5b4a44', shoes: '#3b2b22', accent: '#9fd8d2', style: 0 , face: 0 },
-  { skin: '#9c6644', skinShade: '#7e4e32', hair: '#1f2933', hairDark: '#0e1318', shirt: '#5fb3c3', shirtDark: '#3f8f96', pants: '#334b52', shoes: '#2d3b36', accent: '#f3a6b8', style: 2 , face: 1 },
-  { skin: '#f7d6b8', skinShade: '#dfb894', hair: '#c08a3e', hairDark: '#94672a', shirt: '#7cbf7a', shirtDark: '#4f8b52', pants: '#46513f', shoes: '#4a3428', accent: '#e8d8b8', style: 4 , face: 0 },
-  { skin: '#d9a078', skinShade: '#bd8560', hair: '#d9c8a0', hairDark: '#b3a37c', shirt: '#b8842f', shirtDark: '#8a5a2f', pants: '#5a4b63', shoes: '#4a3428', accent: '#f6d36b', style: 5 , face: 2 },
-  { skin: '#b97c55', skinShade: '#9b6242', hair: '#3b2a24', hairDark: '#211611', shirt: '#e0a94f', shirtDark: '#b8842f', pants: '#3f4a3d', shoes: '#3b2b22', accent: '#8f7cc9', style: 1 , face: 1 },
-  { skin: '#efc39b', skinShade: '#d5a57d', hair: '#6b3f2a', hairDark: '#47271a', shirt: '#c96f58', shirtDark: '#a04f3c', pants: '#4d4f5e', shoes: '#3b2b22', accent: '#7cbf7a', style: 3 , face: 0 },
+  { skin: '#f4c9a4', skinShade: '#dfa982', hair: '#2f211b', hairDark: '#1c130f', shirt: '#3f8f96', shirtDark: '#2f6f75', pants: '#3d4657', shoes: '#4a3428', accent: '#e0a94f', style: 1 , face: 1 , build: 1, expression: 0 },
+  { skin: '#e7b48a', skinShade: '#cf956b', hair: '#5a3a25', hairDark: '#3d2517', shirt: '#8f7cc9', shirtDark: '#6d5aa6', pants: '#4f596b', shoes: '#54443a', accent: '#f0d38a', style: 3 , face: 2 , build: 0, expression: 1 },
+  { skin: '#c98d63', skinShade: '#ad724c', hair: '#1f2933', hairDark: '#10161d', shirt: '#d97a52', shirtDark: '#b85a3a', pants: '#5b4a44', shoes: '#3b2b22', accent: '#9fd8d2', style: 0 , face: 0 , build: 2, expression: 2 },
+  { skin: '#9c6644', skinShade: '#7e4e32', hair: '#1f2933', hairDark: '#0e1318', shirt: '#5fb3c3', shirtDark: '#3f8f96', pants: '#334b52', shoes: '#2d3b36', accent: '#f3a6b8', style: 2 , face: 1 , build: 1, expression: 0 },
+  { skin: '#f7d6b8', skinShade: '#dfb894', hair: '#c08a3e', hairDark: '#94672a', shirt: '#7cbf7a', shirtDark: '#4f8b52', pants: '#46513f', shoes: '#4a3428', accent: '#e8d8b8', style: 4 , face: 0 , build: 0, expression: 1 },
+  { skin: '#d9a078', skinShade: '#bd8560', hair: '#d9c8a0', hairDark: '#b3a37c', shirt: '#b8842f', shirtDark: '#8a5a2f', pants: '#5a4b63', shoes: '#4a3428', accent: '#f6d36b', style: 5 , face: 2 , build: 2, expression: 2 },
+  { skin: '#b97c55', skinShade: '#9b6242', hair: '#3b2a24', hairDark: '#211611', shirt: '#e0a94f', shirtDark: '#b8842f', pants: '#3f4a3d', shoes: '#3b2b22', accent: '#8f7cc9', style: 1 , face: 1 , build: 1, expression: 0 },
+  { skin: '#efc39b', skinShade: '#d5a57d', hair: '#6b3f2a', hairDark: '#47271a', shirt: '#c96f58', shirtDark: '#a04f3c', pants: '#4d4f5e', shoes: '#3b2b22', accent: '#7cbf7a', style: 3 , face: 0 , build: 0, expression: 1 },
 ];
 
 const ROLE_SHIRT: Record<RoleKey, string> = {
@@ -161,6 +163,23 @@ function drawBody(ctx: CanvasRenderingContext2D, l: Look, role: RoleKey) {
       ctx.quadraticCurveTo(266, 550, 282, 470);
       ctx.closePath();
     }, l.shirtDark);
+  }
+  if (role === 'research') {
+    path(ctx, () => {
+      ctx.moveTo(276, 462);
+      ctx.quadraticCurveTo(258, 560, 266, 658);
+      ctx.quadraticCurveTo(300, 672, 315, 664);
+      ctx.lineTo(320, 470);
+      ctx.closePath();
+    }, '#f7f0df');
+    path(ctx, () => {
+      ctx.moveTo(406, 462);
+      ctx.quadraticCurveTo(424, 560, 416, 658);
+      ctx.quadraticCurveTo(382, 672, 367, 664);
+      ctx.lineTo(362, 470);
+      ctx.closePath();
+    }, '#f7f0df');
+    path(ctx, () => { ctx.rect(300, 560, 34, 42); }, '#e8dcc8');
   }
   // collar
   path(ctx, () => {
@@ -406,8 +425,9 @@ function drawFace(ctx: CanvasRenderingContext2D, l: Look, role: RoleKey) {
     ctx.stroke();
     // brow
     ctx.beginPath();
-    ctx.moveTo(x - 27 * flip, eyeY - 48);
-    ctx.quadraticCurveTo(x, eyeY - 58, x + 27 * flip, eyeY - 48);
+    const browLift = l.expression === 1 ? (flip > 0 ? 8 : 0) : 0;
+    ctx.moveTo(x - 27 * flip, eyeY - 48 - browLift);
+    ctx.quadraticCurveTo(x, eyeY - 58 - browLift, x + 27 * flip, eyeY - 48);
     ctx.strokeStyle = l.hairDark;
     ctx.lineWidth = 6;
     ctx.stroke();
@@ -420,13 +440,32 @@ function drawFace(ctx: CanvasRenderingContext2D, l: Look, role: RoleKey) {
   ctx.lineWidth = 4;
   ctx.stroke();
   // mouth
-  ctx.beginPath();
-  ctx.moveTo(318, 398);
-  ctx.quadraticCurveTo(341, 416, 364, 398);
-  ctx.strokeStyle = '#a34e43';
-  ctx.lineWidth = 5;
-  ctx.lineCap = 'round';
-  ctx.stroke();
+  if (l.expression === 2) {
+    path(ctx, () => {
+      ctx.moveTo(318, 394);
+      ctx.quadraticCurveTo(341, 426, 364, 394);
+      ctx.quadraticCurveTo(341, 408, 318, 394);
+      ctx.closePath();
+    }, '#8f4038');
+    ctx.fillStyle = '#fff8ee';
+    ctx.fillRect(332, 396, 18, 6);
+  } else if (l.expression === 1) {
+    ctx.beginPath();
+    ctx.moveTo(320, 402);
+    ctx.quadraticCurveTo(342, 410, 364, 394);
+    ctx.strokeStyle = '#a34e43';
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(318, 398);
+    ctx.quadraticCurveTo(341, 416, 364, 398);
+    ctx.strokeStyle = '#a34e43';
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  }
   // blush
   for (const x of [248, 434]) {
     ctx.beginPath();
@@ -477,9 +516,15 @@ function getLook(index: number, role: RoleKey): Look {
 
 function drawResident(ctx: CanvasRenderingContext2D, look: Look, role: RoleKey, pose: number) {
   drawHairBack(ctx, look);
+  const buildW = look.build === 1 ? 1.05 : look.build === 2 ? 0.95 : 1;
+  ctx.save();
+  ctx.translate(341, 0);
+  ctx.scale(buildW, 1);
+  ctx.translate(-341, 0);
   drawLegs(ctx, look, pose);
   drawBody(ctx, look, role);
   drawArms(ctx, look, pose);
+  ctx.restore();
   const faceScale = look.face === 1 ? 1.05 : look.face === 2 ? 0.95 : 1;
   ctx.save();
   ctx.translate(341, 0);
