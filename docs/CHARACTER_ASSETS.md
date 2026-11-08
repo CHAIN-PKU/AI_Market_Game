@@ -27,7 +27,7 @@
 
 ## 动画
 
-每个 GLB 内嵌一个 `mixamo.com` 动画（idle）。移动时从 three.ws 动画库加载 `walk.json`，把 track 前缀改写成 `mixamorig:` 后直接播放；如果加载失败，回退到程序化腿/臂摆动。
+每个 GLB 内嵌一个 `mixamo.com` 动画（idle）。移动时从 three.ws 动画库加载 `walk.json`，把 track 前缀改写成 `mixamorig:` 后直接播放；如果加载失败，回退到程序化腿/臂摆动。中标/完成时播放 `wave.json` / `celebrate.json` 一次性动作。
 
 ## 缩略图
 

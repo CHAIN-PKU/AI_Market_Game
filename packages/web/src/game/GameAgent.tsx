@@ -1,7 +1,7 @@
 import { Html, useAnimations, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AnimationClip, Box3, Group, LoopRepeat, MathUtils, type AnimationAction, type Object3D } from 'three';
+import { AnimationClip, Box3, Group, LoopOnce, LoopRepeat, MathUtils, type AnimationAction, type Object3D } from 'three';
 import { clone as cloneWithSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { ROLE_KEY, ROLE_LABEL, type DemoAgent } from './types';
 import { RoleIcon } from './icons';
@@ -22,6 +22,10 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
   const clone = useMemo(() => cloneWithSkeleton(gltf.scene) as Group, [gltf.scene]);
   const { actions, mixer } = useAnimations(gltf.animations, clone);
   const [walkClip, setWalkClip] = useState<AnimationClip | null>(null);
+  const [gestureClips, setGestureClips] = useState<Partial<Record<'celebrate' | 'wave', AnimationClip>>>({});
+  const gestureActions = useRef<Partial<Record<'celebrate' | 'wave', AnimationAction>>>({});
+  const gestureRef = useRef<AnimationAction | null>(null);
+  const previousState = useRef<AgentVisualState>(state);
   const idleAction = useRef<AnimationAction | null>(null);
   const walkAction = useRef<AnimationAction | null>(null);
   const movingRef = useRef(false);
@@ -65,6 +69,30 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
   }, []);
 
   useEffect(() => {
+    Promise.all(
+      (['celebrate', 'wave'] as const).map(async (name) => {
+        const res = await fetch(`/assets/mixamo/${name}.json`);
+        if (!res.ok) return null;
+        const data = await res.json();
+        const clip = AnimationClip.parse(data);
+        clip.name = name;
+        clip.tracks.forEach((track) => {
+          if (!track.name.startsWith('mixamorig:')) {
+            track.name = track.name.replace(/^([^.]+)\./, 'mixamorig:$1.');
+          }
+        });
+        return [name, clip] as const;
+      }),
+    )
+      .then((entries) => {
+        const next: Partial<Record<'celebrate' | 'wave', AnimationClip>> = {};
+        for (const entry of entries) if (entry) next[entry[0]] = entry[1];
+        setGestureClips(next);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     const a = Object.values(actions)[0];
     if (!a) return;
     a.reset().play();
@@ -80,12 +108,42 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
         w.reset().fadeIn(0.12).play();
       }
     }
+    for (const [name, clip] of Object.entries(gestureClips)) {
+      if (!clip) continue;
+      const action = mixer.clipAction(clip);
+      action.setLoop(LoopOnce, 1);
+      action.clampWhenFinished = true;
+      action.enabled = false;
+      gestureActions.current[name as 'celebrate' | 'wave'] = action;
+    }
     return () => {
       walkAction.current?.stop();
     };
-  }, [actions, mixer, walkClip]);
+  }, [actions, mixer, walkClip, gestureClips]);
+
+  useEffect(() => {
+    const prev = previousState.current;
+    previousState.current = state;
+    if (state === prev) return;
+    const name = state === 'done' ? 'celebrate' : state === 'selected' ? 'wave' : null;
+    if (!name) return;
+    const action = gestureActions.current[name];
+    if (!action) return;
+    gestureRef.current = action;
+    idleAction.current?.fadeOut(0.12);
+    walkAction.current?.fadeOut(0.12);
+    action.reset().setLoop(LoopOnce, 1).fadeIn(0.12).play();
+    window.setTimeout(() => {
+      if (gestureRef.current !== action) return;
+      gestureRef.current = null;
+      action.fadeOut(0.2);
+      if (movingRef.current) walkAction.current?.reset().fadeIn(0.2).play();
+      else idleAction.current?.reset().fadeIn(0.2).play();
+    }, Math.max(700, action.getClip().duration * 1000));
+  }, [state]);
 
   const setMoving = (moving: boolean) => {
+    if (gestureRef.current) return;
     if (movingRef.current === moving) return;
     movingRef.current = moving;
     if (moving) {
