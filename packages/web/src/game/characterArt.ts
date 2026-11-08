@@ -15,17 +15,18 @@ type Look = {
   face: number;
   build: number;
   expression: number;
+  pose: number;
 };
 
 const LOOKS: Look[] = [
-  { skin: '#f4c9a4', skinShade: '#dfa982', hair: '#2f211b', hairDark: '#1c130f', shirt: '#3f8f96', shirtDark: '#2f6f75', pants: '#3d4657', shoes: '#4a3428', accent: '#e0a94f', style: 1 , face: 1 , build: 1, expression: 0 },
-  { skin: '#e7b48a', skinShade: '#cf956b', hair: '#5a3a25', hairDark: '#3d2517', shirt: '#8f7cc9', shirtDark: '#6d5aa6', pants: '#4f596b', shoes: '#54443a', accent: '#f0d38a', style: 3 , face: 2 , build: 0, expression: 1 },
-  { skin: '#c98d63', skinShade: '#ad724c', hair: '#1f2933', hairDark: '#10161d', shirt: '#d97a52', shirtDark: '#b85a3a', pants: '#5b4a44', shoes: '#3b2b22', accent: '#9fd8d2', style: 0 , face: 0 , build: 2, expression: 2 },
-  { skin: '#9c6644', skinShade: '#7e4e32', hair: '#1f2933', hairDark: '#0e1318', shirt: '#5fb3c3', shirtDark: '#3f8f96', pants: '#334b52', shoes: '#2d3b36', accent: '#f3a6b8', style: 2 , face: 1 , build: 1, expression: 0 },
-  { skin: '#f7d6b8', skinShade: '#dfb894', hair: '#c08a3e', hairDark: '#94672a', shirt: '#7cbf7a', shirtDark: '#4f8b52', pants: '#46513f', shoes: '#4a3428', accent: '#e8d8b8', style: 4 , face: 0 , build: 0, expression: 1 },
-  { skin: '#d9a078', skinShade: '#bd8560', hair: '#d9c8a0', hairDark: '#b3a37c', shirt: '#b8842f', shirtDark: '#8a5a2f', pants: '#5a4b63', shoes: '#4a3428', accent: '#f6d36b', style: 5 , face: 2 , build: 2, expression: 2 },
-  { skin: '#b97c55', skinShade: '#9b6242', hair: '#3b2a24', hairDark: '#211611', shirt: '#e0a94f', shirtDark: '#b8842f', pants: '#3f4a3d', shoes: '#3b2b22', accent: '#8f7cc9', style: 1 , face: 1 , build: 1, expression: 0 },
-  { skin: '#efc39b', skinShade: '#d5a57d', hair: '#6b3f2a', hairDark: '#47271a', shirt: '#c96f58', shirtDark: '#a04f3c', pants: '#4d4f5e', shoes: '#3b2b22', accent: '#7cbf7a', style: 3 , face: 0 , build: 0, expression: 1 },
+  { skin: '#f4c9a4', skinShade: '#dfa982', hair: '#2f211b', hairDark: '#1c130f', shirt: '#3f8f96', shirtDark: '#2f6f75', pants: '#3d4657', shoes: '#4a3428', accent: '#e0a94f', style: 1 , face: 1 , build: 1, expression: 0 , pose: 0 },
+  { skin: '#e7b48a', skinShade: '#cf956b', hair: '#5a3a25', hairDark: '#3d2517', shirt: '#8f7cc9', shirtDark: '#6d5aa6', pants: '#4f596b', shoes: '#54443a', accent: '#f0d38a', style: 3 , face: 2 , build: 0, expression: 1 , pose: 1 },
+  { skin: '#c98d63', skinShade: '#ad724c', hair: '#1f2933', hairDark: '#10161d', shirt: '#d97a52', shirtDark: '#b85a3a', pants: '#5b4a44', shoes: '#3b2b22', accent: '#9fd8d2', style: 0 , face: 0 , build: 2, expression: 2 , pose: 0 },
+  { skin: '#9c6644', skinShade: '#7e4e32', hair: '#1f2933', hairDark: '#0e1318', shirt: '#5fb3c3', shirtDark: '#3f8f96', pants: '#334b52', shoes: '#2d3b36', accent: '#f3a6b8', style: 2 , face: 1 , build: 1, expression: 0 , pose: 2 },
+  { skin: '#f7d6b8', skinShade: '#dfb894', hair: '#c08a3e', hairDark: '#94672a', shirt: '#7cbf7a', shirtDark: '#4f8b52', pants: '#46513f', shoes: '#4a3428', accent: '#e8d8b8', style: 4 , face: 0 , build: 0, expression: 1 , pose: 1 },
+  { skin: '#d9a078', skinShade: '#bd8560', hair: '#d9c8a0', hairDark: '#b3a37c', shirt: '#b8842f', shirtDark: '#8a5a2f', pants: '#5a4b63', shoes: '#4a3428', accent: '#f6d36b', style: 5 , face: 2 , build: 2, expression: 2 , pose: 0 },
+  { skin: '#b97c55', skinShade: '#9b6242', hair: '#3b2a24', hairDark: '#211611', shirt: '#e0a94f', shirtDark: '#b8842f', pants: '#3f4a3d', shoes: '#3b2b22', accent: '#8f7cc9', style: 1 , face: 1 , build: 1, expression: 0 , pose: 2 },
+  { skin: '#efc39b', skinShade: '#d5a57d', hair: '#6b3f2a', hairDark: '#47271a', shirt: '#c96f58', shirtDark: '#a04f3c', pants: '#4d4f5e', shoes: '#3b2b22', accent: '#7cbf7a', style: 3 , face: 0 , build: 0, expression: 1 , pose: 1 },
 ];
 
 const ROLE_SHIRT: Record<RoleKey, string> = {
@@ -228,12 +229,13 @@ function drawArms(ctx: CanvasRenderingContext2D, l: Look, pose = 0) {
     return;
   }
 
-  // idle: hands on hips, elbows out
+  // idle variants: both hands on hips / one hip / both relaxed
   for (const [side, sx] of [[-1, 278], [1, 404]] as const) {
-    const elbowX = sx + side * 58;
-    const elbowY = 574;
-    const handX = 341 + side * 78;
-    const handY = 612;
+    const onHip = l.pose === 0 || (l.pose === 1 && side < 0);
+    const handX = onHip ? 341 + side * 78 : sx + side * 12;
+    const handY = onHip ? 612 : 652;
+    const elbowX = onHip ? sx + side * 58 : sx + side * 8;
+    const elbowY = onHip ? 574 : 586;
     limb(ctx, sx, 500, elbowX, elbowY, 46, l.shirt);
     limb(ctx, elbowX, elbowY, handX, handY, 36, l.shirt);
     path(ctx, () => { ctx.ellipse(handX, handY - 4, 25, 12, 0.2 * side, 0, Math.PI * 2); }, l.accent);
