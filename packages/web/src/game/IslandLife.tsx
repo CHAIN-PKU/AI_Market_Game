@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { CatmullRomCurve3, Shape, ShapeGeometry, TubeGeometry, Vector3, type Group } from 'three';
+import { BufferGeometry, CatmullRomCurve3, Float32BufferAttribute, TubeGeometry, Vector3, type Group } from 'three';
 import { ISLAND } from '../visual-lab/islandLayout';
 
 const SAND = '#e8d3a8';
@@ -12,42 +12,36 @@ const WOOD_DARK = '#5e3d24';
 const LEAF = '#4f9b57';
 const LEAF_LIGHT = '#72b86a';
 
-function makeCoastShape(segments = 96) {
-  const shape = new Shape();
-  for (let i = 0; i <= segments; i += 1) {
-    const a = (i / segments) * Math.PI * 2;
-    const radius =
-      ISLAND.grassRadius +
-      Math.sin(a * 3 + 0.4) * 0.85 +
-      Math.sin(a * 5 - 1.2) * 0.5 +
-      Math.sin(a * 7 + 2.1) * 0.25;
-    const x = Math.cos(a) * radius;
-    const y = Math.sin(a) * radius;
-    if (i === 0) shape.moveTo(x, y);
-    else shape.lineTo(x, y);
-  }
-  shape.closePath();
-  return shape;
+function coastRadius(a: number) {
+  return (
+    ISLAND.grassRadius +
+    Math.sin(a * 3 + 0.4) * 0.85 +
+    Math.sin(a * 5 - 1.2) * 0.5 +
+    Math.sin(a * 7 + 2.1) * 0.25
+  );
 }
 
-function makeBeachShape(segments = 96) {
-  const shape = new Shape();
-  for (let i = 0; i <= segments; i += 1) {
+function makeBeachBandGeometry(innerExtra = 0, outerExtra = 2.4, segments = 96) {
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+  for (let i = 0; i < segments; i += 1) {
     const a = (i / segments) * Math.PI * 2;
-    const radius =
-      ISLAND.grassRadius +
-      2.2 +
-      Math.sin(a * 3 + 0.4) * 0.85 +
-      Math.sin(a * 5 - 1.2) * 0.5 +
-      Math.sin(a * 7 + 2.1) * 0.25;
-    const x = Math.cos(a) * radius;
-    const y = Math.sin(a) * radius;
-    if (i === 0) shape.moveTo(x, y);
-    else shape.lineTo(x, y);
+    const r0 = coastRadius(a) + innerExtra;
+    const r1 = coastRadius(a) + outerExtra;
+    positions.push(Math.cos(a) * r0, 0, Math.sin(a) * r0);
+    positions.push(Math.cos(a) * r1, 0, Math.sin(a) * r1);
+    uvs.push(0, i / segments, 1, i / segments);
+    const n = (i + 1) % segments;
+    const b = n * 2;
+    indices.push(i * 2, i * 2 + 1, b, b, i * 2 + 1, b + 1);
   }
-  shape.closePath();
-  shape.holes.push(makeCoastShape(segments));
-  return shape;
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(positions, 3));
+  geo.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  return geo;
 }
 
 function Box({ size, position, color, rotation }: { size: [number, number, number]; position: [number, number, number]; color: string; rotation?: [number, number, number] }) {
@@ -473,7 +467,7 @@ function DistantIsland({ x, z, scale = 1 }: { x: number; z: number; scale?: numb
 }
 
 export function IslandLife() {
-  const beachGeo = useMemo(() => new ShapeGeometry(makeBeachShape()), []);
+  const beachGeo = useMemo(() => makeBeachBandGeometry(0, 2.4), []);
   const rocks = useMemo(
     () => [
       [11.3, 2.1, 0.95, 0.6], [10.9, -6.2, 0.7, 0.8], [8.4, 9.4, 1.0, 0.5],
@@ -484,17 +478,12 @@ export function IslandLife() {
   );
   return (
     <group>
-      <mesh geometry={beachGeo} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.009, 0]} receiveShadow>
-        <meshStandardMaterial color={SAND} roughness={1} />
+      {/* wide sand band follows the irregular coast */}
+      <mesh geometry={beachGeo} position={[0, 0.035, 0]} receiveShadow>
+        <meshStandardMaterial color="#f0d7a4" roughness={1} side={2} />
       </mesh>
-      {/* explicit wide beach band: visible above grass at the shore */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]} receiveShadow>
-        <ringGeometry args={[11.35, 13.7, 96]} />
-        <meshStandardMaterial color="#f0d7a4" roughness={1} />
-      </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
-        <ringGeometry args={[13.05, 13.7, 96]} />
-        <meshStandardMaterial color="#d9b982" roughness={0.8} transparent opacity={0.85} />
+      <mesh geometry={makeBeachBandGeometry(1.8, 2.4)} position={[0, 0.04, 0]} receiveShadow>
+        <meshStandardMaterial color="#d9b982" roughness={0.8} transparent opacity={0.85} side={2} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]} receiveShadow>
         <ringGeometry args={[ISLAND.grassRadius + 0.9, ISLAND.grassRadius + 2.2, 80]} />
