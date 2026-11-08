@@ -62,6 +62,12 @@ function Window({
       <Box size={[0.03, 0.32, 0.045]} position={[0, 0, 0.05]} color="#fbf5e8" />
       <Box size={[0.34, 0.03, 0.045]} position={[0, 0, 0.05]} color="#fbf5e8" />
       <Box size={[0.5, 0.05, 0.07]} position={[0, -0.24, 0]} color={trim} />
+      {[-0.27, 0.27].map((x) => (
+        <mesh key={x} castShadow position={[x, 0, 0.02]}>
+          <boxGeometry args={[0.1, 0.4, 0.035]} />
+          <meshStandardMaterial color={trim} roughness={0.82} />
+        </mesh>
+      ))}
       {withFlowers && (
         <group position={[0, -0.2, 0.09]}>
           {[-0.15, 0, 0.15].map((x, i) => (
@@ -132,6 +138,12 @@ export function CozyBuilding({ role, height, width }: { role: BuildingRole; heig
         <sphereGeometry args={[0.035, 6, 4]} />
         <meshStandardMaterial color="#e0a94f" metalness={0.5} roughness={0.3} />
       </mesh>
+      <Box size={[0.82, 0.11, 0.34]} position={[0, 0.12, frontZ + 0.18]} color="#c9bda8" />
+      <mesh position={[0, base + 1.28, frontZ + 0.12]}>
+        <boxGeometry args={[0.14, 0.2, 0.14]} />
+        <meshStandardMaterial color="#ffd98a" emissive="#e0a94f" emissiveIntensity={0.8} roughness={0.4} />
+      </mesh>
+      <Box size={[0.2, 0.06, 0.2]} position={[0, base + 1.4, frontZ + 0.12]} color={s.trim} />
       {/* awning */}
       <group position={[0, base + 0.92, frontZ + 0.15]} rotation={[0.22, 0, 0]}>
         {[-0.42, -0.14, 0.14, 0.42].map((x, i) => (
@@ -238,6 +250,32 @@ export function CozyBuilding({ role, height, width }: { role: BuildingRole; heig
           </mesh>
         </group>
       )}
+      {/* eave trim */}
+      {[-1, 1].map((side) => (
+        <Box
+          key={`eave-${side}`}
+          size={[w + 0.68, 0.08, 0.12]}
+          position={[0, wallTop + 0.02, side * halfD]}
+          color={s.trim}
+          rotation={[side * angle, 0, 0]}
+        />
+      ))}
+      {/* path stones */}
+      {[0, 1, 2, 3].map((i) => (
+        <mesh key={`path-${i}`} position={[0, 0.018, frontZ + 0.52 + i * 0.38]} rotation={[-Math.PI / 2, 0, i * 0.2]} receiveShadow>
+          <circleGeometry args={[0.24 - i * 0.018, 7]} />
+          <meshStandardMaterial color={i % 2 === 0 ? '#d3c6b0' : '#c9bda8'} roughness={0.95} />
+        </mesh>
+      ))}
+      {/* ridge finial */}
+      <mesh position={[0, peak + 0.2, 0]} castShadow>
+        <cylinderGeometry args={[0.018, 0.03, 0.35, 5]} />
+        <meshStandardMaterial color={s.trim} roughness={0.7} />
+      </mesh>
+      <mesh position={[0, peak + 0.38, 0]} castShadow>
+        <sphereGeometry args={[0.07, 8, 6]} />
+        <meshStandardMaterial color={s.roofAlt} roughness={0.4} metalness={0.2} />
+      </mesh>
       {/* chimney + smoke */}
       <Box size={[0.2, 0.5, 0.2]} position={[w * 0.25, peak - 0.08, -d * 0.22]} color="#b98d60" />
       {[0, 1, 2].map((i) => (
