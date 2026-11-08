@@ -4869,3 +4869,46 @@
   color: #2f6f75;
   text-align: right;
 }
+
+/* 矮屏（1366×768 这类）：改规则面板要保证底部按钮不被裁掉 */
+@media (max-height: 820px) {
+  .g-lab {
+    max-height: 94vh;
+    padding: 14px 16px 12px;
+    border-radius: 16px;
+  }
+
+  .g-lab h2 {
+    font-size: 18px;
+  }
+
+  .g-rules-scenario {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .g-rule-preview {
+    margin: 0 0 8px;
+    padding: 8px 10px;
+    gap: 2px;
+  }
+
+  .g-rule-preview div {
+    font-size: 11px;
+  }
+
+  .g-rule-field {
+    margin-bottom: 6px;
+  }
+
+  .g-rule-field small {
+    display: none; /* 空间不够时先收起解释句，保留滑块与后果预览 */
+  }
+
+  .g-rules-foot {
+    position: sticky;
+    bottom: 0;
+    background: var(--surface-base);
+    padding-top: 8px;
+  }
+}
