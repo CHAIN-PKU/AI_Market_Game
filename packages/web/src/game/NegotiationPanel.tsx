@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { buildNegotiation, type NegotiationKind } from './negotiation';
 import type { BidDemoFixture } from './types';
 
@@ -23,6 +23,7 @@ const KIND_CLASS: Record<NegotiationKind, string> = {
 export function NegotiationPanel({ fixture, onClose }: { fixture: BidDemoFixture; onClose: () => void }) {
   const lines = useMemo(() => buildNegotiation(fixture), [fixture]);
   const [visible, setVisible] = useState(1);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setVisible(1);
@@ -38,6 +39,11 @@ export function NegotiationPanel({ fixture, onClose }: { fixture: BidDemoFixture
     }, 520);
     return () => window.clearInterval(timer);
   }, [lines]);
+
+  useEffect(() => {
+    const el = listRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [visible]);
 
   return (
     <div className="g-nego-backdrop" onClick={onClose} role="presentation">
@@ -61,7 +67,7 @@ export function NegotiationPanel({ fixture, onClose }: { fixture: BidDemoFixture
           ))}
         </div>
 
-        <div className="g-nego-list">
+        <div className="g-nego-list" ref={listRef}>
           {lines.slice(0, visible).map((line) => (
             <article key={line.id} className={`g-nego-line ${KIND_CLASS[line.kind]}`}>
               <div className="g-nego-avatar">{line.speaker.slice(0, 1)}</div>

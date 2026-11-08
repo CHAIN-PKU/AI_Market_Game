@@ -168,6 +168,20 @@ export function buildNegotiation(fixture: BidDemoFixture): NegotiationLine[] {
         '举报 · 声誉下降',
         clamp(trustOf(counterpart ?? defector) - 0.15),
       );
+      push(
+        counterpart,
+        'promise',
+        `再合作可以，但条件变了：先押 20 定金，税后 60/40；这轮交付干净，才考虑下一轮恢复 70/30。再拆台就永久拉黑。`,
+        '信任恢复条款 · 1 轮观察期',
+        clamp(trustOf(counterpart ?? defector) - 0.05),
+      );
+      push(
+        defector,
+        'promise',
+        `接受。先押 20，这轮交付后你再决定下一轮给不给我 70/30。`,
+        '接受观察期',
+        clamp(trustOf(defector) + 0.06),
+      );
     }
   }
 
