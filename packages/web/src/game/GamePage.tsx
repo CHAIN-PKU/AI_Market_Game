@@ -466,7 +466,7 @@ export function GamePage() {
                 toneMapping: NeutralToneMapping,
                 toneMappingExposure: 1.0,
               }}
-              camera={{ position: [0, 15.4, 20.8], fov: 40, near: 0.1, far: 140 }}
+              camera={{ position: [0, 17.2, 23.8], fov: 38, near: 0.1, far: 140 }}
               onPointerMissed={() => setSelectedId(null)}
             >
               <Suspense fallback={<SceneLoading />}>

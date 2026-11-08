@@ -36,9 +36,9 @@ function CameraRig({
   useFrame((_, dt) => {
     const aspect = size.width / Math.max(1, size.height);
     const pull = Math.max(1, 1.14 / aspect);
-    const targetPos = new Vector3(0, 15.4 * pull, 20.8 * pull);
+    const targetPos = new Vector3(0, 17.2 * pull, 23.8 * pull);
     const targetLook = new Vector3(0, 1, 0);
-    let targetFov = 40;
+    let targetFov = 38;
 
     if (closeUp && focusSlot) {
       const p = new Vector3(focusSlot[0] * 0.72, 0, focusSlot[2] * 0.72);
