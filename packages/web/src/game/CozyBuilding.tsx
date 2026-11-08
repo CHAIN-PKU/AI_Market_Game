@@ -55,7 +55,10 @@ function Window({
   return (
     <group position={position} rotation={rotation}>
       <Box size={[0.44, 0.42, 0.05]} position={[0, 0, 0]} color="#fbf5e8" />
-      <Box size={[0.34, 0.32, 0.035]} position={[0, 0, 0.03]} color="#9fd8d2" roughness={0.3} />
+      <mesh position={[0, 0, 0.03]}>
+        <boxGeometry args={[0.34, 0.32, 0.035]} />
+        <meshStandardMaterial color="#a9e4dc" emissive="#7fb9a8" emissiveIntensity={0.22} roughness={0.22} metalness={0.08} />
+      </mesh>
       <Box size={[0.03, 0.32, 0.045]} position={[0, 0, 0.05]} color="#fbf5e8" />
       <Box size={[0.34, 0.03, 0.045]} position={[0, 0, 0.05]} color="#fbf5e8" />
       <Box size={[0.5, 0.05, 0.07]} position={[0, -0.24, 0]} color={trim} />

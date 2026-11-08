@@ -3744,3 +3744,7 @@
   opacity: 0.96;
   z-index: 2;
 }
+
+.g-canvas-wrap canvas {
+  filter: saturate(1.06) contrast(1.025);
+}

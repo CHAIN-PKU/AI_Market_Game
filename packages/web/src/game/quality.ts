@@ -13,7 +13,7 @@ export type QualityConfig = {
 export const QUALITY: Record<Quality, QualityConfig> = {
   high: {
     label: '高',
-    dpr: [2, 2.5],
+    dpr: [2.5, 3],
     shadowMap: 4096,
     softShadows: true,
     contactShadows: true,
