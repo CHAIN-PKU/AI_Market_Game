@@ -32,8 +32,17 @@ export function IslandBase() {
   const soilGeo = useMemo(() => new ExtrudeGeometry(coast, { depth: ISLAND.grassHeight, bevelEnabled: false, steps: 1 }), [coast]);
   const ringA = useRef<Mesh>(null);
   const ringB = useRef<Mesh>(null);
+  const waveA = useRef<Mesh>(null);
+  const waveB = useRef<Mesh>(null);
+  const waveC = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
+    for (const [ref, offset, speed] of [[waveA, 0.3, 0.55], [waveB, 1.7, 0.42], [waveC, 3.1, 0.32]] as const) {
+      if (!ref.current) continue;
+      const k = ((t * speed + offset) % 3.2) / 3.2;
+      ref.current.scale.setScalar(1 + k * 0.035);
+      (ref.current.material as MeshBasicMaterial).opacity = 0.22 * (1 - k);
+    }
     for (const [ref, offset] of [[ringA, 0], [ringB, 2.4]] as const) {
       if (!ref.current) continue;
       const k = ((t + offset) % 4.8) / 4.8;
@@ -93,6 +102,17 @@ export function IslandBase() {
         <ringGeometry args={[ISLAND.grassRadius + 0.15, ISLAND.grassRadius + 0.85, 80]} />
         <meshBasicMaterial color="#eaf7f2" transparent opacity={0.18} depthWrite={false} />
       </mesh>
+      {/* shallow lagoon + soft open-water wave bands */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, ISLAND.waterY + 0.008, 0]}>
+        <ringGeometry args={[13.5, 18, 96]} />
+        <meshStandardMaterial color="#8bd8d6" transparent opacity={0.45} roughness={0.25} metalness={0.08} depthWrite={false} />
+      </mesh>
+      {[waveA, waveB, waveC].map((ref, i) => (
+        <mesh key={i} ref={ref} rotation={[-Math.PI / 2, 0, 0]} position={[0, ISLAND.waterY + 0.018, 0]}>
+          <ringGeometry args={[14.4 + i * 1.3, 14.55 + i * 1.3, 96]} />
+          <meshBasicMaterial color="#eafff9" transparent opacity={0.2} depthWrite={false} />
+        </mesh>
+      ))}
     </group>
   );
 }
