@@ -130,6 +130,27 @@ export type BidDemoFixture = {
     treasuryStart: number;
     treasuryAfter: number;
   };
+  /** A 模式：引擎真跑的一轮双文明同场抢单，见 scripts/add-a-mode-demo.mjs */
+  aMode?: {
+    generatedBy: string;
+    seed: number;
+    round: number;
+    civilizations: { id: string; name: string; rules: string; taxRate: number; treasury: number; agents: number }[];
+    tasksPlayed: number;
+    bidsByCiv: { civId: string; name: string; bids: number }[];
+    winners: {
+      taskId: string;
+      title: string;
+      reward: number;
+      winnerAgentId: string | null;
+      winnerName: string | null;
+      winnerCivId: string | null;
+      winningBid: number | null;
+      status: string;
+    }[];
+    wonByRival: number;
+    wonByHome: number;
+  };
   /** 对手文明（多人对抗的第一块地基）：数据由引擎跑出，见 scripts/add-rival-demo.mjs */
   rival?: {
     id: string;

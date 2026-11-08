@@ -10,6 +10,7 @@ import { Guide } from './Guide';
 import { CastPanel } from './CastPanel';
 import { NegotiationPanel } from './NegotiationPanel';
 import { EvolutionPanel } from './EvolutionPanel';
+import { AModePanel } from './AModePanel';
 import { StoryOverlay } from './StoryOverlay';
 import { BARGAIN_LENGTH } from './bargainScript';
 import { InstitutionPanel, summarizeRun } from './InstitutionPanel';
@@ -144,6 +145,7 @@ export function GamePage() {
   const [showCast, setShowCast] = useState(false);
   const [showNegotiation, setShowNegotiation] = useState(false);
   const [showEvolution, setShowEvolution] = useState(false);
+  const [showAMode, setShowAMode] = useState(false);
   const [theaterT, setTheaterT] = useState<number | null>(null);
 
   // Theater playback: drives the speech bubbles above each resident's head.
@@ -599,6 +601,17 @@ export function GamePage() {
       </div>
 
       {showEvolution && <EvolutionPanel fixture={fixture} onClose={() => setShowEvolution(false)} />}
+
+      <button
+        type="button"
+        className="g-dock-btn g-dock-btn--accent"
+        onClick={() => { setShowAMode(true); setTheaterT(null); }}
+      >
+        <span>A 模式</span>
+        <em>两岛同场</em>
+      </button>
+
+      {showAMode && <AModePanel fixture={fixture} onClose={() => setShowAMode(false)} />}
 
       {showCast && (
         <CastPanel fixture={fixture} onClose={() => setShowCast(false)} onSelect={setSelectedId} />
