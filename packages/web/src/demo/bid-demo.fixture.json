@@ -4700,7 +4700,7 @@
     "winners": [
       {
         "taskId": "task-r2-1",
-        "title": "Prototype material (Research)",
+        "title": "做一个材料原型 (做研究)",
         "reward": 147,
         "winnerAgentId": "civ-a-agent-7",
         "winnerName": "Helix",
@@ -4710,7 +4710,7 @@
       },
       {
         "taskId": "task-r2-2",
-        "title": "Icon set refresh (Design)",
+        "title": "重做一套图标 (做设计)",
         "reward": 166,
         "winnerAgentId": "civ-b-agent-5",
         "winnerName": "Jade",
@@ -4720,7 +4720,7 @@
       },
       {
         "taskId": "task-r2-4",
-        "title": "Build landing page (Coding)",
+        "title": "做一个落地页 (写程序)",
         "reward": 158,
         "winnerAgentId": "civ-a-agent-3",
         "winnerName": "Delta",
@@ -4730,7 +4730,7 @@
       },
       {
         "taskId": "task-r2-5",
-        "title": "Prototype material (Research)",
+        "title": "做一个材料原型 (做研究)",
         "reward": 144,
         "winnerAgentId": "civ-b-agent-7",
         "winnerName": "Lumen",
@@ -4740,7 +4740,7 @@
       },
       {
         "taskId": "task-r2-6",
-        "title": "Fix API module (Coding)",
+        "title": "修一个接口模块 (写程序)",
         "reward": 136,
         "winnerAgentId": "civ-b-agent-3",
         "winnerName": "Helix",
