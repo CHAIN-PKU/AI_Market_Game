@@ -119,6 +119,12 @@ type RoundHistory = {
   walletAfter: number | null;
   incomes: { name: string; net: number }[];
   treasuryAfter: number;
+  teams?: number;
+  rings?: number;
+  reports?: number;
+  defections?: number;
+  bids?: number;
+  spread?: number;
 };
 type CampaignRecord = { campaign: BidDemoCampaign; fixture: DemoFixture; history: RoundHistory[] };
 
@@ -152,6 +158,14 @@ function summarizeFixture(fixture: DemoFixture): RoundHistory {
     walletAfter: fixture.settlement?.walletAfter ?? null,
     incomes,
     treasuryAfter: fixture.civilization.treasuryAfter,
+    teams: fixture.bids.filter((b) => (b.teamAgentIds?.length ?? 0) > 1).length,
+    rings: fixture.bids.filter((b) => (b.ringAgentIds?.length ?? 0) > 1).length,
+    reports: fixture.rawEvents.filter((e) => e.kind === 'ring_reported').length,
+    defections: fixture.rawEvents.filter((e) => e.kind === 'ring_defected').length,
+    bids: fixture.bids.length,
+    spread: fixture.bids.length
+      ? Math.max(...fixture.bids.map((b) => b.bidAmount)) - Math.min(...fixture.bids.map((b) => b.bidAmount))
+      : 0,
   };
 }
 

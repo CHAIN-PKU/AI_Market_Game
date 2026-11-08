@@ -211,6 +211,12 @@ export type RoundHistory = {
   walletAfter?: number | null;
   incomes?: { name: string; net: number }[];
   treasuryAfter: number;
+  teams?: number;
+  rings?: number;
+  reports?: number;
+  defections?: number;
+  bids?: number;
+  spread?: number;
 };
 
 export type RuleCompare = {

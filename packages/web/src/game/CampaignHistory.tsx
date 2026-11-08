@@ -41,6 +41,12 @@ export function CampaignHistory({
     if (r.winner) winnerCounts.set(r.winner, (winnerCounts.get(r.winner) ?? 0) + 1);
   }
   const skillCount = history.filter((r) => r.skill).length;
+  const totalTeams = history.reduce((sum, r) => sum + (r.teams ?? 0), 0);
+  const totalRings = history.reduce((sum, r) => sum + (r.rings ?? 0), 0);
+  const totalReports = history.reduce((sum, r) => sum + (r.reports ?? 0), 0);
+  const avgBids = history.length
+    ? Math.round((history.reduce((sum, r) => sum + (r.bids ?? 0), 0) / history.length) * 10) / 10
+    : 0;
   const maxGain = history.reduce((max, r) => {
     if (r.abilityBefore == null || r.abilityAfter == null) return max;
     return Math.max(max, r.abilityAfter - r.abilityBefore);
@@ -96,6 +102,15 @@ export function CampaignHistory({
           </span>
           <span>
             国库 <b>{lastTreasury === null ? '—' : gold(lastTreasury)}</b>
+          </span>
+          <span>
+            组队 <b>{totalTeams}</b> 次
+          </span>
+          <span>
+            串标 / 举报 <b>{totalRings} / {totalReports}</b>
+          </span>
+          <span>
+            平均报价 <b>{avgBids}</b> 人
           </span>
         </div>
 
