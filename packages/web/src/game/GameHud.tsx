@@ -488,11 +488,15 @@ export function LeftPanel({
                 {fixture.bids.length} 人报价 · {passers.length} 人不接
               </em>
             </div>
-            {fixture.bids.map((bid) => {
+            {fixture.bids.map((bid, bidIndex) => {
               const agent = fixture.agents.find((a) => a.id === bid.agentId)!;
               const isWinner = derived.assigned && bid.agentId === derived.winnerId;
               return (
-                <div key={`${bid.agentId}-${bid.bidAmount}-${bid.teamAgentIds?.[1] ?? ""}-${bid.ringDefected ? "d" : ""}`} className={isWinner ? 'g-bid is-winner' : 'g-bid'}>
+                <div
+                  key={`${bid.agentId}-${bid.bidAmount}-${bid.teamAgentIds?.[1] ?? ""}-${bid.ringDefected ? "d" : ""}`}
+                  className={`g-bid g-bid--staggered${isWinner ? ' is-winner' : ''}`}
+                  style={{ animationDelay: `${bidIndex * 90}ms` }}
+                >
                   <span className={`g-avatar g-avatar--${ROLE_KEY[agent.role]}`}>{roleIcon(agent)}</span>
                   <span className="g-bid-name">
                     {bid.displayName}

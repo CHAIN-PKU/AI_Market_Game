@@ -10,9 +10,9 @@ import { MIXAMO_AVATARS } from './avatarAssets';
 export type AgentVisualState = 'idle' | 'watching' | 'bidding' | 'selected' | 'working' | 'done' | 'shopping';
 const STATE_LABEL: Record<AgentVisualState, string> = { idle: '待机', watching: '观望', bidding: '竞标中', selected: '已中标', working: '工作中', done: '已完成', shopping: '去技能铺' };
 
-type Props = { agent: DemoAgent; index: number; start: [number, number, number]; target: [number, number, number]; state: AgentVisualState; selected: boolean; focused?: boolean; outline?: boolean; onSelect: (id: string) => void; chatSay?: string | null; chatThink?: string | null; chatLift?: number };
+type Props = { agent: DemoAgent; index: number; start: [number, number, number]; target: [number, number, number]; state: AgentVisualState; selected: boolean; focused?: boolean; outline?: boolean; onSelect: (id: string) => void; chatSay?: string | null; chatThink?: string | null; chatLift?: number; winner?: boolean };
 
-export function GameAgent({ agent, index, start, target, state, selected, focused = false, onSelect, chatSay = null, chatThink = null, chatLift = 0 }: Props) {
+export function GameAgent({ agent, index, start, target, state, selected, focused = false, onSelect, chatSay = null, chatThink = null, chatLift = 0, winner = false }: Props) {
   const gltf = useGLTF(MIXAMO_AVATARS[index % MIXAMO_AVATARS.length]!.url);
   const dims = useMemo(() => {
     const box = new Box3().setFromObject(gltf.scene);
@@ -195,6 +195,18 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
       <primitive object={clone} scale={dims.scale} position={[0, -dims.minY * dims.scale, 0]} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.018, 0]}><circleGeometry args={[0.3, 24]} /><meshBasicMaterial color="#3b3024" transparent opacity={0.2} depthWrite={false} /></mesh>
       {selected && <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]}><ringGeometry args={[0.5, 0.66, 40]} /><meshBasicMaterial color="#2f6f75" transparent opacity={0.9} /></mesh>}
+      {/* 中标：金色光环 + 头顶徽章，让"谁赢了"一眼可见 */}
+      {winner && (
+        <>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
+            <ringGeometry args={[0.62, 0.82, 44]} />
+            <meshBasicMaterial color="#e0a94f" transparent opacity={0.92} />
+          </mesh>
+          <Html center position={[0, badgeY + 0.34, 0]} zIndexRange={[32, 10]} style={{ pointerEvents: 'none' }}>
+            <div className="ga-winner-chip">中标</div>
+          </Html>
+        </>
+      )}
       <Html center position={[0, badgeY, 0]} zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
         <div className={`ga-badge ga-role-${roleKey} ${selected ? 'is-selected' : ''} ${state !== 'idle' ? 'is-active' : ''}`}>
           <RoleIcon role={roleKey} size={11} /><span className="ga-badge-name">{agent.displayName}</span>
