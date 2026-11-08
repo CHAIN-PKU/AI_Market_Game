@@ -190,21 +190,36 @@ function drawBody(ctx: CanvasRenderingContext2D, l: Look, role: RoleKey) {
 }
 
 function drawArms(ctx: CanvasRenderingContext2D, l: Look, pose = 0) {
-  const swing = pose ? 13 : 0;
-  // sleeves
-  limb(ctx, 278, 500, 238 + swing, 636 - swing, 46, l.shirt);
-  limb(ctx, 404, 500, 444 - swing, 636 + swing, 46, l.shirt);
-  // cuffs
-  path(ctx, () => { ctx.ellipse(238 + swing, 630 - swing, 25, 18, 0, 0, Math.PI * 2); }, l.accent);
-  path(ctx, () => { ctx.ellipse(444 - swing, 630 + swing, 25, 18, 0, 0, Math.PI * 2); }, l.accent);
-  // hands
-  path(ctx, () => { ctx.ellipse(238 + swing, 660 - swing, 29, 34, -0.08, 0, Math.PI * 2); }, l.skin);
-  path(ctx, () => { ctx.ellipse(444 - swing, 660 + swing, 29, 34, 0.08, 0, Math.PI * 2); }, l.skin);
-  // thumb + cuff
-  path(ctx, () => { ctx.ellipse(218 + swing, 650 - swing, 10, 17, -0.45, 0, Math.PI * 2); }, l.skin);
-  path(ctx, () => { ctx.ellipse(464 - swing, 650 + swing, 10, 17, 0.45, 0, Math.PI * 2); }, l.skin);
-  path(ctx, () => { ctx.ellipse(238 + swing, 630 - swing, 23, 11, 0, 0, Math.PI * 2); }, l.accent);
-  path(ctx, () => { ctx.ellipse(444 - swing, 630 + swing, 23, 11, 0, 0, Math.PI * 2); }, l.accent);
+  if (pose) {
+    const swing = 13;
+    // walking: upper arm and forearm swing in opposite directions
+    for (const [side, sx] of [[-1, 278], [1, 404]] as const) {
+      const shoulderX = sx;
+      const elbowX = sx + side * 32 - side * swing * 0.45;
+      const elbowY = 576;
+      const handX = sx + side * 20 + side * swing;
+      const handY = 646 - side * swing;
+      limb(ctx, shoulderX, 500, elbowX, elbowY, 44, l.shirt);
+      limb(ctx, elbowX, elbowY, handX, handY, 34, l.shirt);
+      path(ctx, () => { ctx.ellipse(handX, handY + 10, 22, 12, 0, 0, Math.PI * 2); }, l.accent);
+      path(ctx, () => { ctx.ellipse(handX, handY + 26, 25, 31, 0.08 * side, 0, Math.PI * 2); }, l.skin);
+      path(ctx, () => { ctx.ellipse(handX + 16 * side, handY + 18, 8, 15, 0.45 * side, 0, Math.PI * 2); }, l.skin);
+    }
+    return;
+  }
+
+  // idle: hands on hips, elbows out
+  for (const [side, sx] of [[-1, 278], [1, 404]] as const) {
+    const elbowX = sx + side * 58;
+    const elbowY = 574;
+    const handX = 341 + side * 78;
+    const handY = 612;
+    limb(ctx, sx, 500, elbowX, elbowY, 46, l.shirt);
+    limb(ctx, elbowX, elbowY, handX, handY, 36, l.shirt);
+    path(ctx, () => { ctx.ellipse(handX, handY - 4, 25, 12, 0.2 * side, 0, Math.PI * 2); }, l.accent);
+    path(ctx, () => { ctx.ellipse(handX, handY + 12, 27, 30, 0.15 * side, 0, Math.PI * 2); }, l.skin);
+    path(ctx, () => { ctx.ellipse(handX - 18 * side, handY + 4, 8, 16, 0.5 * side, 0, Math.PI * 2); }, l.skin);
+  }
 }
 
 function drawHairBack(ctx: CanvasRenderingContext2D, l: Look) {
@@ -375,6 +390,18 @@ function drawFace(ctx: CanvasRenderingContext2D, l: Look, role: RoleKey) {
     ctx.moveTo(x + flip * 28, eyeY - 18);
     ctx.quadraticCurveTo(x + flip * 42, eyeY - 26, x + flip * 48, eyeY - 36);
     ctx.lineWidth = 5;
+    ctx.stroke();
+    // eyelid crease
+    ctx.beginPath();
+    ctx.arc(x, eyeY - 2, 38, Math.PI * 1.08, Math.PI * 1.55);
+    ctx.strokeStyle = 'rgba(90, 55, 40, 0.38)';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    // lower lash
+    ctx.beginPath();
+    ctx.arc(x, eyeY + 4, 34, Math.PI * 0.12, Math.PI * 0.42);
+    ctx.strokeStyle = 'rgba(60, 38, 30, 0.45)';
+    ctx.lineWidth = 2.5;
     ctx.stroke();
     // brow
     ctx.beginPath();
