@@ -144,6 +144,7 @@ function ChimneySmoke({ x, y, z }: { x: number; y: number; z: number }) {
 
 export function CozyBuilding({ role, height, width }: { role: BuildingRole; height: number; width: number }) {
   const s = STYLE[role];
+  const flatRoof = role === 'coding';
   const signTexture = useMemo(() => makeSignTexture(role), [role]);
   const w = width;
   const d = width * 0.68;
@@ -224,6 +225,8 @@ export function CozyBuilding({ role, height, width }: { role: BuildingRole; heig
         <planeGeometry args={[0.62, 0.115]} />
         <meshBasicMaterial map={signTexture} transparent />
       </mesh>
+      {!flatRoof && (
+        <>
       {/* gable ends */}
       <mesh geometry={gable}>
         <meshStandardMaterial color={s.wall} roughness={0.95} side={DoubleSide} />
@@ -257,8 +260,25 @@ export function CozyBuilding({ role, height, width }: { role: BuildingRole; heig
       ))}
       {/* ridge */}
       <Box size={[w + 0.6, 0.09, 0.12]} position={[0, peak + 0.03, 0]} color={s.roofAlt} />
+        </>
+      )}
+      {flatRoof && (
+        <group>
+          <Box size={[w + 0.26, 0.14, d + 0.26]} position={[0, wallTop + 0.07, 0]} color={s.roof} />
+          {[
+            [-w / 2 - 0.05, 0, d / 2 + 0.05], [w / 2 + 0.05, 0, d / 2 + 0.05],
+            [-w / 2 - 0.05, 0, -d / 2 - 0.05], [w / 2 + 0.05, 0, -d / 2 - 0.05],
+          ].map(([x, , z], i) => (
+            <Box key={i} size={[0.1, 0.42, 0.1]} position={[x, wallTop + 0.28, z]} color={s.trim} />
+          ))}
+          <Box size={[w + 0.3, 0.1, 0.1]} position={[0, wallTop + 0.46, d / 2 + 0.05]} color={s.trim} />
+          <Box size={[w + 0.3, 0.1, 0.1]} position={[0, wallTop + 0.46, -d / 2 - 0.05]} color={s.trim} />
+          <Box size={[0.7, 0.35, 0.6]} position={[0.45, wallTop + 0.25, -0.35]} color="#59645f" />
+          <Box size={[0.55, 0.3, 0.45]} position={[-0.45, wallTop + 0.22, -0.2]} color="#6f7d76" />
+        </group>
+      )}
       {/* role toppers */}
-      {role === 'coding' && (
+      {role === 'coding' && !flatRoof && (
         <group position={[0, peak + 0.1, 0]}>
           <mesh position={[0, 0.3, 0]} castShadow>
             <cylinderGeometry args={[0.018, 0.028, 0.6, 5]} />
@@ -315,7 +335,7 @@ export function CozyBuilding({ role, height, width }: { role: BuildingRole; heig
         </group>
       )}
       {/* eave trim */}
-      {[-1, 1].map((side) => (
+      {!flatRoof && [-1, 1].map((side) => (
         <Box
           key={`eave-${side}`}
           size={[w + 0.68, 0.08, 0.12]}
@@ -341,8 +361,12 @@ export function CozyBuilding({ role, height, width }: { role: BuildingRole; heig
         <meshStandardMaterial color={s.roofAlt} roughness={0.4} metalness={0.2} />
       </mesh>
       {/* chimney + smoke */}
-      <Box size={[0.2, 0.5, 0.2]} position={[w * 0.25, peak - 0.08, -d * 0.22]} color="#b98d60" />
-      <ChimneySmoke x={w * 0.25} y={peak + 0.18} z={-d * 0.22} />
+      {!flatRoof && (
+        <>
+          <Box size={[0.2, 0.5, 0.2]} position={[w * 0.25, peak - 0.08, -d * 0.22]} color="#b98d60" />
+          <ChimneySmoke x={w * 0.25} y={peak + 0.18} z={-d * 0.22} />
+        </>
+      )}
     </group>
   );
 }
