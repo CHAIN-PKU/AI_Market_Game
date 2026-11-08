@@ -90,7 +90,7 @@ function building(
 
 /** Seven building slots on a ring (radius ≈ 9) around the central plaza. */
 export const BUILDING_SLOTS: BuildingSlot[] = [
-  building('b-market', 'market', '市集广场', 0, -9.0),
+  building('b-market', 'market', '市集广场', -3.7, -8.6),
   building('b-skill', 'skill', '技能铺', -7.3, -5.2),
   building('b-code', 'coding', '程序坊', 7.3, -5.2),
   building('b-research', 'research', '研究所', -9.1, 1.6),

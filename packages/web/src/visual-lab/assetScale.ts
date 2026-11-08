@@ -13,13 +13,13 @@ export const WORLD = {
   agentHeight: 1.68,
   /** Target height per building role (market stays low & wide, R&D is taller). */
   buildingByRole: {
-    market: 2.7,
-    skill: 2.5,
-    coding: 2.9,
-    research: 3.1,
-    design: 2.6,
-    'public-rd': 3.2,
-    homes: 2.4,
+    market: 2.4,
+    skill: 2.35,
+    coding: 2.6,
+    research: 2.8,
+    design: 2.4,
+    'public-rd': 2.7,
+    homes: 2.3,
   } satisfies Record<BuildingRole, number>,
   /** Max footprint width so buildings do not crash into each other on the ring. */
   buildingMaxWidth: { kenney: 4.2, quaternius: 4.6 },

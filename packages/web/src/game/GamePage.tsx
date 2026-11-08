@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber';
-import { ACESFilmicToneMapping } from 'three';
+import { NeutralToneMapping } from 'three';
 import { Html } from '@react-three/drei';
 import { Component, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import fixtureJson from '../demo/bid-demo.fixture.json';
@@ -447,8 +447,8 @@ export function GamePage() {
               gl={{
                 antialias: true,
                 powerPreference: 'high-performance',
-                toneMapping: ACESFilmicToneMapping,
-                toneMappingExposure: 1.08,
+                toneMapping: NeutralToneMapping,
+                toneMappingExposure: 1.0,
               }}
               camera={{ position: [0, 15.4, 20.8], fov: 40, near: 0.1, far: 140 }}
               onPointerMissed={() => setSelectedId(null)}

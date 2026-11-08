@@ -13,7 +13,7 @@ export type QualityConfig = {
 export const QUALITY: Record<Quality, QualityConfig> = {
   high: {
     label: '高',
-    dpr: [1.5, 2],
+    dpr: [2, 2.5],
     shadowMap: 4096,
     softShadows: true,
     contactShadows: true,
@@ -22,7 +22,7 @@ export const QUALITY: Record<Quality, QualityConfig> = {
   },
   medium: {
     label: '中',
-    dpr: [1.25, 1.5],
+    dpr: [1.5, 2],
     shadowMap: 2048,
     softShadows: true,
     contactShadows: false,
@@ -31,7 +31,7 @@ export const QUALITY: Record<Quality, QualityConfig> = {
   },
   low: {
     label: '低',
-    dpr: [1, 1],
+    dpr: [1, 1.5],
     shadowMap: 1024,
     softShadows: false,
     contactShadows: false,

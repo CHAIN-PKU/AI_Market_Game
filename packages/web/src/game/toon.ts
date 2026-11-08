@@ -13,8 +13,8 @@ import {
  * (the "anime" look) instead of a smooth Lambert gradient.
  */
 const ramp = (() => {
-  const data = new Uint8Array([70, 150, 235]);
-  const tex = new DataTexture(data, 3, 1, RedFormat);
+  const data = new Uint8Array([90, 135, 178, 216, 248]);
+  const tex = new DataTexture(data, 5, 1, RedFormat);
   tex.minFilter = NearestFilter;
   tex.magFilter = NearestFilter;
   tex.needsUpdate = true;
