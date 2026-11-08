@@ -165,7 +165,7 @@ function NoticeBoard({ fixture, step, onPublish }: { fixture: BidDemoFixture; st
           {posted && bidsOpen && (
             <div className="notice-slips">
               {fixture.bids.map((bid) => (
-                <span key={bid.agentId} className="notice-slip">
+                <span key={`${bid.agentId}-${bid.bidAmount}-${bid.teamAgentIds?.[1] ?? ""}-${bid.ringDefected ? "d" : ""}`} className="notice-slip">
                   {bid.displayName} {gold(bid.bidAmount)}
                 </span>
               ))}

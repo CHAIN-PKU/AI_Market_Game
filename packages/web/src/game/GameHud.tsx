@@ -411,7 +411,7 @@ export function LeftPanel({
               const agent = fixture.agents.find((a) => a.id === bid.agentId)!;
               const isWinner = derived.assigned && bid.agentId === derived.winnerId;
               return (
-                <div key={bid.agentId} className={isWinner ? 'g-bid is-winner' : 'g-bid'}>
+                <div key={`${bid.agentId}-${bid.bidAmount}-${bid.teamAgentIds?.[1] ?? ""}-${bid.ringDefected ? "d" : ""}`} className={isWinner ? 'g-bid is-winner' : 'g-bid'}>
                   <span className={`g-avatar g-avatar--${ROLE_KEY[agent.role]}`}>{roleIcon(agent)}</span>
                   <span className="g-bid-name">
                     {bid.displayName}
@@ -1079,7 +1079,7 @@ export function BidBoard2D({
             const isWinner = derived.assigned && bid.agentId === derived.winnerId;
             return (
               <button
-                key={bid.agentId}
+                key={`${bid.agentId}-${bid.bidAmount}-${bid.teamAgentIds?.[1] ?? ""}-${bid.ringDefected ? "d" : ""}`}
                 type="button"
                 className={isWinner ? 'g-board2d-bidder is-winner' : 'g-board2d-bidder'}
                 onClick={() => onSelect(agent.id)}
