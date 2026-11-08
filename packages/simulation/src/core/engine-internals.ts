@@ -1,4 +1,4 @@
-import { applyTaskPayout, applyTeamPayout, markTaskFailed, markTeamFailed } from '../economy/settlement.js';
+import { applyRingPayout, applyTaskPayout, applyTeamPayout, markTaskFailed, markTeamFailed } from '../economy/settlement.js';
 import { resolveTaskOutcome } from '../evaluation/task-outcome.js';
 import { effectiveAbility } from '../core/skills.js';
 import { pushEvent } from '../core/events.js';
@@ -69,6 +69,9 @@ export function executeAssignedTask(state: GameState, task: MarketTask, rng: () 
       applyTeamPayout(state, civ, team, task, task.reward);
     } else {
       applyTaskPayout(state, civ, agent, task, task.reward);
+      if (task.ringAgentIds && task.ringAgentIds.length > 1) {
+        applyRingPayout(state, civ, task, agent);
+      }
     }
     pushEvent(state, 'task_completed', `${agent.displayName} completed ${task.title}`, {
       taskId: task.id,

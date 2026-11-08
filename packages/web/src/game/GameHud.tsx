@@ -401,6 +401,7 @@ export function LeftPanel({
                       ? ` + ${bid.teamAgentIds.slice(1).map((id) => fixture.agents.find((a) => a.id === id)?.displayName ?? id).join(' + ')}`
                       : ''}
                     {bid.teamAgentIds && bid.teamAgentIds.length > 1 && <em className="g-team-inline">组队</em>}
+                    {bid.ringAgentIds && bid.ringAgentIds.length > 1 && <em className="g-team-inline">串标</em>}
                     <em className={personalityTone(agent)}>{agent.personalityLabel}</em>
                   </span>
                   <span className="g-bid-amount">{gold(bid.bidAmount)}</span>
@@ -836,6 +837,8 @@ const EVENT_LABEL: Record<string, string> = {
   task_assigned: '选人',
   team_formed: '组队',
   team_settled: '分账',
+  price_ring: '串标',
+  ring_payout: '分钱',
   task_completed: '做完了',
   task_failed: '搞砸了',
   tax_collected: '交税',
@@ -855,6 +858,8 @@ export function EventDrawer({ fixture, step, onClose }: { fixture: BidDemoFixtur
     'task_assigned',
     'team_formed',
     'team_settled',
+    'price_ring',
+    'ring_payout',
     'task_completed',
     'task_failed',
     'tax_collected',

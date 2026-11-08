@@ -23,6 +23,8 @@ import { successProbability } from '../core/odds.js';
  * - `domainAffinity` weights expected value per task.
  * - `investAggression` is used later by the engine when deciding to buy a skill.
  */
+type RingPlan = { taskId: string; leaderId: string; partnerIds: string[] };
+
 export class MockAgentDecisionProvider implements AgentDecisionProvider {
   constructor(private opts: { marketDepth?: boolean } = {}) {}
 
@@ -34,9 +36,36 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
       .map((id) => ctx.getTask(id))
       .filter((t): t is MarketTask => !!t && t.status === 'open');
 
+    const playerTask = openTasks.find((t) => t.source === 'player');
+    let ring: RingPlan | null = null;
+    if (this.opts.marketDepth && civ.rules.allowCollaboration && playerTask) {
+      const candidates = civ.agents
+        .filter(
+          (a) =>
+            (a.busyUntilRound ?? 0) <= ctx.round &&
+            (a.traits.cooperationPreference ?? 0) >= 0.55,
+        )
+        .sort((a, b) => {
+          const aa = effectiveAbility(a.abilities, a.skills.map((s) => s.skillId), civ.sharedSkillIds)[
+            playerTask.requirements.domain
+          ];
+          const bb = effectiveAbility(b.abilities, b.skills.map((s) => s.skillId), civ.sharedSkillIds)[
+            playerTask.requirements.domain
+          ];
+          return bb - aa || a.id.localeCompare(b.id);
+        });
+      const ringCandidates = candidates;
+      if (ringCandidates.length >= 2) {
+        ring = {
+          taskId: playerTask.id,
+          leaderId: ringCandidates[0]!.id,
+          partnerIds: [ringCandidates[1]!.id],
+        };
+      }
+    }
     return civ.agents.map((agent) => {
       if ((agent.busyUntilRound ?? 0) > ctx.round) return { bids: [], declines: [] };
-      return this.decideForAgent(agent, civ, openTasks, ctx);
+      return this.decideForAgent(agent, civ, openTasks, ctx, ring);
     });
   }
 
@@ -44,7 +73,8 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
     agent: AgentState,
     civ: CivilizationState,
     openTasks: MarketTask[],
-    ctx: AgentDecisionContext
+    ctx: AgentDecisionContext,
+    ring: RingPlan | null
   ): AgentDecision {
     const goal = personalGoalFor(agent, civ);
     const floor = riskComfortFloor(agent);
@@ -76,6 +106,7 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
         task.reward * (0.3 + (1 - quality) * 0.15 + (1 - probability) * 0.05),
       );
       const expectedProfit = Math.round(quality * task.reward - estimatedCost);
+      const ringBlocked = !!ring && ring.taskId === task.id && ring.partnerIds.includes(agent.id);
       const expectedValue = this.opts.marketDepth
         ? Math.max(0, expectedProfit) * (1 + affinity) * (task.source === 'player' ? 1.25 : 1)
         : quality * task.reward * (1 + affinity);
@@ -97,9 +128,9 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
         );
       }
       const eligible = this.opts.marketDepth
-        ? probability >= floor && expectedProfit >= 1
+        ? !ringBlocked && probability >= floor && expectedProfit >= 1
         : probability >= floor && expectedValue >= 25;
-      return { task, quality, probability, expectedValue, observed, rivals, reputation, estimatedCost, expectedProfit, reasonFactors, eligible };
+      return { task, quality, probability, expectedValue, observed, rivals, reputation, estimatedCost, expectedProfit, reasonFactors, eligible, ringBlocked };
     });
 
     const eligible = evaluated
@@ -137,6 +168,9 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
         personalGoalLabel: goal.label,
         observedCompetitors: entry.observed,
         reasonFactors: entry.reasonFactors,
+        ringAgentIds: ring && entry.task.id === ring.taskId && ring.leaderId === agent.id
+          ? [ring.leaderId, ...ring.partnerIds]
+          : undefined,
       };
     });
 
@@ -199,6 +233,10 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
                 ...playerEntry.reasonFactors,
                 { key: 'team', label: '组队', value: partner.displayName },
               ],
+              ringAgentIds:
+                ring && ring.leaderId === agent.id
+                  ? [ring.leaderId, ...ring.partnerIds]
+                  : undefined,
             });
           }
         }
@@ -211,11 +249,13 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
         taskId: entry.task.id,
         agentId: agent.id,
         civilizationId: civ.id,
-        reasonCode: !entry.eligible
-          ? entry.probability < floor
-            ? 'risk_above_comfort'
-            : 'too_little_upside'
-          : 'lower_priority',
+        reasonCode: entry.ringBlocked
+          ? 'price_ring'
+          : !entry.eligible
+            ? entry.probability < floor
+              ? 'risk_above_comfort'
+              : 'too_little_upside'
+            : 'lower_priority',
         successProbability: entry.probability,
         expectedQuality: entry.quality,
         riskComfortFloor: floor,

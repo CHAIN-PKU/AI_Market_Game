@@ -22,7 +22,7 @@ export type ObservedCompetitors = {
 
 export type DemoDecision = {
   action: 'bid' | 'pass';
-  reasonCode: 'bid' | 'risk_above_comfort' | 'too_little_upside' | 'lower_priority';
+  reasonCode: 'bid' | 'risk_above_comfort' | 'too_little_upside' | 'lower_priority' | 'price_ring';
   bidAmount: number | null;
   expectedQuality: number;
   successProbability: number;
@@ -80,6 +80,7 @@ export type BidSummary = {
   teamProbability?: number;
   teamCost?: number;
   teamProfit?: number;
+  ringAgentIds?: string[];
   personalGoalLabel: string;
   reasonFactors: ReasonFactor[];
 };

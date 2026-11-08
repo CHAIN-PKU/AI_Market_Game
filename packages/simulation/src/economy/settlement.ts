@@ -143,3 +143,28 @@ export function markTeamFailed(
   }
   state.metricsByCiv[civ.id]!.tasksFailed += 1;
 }
+
+/** Cartel side-payment: leader pays each partner a small cut after winning. */
+export function applyRingPayout(
+  state: GameState,
+  civ: CivilizationState,
+  task: MarketTask,
+  lead: AgentState,
+): void {
+  const partnerIds = (task.ringAgentIds ?? []).filter((id) => id !== lead.id);
+  if (!partnerIds.length) return;
+  const cut = Math.min(Math.round(task.reward * 0.05), lead.wallet);
+  if (cut <= 0) return;
+  for (const id of partnerIds) {
+    const partner = civ.agents.find((a) => a.id === id);
+    if (!partner) continue;
+    lead.wallet -= cut;
+    partner.wallet += cut;
+    pushEvent(state, 'ring_payout', `${lead.displayName} paid ${cut} to ${partner.displayName}`, {
+      agentId: lead.id,
+      partnerId: partner.id,
+      taskId: task.id,
+      amount: cut,
+    });
+  }
+}

@@ -38,13 +38,15 @@ export interface Bid {
   teamProbability?: number;
   teamCost?: number;
   teamProfit?: number;
+  /** Price-ring members: leader + suppressed partners. */
+  ringAgentIds?: string[];
   personalGoalId?: string;
   personalGoalLabel?: string;
   observedCompetitors?: ObservedCompetitors;
   reasonFactors?: PublicReasonFactor[];
 }
 
-export type DeclineReasonCode = 'risk_above_comfort' | 'too_little_upside' | 'lower_priority';
+export type DeclineReasonCode = 'risk_above_comfort' | 'too_little_upside' | 'lower_priority' | 'price_ring';
 
 export interface BidDecline {
   taskId: string;

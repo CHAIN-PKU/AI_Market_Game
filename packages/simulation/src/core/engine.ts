@@ -74,6 +74,7 @@ export function runSingleRound(
           teamProbability: bid.teamProbability,
           teamCost: bid.teamCost,
           teamProfit: bid.teamProfit,
+          ringAgentIds: bid.ringAgentIds,
           personalGoalId: bid.personalGoalId,
           personalGoalLabel: bid.personalGoalLabel,
           observedCompetitors: bid.observedCompetitors,
@@ -99,6 +100,13 @@ export function runSingleRound(
           observedCompetitors: decline.observedCompetitors,
           reasonFactors: decline.reasonFactors,
         });
+        if (decline.reasonCode === 'price_ring') {
+          pushEvent(state, 'price_ring', `${agent.displayName} honors the price ring on ${decline.taskId}`, {
+            taskId: decline.taskId,
+            agentId: agent.id,
+            ringAgentIds: [agent.id],
+          });
+        }
       }
     }
   }
@@ -111,6 +119,7 @@ export function runSingleRound(
     task.assignedAgentId = bid.agentId;
     task.assignedCivilizationId = bid.civilizationId;
     task.assignedTeamIds = bid.teamAgentIds ?? [bid.agentId];
+    task.ringAgentIds = bid.ringAgentIds;
     task.durationRounds = task.durationRounds ?? 1;
     task.assignedRound = state.round;
     task.winningBid = bid.bidAmount;
@@ -127,6 +136,13 @@ export function runSingleRound(
       agentId: bid.agentId,
       teamAgentIds: bid.teamAgentIds ?? [bid.agentId],
     });
+    if (bid.ringAgentIds && bid.ringAgentIds.length > 1) {
+      pushEvent(state, 'price_ring', `${bid.ringAgentIds.join(' + ')} price ring on ${task.title}`, {
+        taskId,
+        agentId: bid.agentId,
+        ringAgentIds: bid.ringAgentIds,
+      });
+    }
     if (bid.teamAgentIds && bid.teamAgentIds.length > 1) {
       pushEvent(state, 'team_formed', `${bid.teamAgentIds.join(' + ')} team up for ${task.title}`, {
         taskId,

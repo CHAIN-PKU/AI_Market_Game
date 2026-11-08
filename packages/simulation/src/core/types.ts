@@ -88,6 +88,7 @@ export interface MarketTask {
   assignedAgentId?: string;
   assignedCivilizationId?: string;
   assignedTeamIds?: string[];
+  ringAgentIds?: string[];
   winningBid?: number;
 }
 
@@ -99,6 +100,8 @@ export type GameEventKind =
   | 'task_assigned'
   | 'team_formed'
   | 'team_settled'
+  | 'price_ring'
+  | 'ring_payout'
   | 'task_completed'
   | 'task_failed'
   | 'tax_collected'

@@ -46,6 +46,7 @@ export function decisionBadge(agent: DemoAgent): { label: string; tone: 'pass' |
   if (agent.decision.action === 'bid') return { label: '想接', tone: 'bid' };
   if (agent.decision.reasonCode === 'risk_above_comfort') return { label: '风险太高', tone: 'pass' };
   if (agent.decision.reasonCode === 'too_little_upside') return { label: '不划算', tone: 'pass' };
+  if (agent.decision.reasonCode === 'price_ring') return { label: '价格联盟', tone: 'pass' };
   return { label: '先做别的', tone: 'pass' };
 }
 

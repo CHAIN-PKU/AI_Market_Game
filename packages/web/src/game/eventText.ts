@@ -4,6 +4,7 @@ const REASON: Record<string, string> = {
   risk_above_comfort: '风险太高',
   too_little_upside: '不划算',
   lower_priority: '先做别的',
+  price_ring: '价格联盟',
 };
 
 export function eventText(event: RawEvent, fixture: BidDemoFixture): string {
@@ -39,6 +40,12 @@ export function eventText(event: RawEvent, fixture: BidDemoFixture): string {
       const team = Array.isArray(p.teamAgentIds) ? p.teamAgentIds.map(agentName).join(' + ') : '两人';
       return `${team} 组队接单`;
     }
+    case 'price_ring': {
+      return `${agentName(p.agentId)} 遵守价格联盟`;
+    }
+    case 'ring_payout':
+      return `${agentName(p.agentId)} 给 ${agentName(p.partnerId)} 分了 ${p.amount ?? '?'} 金`;
+
     case 'team_settled': {
       const team = Array.isArray(p.teamAgentIds) ? p.teamAgentIds.map(agentName).join(' + ') : '队伍';
       return `${team} 分账 ${p.net ?? '?'} 金`;

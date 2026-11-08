@@ -357,6 +357,7 @@ function snapshotBidDemo(input: {
       teamProbability: payload.teamProbability as number | undefined,
       teamCost: payload.teamCost as number | undefined,
       teamProfit: payload.teamProfit as number | undefined,
+      ringAgentIds: payload.ringAgentIds as string[] | undefined,
       reasonFactors: payload.reasonFactors,
       personalGoalLabel: payload.personalGoalLabel as string,
     };
