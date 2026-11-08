@@ -218,6 +218,10 @@ export function EnvironmentDetails() {
       <Bench x={-4.4} z={8.35} rotation={0.35} />
       <Cloud x={-9.5} y={7.6} z={-8.0} scale={0.8} />
       <Cloud x={9.5} y={8.1} z={-6.0} scale={0.65} />
+      <Cloud x={-3.0} y={9.2} z={-12.0} scale={0.9} />
+      <Cloud x={13.0} y={10.1} z={-2.0} scale={0.55} />
+      <Cloud x={-13.0} y={9.8} z={-4.0} scale={0.6} />
+      <Cloud x={4.0} y={11.0} z={-16.0} scale={0.45} />
       <Petals />
     </group>
   );

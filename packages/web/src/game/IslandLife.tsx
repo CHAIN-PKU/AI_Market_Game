@@ -373,6 +373,24 @@ function SeaStack({ x, z, scale = 1, palm = true }: { x: number; z: number; scal
   );
 }
 
+function Mound({ x, z, sx = 2.2, sy = 0.5, sz = 1.6, rotation = 0 }: { x: number; z: number; sx?: number; sy?: number; sz?: number; rotation?: number }) {
+  return (
+    <group position={[x, 0, z]} rotation={[0, rotation, 0]}>
+      <mesh receiveShadow castShadow position={[0, -0.04, 0]} scale={[sx, sy, sz]}>
+        <sphereGeometry args={[1, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color="#69a95f" roughness={0.98} />
+      </mesh>
+      <Rock x={sx * 0.45} z={-sz * 0.1} y={sy * 0.55} scale={0.38} />
+      {[0, 1, 2, 3].map((i) => (
+        <mesh key={i} position={[Math.cos(i * 1.8) * sx * 0.5, sy * 0.55, Math.sin(i * 1.8) * sz * 0.5]} castShadow>
+          <coneGeometry args={[0.035, 0.3 + i * 0.05, 4]} />
+          <meshStandardMaterial color={i % 2 === 0 ? '#4f8b52' : '#79b873'} roughness={0.95} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 function DistantIsland({ x, z, scale = 1 }: { x: number; z: number; scale?: number }) {
   return (
     <group position={[x, -1.45, z]} scale={scale}>
@@ -440,6 +458,10 @@ export function IslandLife() {
       <Lighthouse />
       <Seagulls />
       <BeachDetails />
+      <Mound x={-11.2} z={6.4} sx={2.4} sy={0.5} sz={1.5} rotation={0.3} />
+      <Mound x={11.1} z={6.2} sx={2.0} sy={0.42} sz={1.3} rotation={-0.2} />
+      <Mound x={-11.4} z={-2.4} sx={1.7} sy={0.38} sz={1.4} rotation={0.7} />
+      <Mound x={11.4} z={-4.4} sx={1.8} sy={0.36} sz={1.1} rotation={-0.4} />
       <SeaStack x={14.8} z={-2.0} scale={1.05} />
       <SeaStack x={-14.9} z={-5.2} scale={0.8} palm={false} />
       <DistantIsland x={-15.5} z={-10.5} scale={0.85} />
