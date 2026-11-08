@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import type { Group } from 'three';
+import { CatmullRomCurve3, TubeGeometry, Vector3, type Group } from 'three';
 import { ISLAND } from '../visual-lab/islandLayout';
 
 const SAND = '#e8d3a8';
@@ -22,29 +22,49 @@ function Box({ size, position, color, rotation }: { size: [number, number, numbe
 }
 
 function Palm({ x, z, scale = 1, lean = 0.16 }: { x: number; z: number; scale?: number; lean?: number }) {
-  const leaves = useMemo(() => Array.from({ length: 7 }, (_, i) => (i / 7) * Math.PI * 2), []);
+  const crown = useMemo(() => new Vector3(lean * 0.9, 2.72, lean * 0.35), [lean]);
+  const trunkGeometry = useMemo(() => {
+    const curve = new CatmullRomCurve3([
+      new Vector3(0, 0, 0),
+      new Vector3(lean * 0.12, 0.7, lean * 0.02),
+      new Vector3(lean * 0.36, 1.45, lean * 0.12),
+      crown,
+    ]);
+    return new TubeGeometry(curve, 12, 0.095, 6, false);
+  }, [crown, lean]);
+  const leaves = useMemo(() => Array.from({ length: 8 }, (_, i) => (i / 8) * Math.PI * 2), []);
   return (
     <group position={[x, 0, z]} scale={scale}>
-      {[0, 1, 2, 3].map((i) => (
-        <mesh key={i} castShadow position={[Math.sin(i * 0.6) * lean * i, 0.55 + i * 0.62, Math.cos(i * 0.5) * lean * i]} rotation={[0, 0, -lean * (i + 0.5)]}>
-          <cylinderGeometry args={[0.075 - i * 0.01, 0.105 - i * 0.01, 0.72, 6]} />
-          <meshStandardMaterial color={i % 2 === 0 ? WOOD : '#9d6b3f'} roughness={0.95} />
+      <mesh castShadow receiveShadow geometry={trunkGeometry}>
+        <meshStandardMaterial color={WOOD} roughness={0.95} />
+      </mesh>
+      {/* trunk rings */}
+      {[0.45, 0.95, 1.45, 1.95, 2.4].map((y, i) => (
+        <mesh key={y} castShadow position={[lean * (y / 2.72) * 0.5, y, lean * (y / 2.72) * 0.16]}>
+          <torusGeometry args={[0.09, 0.012, 5, 10]} />
+          <meshStandardMaterial color={i % 2 === 0 ? '#9d6b3f' : WOOD_DARK} roughness={0.95} />
         </mesh>
       ))}
-      <group position={[Math.sin(4 * 0.6) * lean * 3.4, 3.02, Math.cos(4 * 0.5) * lean * 3.4]}>
-        {leaves.map((a, i) => (
-          <mesh key={i} castShadow position={[Math.cos(a) * 0.55, 0.04, Math.sin(a) * 0.55]} rotation={[0.15, -a, 0.55]}>
-            <coneGeometry args={[0.16, 1.35, 4]} />
+      {/* crown hub hides the leaf/trunk seam */}
+      <mesh position={crown} castShadow>
+        <sphereGeometry args={[0.19, 8, 6]} />
+        <meshStandardMaterial color="#5f7f3f" roughness={0.9} />
+      </mesh>
+      {/* leaves start exactly at the crown hub, not floating around it */}
+      {leaves.map((a, i) => (
+        <group key={i} position={crown} rotation={[0, a, 0]}>
+          <mesh castShadow position={[0, -0.02, 0.62]} rotation={[Math.PI / 2 - 0.18, 0, 0]}>
+            <coneGeometry args={[0.17, 1.28, 4]} />
             <meshStandardMaterial color={i % 2 === 0 ? LEAF : LEAF_LIGHT} roughness={0.88} side={2} />
           </mesh>
-        ))}
-        {[0, 1, 2].map((i) => (
-          <mesh key={`c-${i}`} position={[Math.cos(i * 2.1) * 0.16, -0.08, Math.sin(i * 2.1) * 0.16]}>
-            <sphereGeometry args={[0.075, 7, 5]} />
-            <meshStandardMaterial color="#8d5a2f" roughness={0.85} />
-          </mesh>
-        ))}
-      </group>
+        </group>
+      ))}
+      {[0, 1, 2].map((i) => (
+        <mesh key={`c-${i}`} position={[crown.x + Math.cos(i * 2.1) * 0.16, crown.y - 0.16, crown.z + Math.sin(i * 2.1) * 0.16]} castShadow>
+          <sphereGeometry args={[0.075, 7, 5]} />
+          <meshStandardMaterial color="#8d5a2f" roughness={0.85} />
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -218,6 +238,86 @@ function BeachSpot({ x, z, umbrella = '#d97a52' }: { x: number; z: number; umbre
   );
 }
 
+function Shell({ x, z, rotation = 0 }: { x: number; z: number; rotation?: number }) {
+  return (
+    <group position={[x, 0.03, z]} rotation={[0, rotation, 0]} scale={0.7}>
+      <mesh castShadow>
+        <sphereGeometry args={[0.09, 6, 4, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color="#f7e6cc" roughness={0.8} side={2} />
+      </mesh>
+      <mesh position={[0, 0.015, 0.02]} rotation={[-0.4, 0, 0]}>
+        <boxGeometry args={[0.02, 0.06, 0.02]} />
+        <meshStandardMaterial color="#d9b98a" roughness={0.8} />
+      </mesh>
+    </group>
+  );
+}
+
+function BeachDetails() {
+  const patches = useMemo(
+    () => [
+      [10.3, 5.4, 1.6, 0.6], [-10.7, 4.4, 1.3, 0.55], [7.8, 9.0, 1.1, 0.5],
+      [-7.9, 8.7, 1.2, 0.6], [11.2, -2.2, 1.0, 0.5], [-11.0, -3.1, 1.2, 0.55],
+    ],
+    [],
+  );
+  const shells = useMemo(
+    () => [
+      [10.2, 6.2, 0.4], [-9.9, 6.7, 1.3], [8.6, 8.3, 2.1], [-8.4, 8.2, 0.7],
+      [10.8, 4.0, 1.8], [-10.9, 3.5, 0.2],
+    ],
+    [],
+  );
+  return (
+    <group>
+      {/* wet sand line */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.018, 0]}>
+        <ringGeometry args={[ISLAND.grassRadius + 0.55, ISLAND.grassRadius + 1.55, 80]} />
+        <meshStandardMaterial color="#c8a878" transparent opacity={0.78} roughness={0.7} />
+      </mesh>
+      {/* irregular dry-sand patches break the perfect ring */}
+      {patches.map(([x, z, sx, sz], i) => (
+        <mesh key={i} rotation={[-Math.PI / 2, 0, i * 0.7]} position={[x, 0.026, z]} scale={[sx, sz, 1]} receiveShadow>
+          <circleGeometry args={[0.9, 18]} />
+          <meshStandardMaterial color={i % 2 === 0 ? SAND : '#efddb8'} roughness={1} />
+        </mesh>
+      ))}
+      {/* tide foam */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
+        <ringGeometry args={[ISLAND.grassRadius + 1.55, ISLAND.grassRadius + 1.72, 80]} />
+        <meshStandardMaterial color="#f7fff9" transparent opacity={0.55} roughness={0.3} />
+      </mesh>
+      {shells.map(([x, z, r], i) => <Shell key={i} x={x} z={z} rotation={r} />)}
+      {/* driftwood */}
+      {[[9.6, 6.6, 0.3], [-9.5, 7.1, -0.4], [10.8, 3.0, 0.9]].map(([x, z, r], i) => (
+        <group key={i} position={[x, 0.14, z]} rotation={[0, r, 0]}>
+          <mesh castShadow rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.06, 0.09, 0.8, 5]} />
+            <meshStandardMaterial color="#8a6a4b" roughness={1} />
+          </mesh>
+          {[-0.25, 0.2].map((px) => (
+            <mesh key={px} position={[px, 0.1, 0.1]} rotation={[0.4, 0, 0.5]}>
+              <cylinderGeometry args={[0.025, 0.04, 0.35, 4]} />
+              <meshStandardMaterial color="#9d7a54" roughness={1} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+      {/* beach grass */}
+      {[[9.1, 6.9], [-9.2, 7.4], [10.2, 4.8], [-10.2, 4.2]].map(([x, z], i) => (
+        <group key={i} position={[x, 0, z]}>
+          {[0, 1, 2, 3].map((j) => (
+            <mesh key={j} position={[j * 0.05 - 0.06, 0.12, j * 0.02]} rotation={[0, 0, (j - 1.5) * 0.25]}>
+              <coneGeometry args={[0.025, 0.28 + j * 0.04, 4]} />
+              <meshStandardMaterial color={j % 2 === 0 ? '#5c9d5f' : '#79b873'} roughness={0.95} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+    </group>
+  );
+}
+
 function DistantIsland({ x, z, scale = 1 }: { x: number; z: number; scale?: number }) {
   return (
     <group position={[x, -1.45, z]} scale={scale}>
@@ -275,6 +375,7 @@ export function IslandLife() {
       <BeachSpot x={-9.2} z={7.9} umbrella="#3f8f96" />
       <Lighthouse />
       <Seagulls />
+      <BeachDetails />
       <DistantIsland x={-15.5} z={-10.5} scale={0.85} />
       <DistantIsland x={15.2} z={-12.0} scale={0.65} />
     </group>
