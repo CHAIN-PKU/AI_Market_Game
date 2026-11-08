@@ -330,6 +330,27 @@ export function LeftPanel({
           </div>
         )}
 
+        {!posted && compare?.money && (
+          <div className="g-money-split">
+            <header>
+              <b>钱去哪了</b>
+              <em>税率 {compare.money.beforeTax}% → {compare.money.afterTax}%</em>
+            </header>
+            <div>
+              <span>私人买技能</span>
+              <b>{compare.money.beforePrivate} → {compare.money.afterPrivate} 金</b>
+            </div>
+            <div>
+              <span>公共研发池</span>
+              <b>{compare.money.beforePublic} → {compare.money.afterPublic} 金</b>
+            </div>
+            <div>
+              <span>进国库</span>
+              <b>{compare.money.beforeToTreasury} → {compare.money.afterToTreasury} 金</b>
+            </div>
+          </div>
+        )}
+
         {!posted && compare && (
           <div className="g-compare">
             <div className="g-compare-head">

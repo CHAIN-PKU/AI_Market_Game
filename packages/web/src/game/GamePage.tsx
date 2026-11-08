@@ -382,8 +382,20 @@ export function GamePage() {
       if (beforeNet !== undefined && afterNet !== undefined) {
         const bm = marketStats(fixture);
         const am = marketStats(next);
+        const privateSpend = (f: BidDemoFixture) =>
+          f.agents.reduce((sum, a) => sum + (a.skillsAfter?.length ?? 0) * 80, 0);
         setCompare({
           decisions: diffDecisions(fixture, next),
+          money: {
+            beforePrivate: privateSpend(fixture),
+            afterPrivate: privateSpend(next),
+            beforePublic: fixture.treasuryBreakdown.publicResearch,
+            afterPublic: next.treasuryBreakdown.publicResearch,
+            beforeToTreasury: fixture.treasuryBreakdown.toTreasury,
+            afterToTreasury: next.treasuryBreakdown.toTreasury,
+            beforeTax: Math.round(fixture.civilization.rules.taxRate * 100),
+            afterTax: Math.round(next.civilization.rules.taxRate * 100),
+          },
           beforeWinner,
           afterWinner,
           beforeNet,

@@ -4742,3 +4742,34 @@
 .g-rule-diff li.is-changed { color: #a4452c; }
 .g-rule-diff li b { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
 .g-rule-diff li i { font-style: normal; color: var(--text-3); text-align: center; }
+
+/* 制度对照：钱去哪了 */
+.g-money-split {
+  margin: 8px 0 0;
+  padding: var(--sp-3);
+  border: 1px dashed #c9b48c;
+  border-radius: var(--r-md);
+  background: #fffdf6;
+  display: grid;
+  gap: 4px;
+}
+.g-money-split header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+.g-money-split header b { font-size: var(--fs-13); color: var(--text-1); }
+.g-money-split header em { font-size: var(--fs-11); font-style: normal; color: var(--text-3); }
+.g-money-split div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: var(--fs-12);
+  color: var(--text-2);
+}
+.g-money-split div b {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+}
