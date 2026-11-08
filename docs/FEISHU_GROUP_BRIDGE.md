@@ -15,7 +15,7 @@
 3. **主动同步**
    - `python3 ops/feishu_queue.py group-send "..."` 发到 AI Market Game 群
    - 或 `DSH_LARK_CHAT=<chat_id> python3 ops/lark_mcp.py send "..."`
-   - 图片：`python3 ops/lark_media.py image <path>`（当前仍固定发 DM，群图可后续加）
+   - 图片：`DSH_LARK_CHAT=<chat_id> python3 ops/lark_media.py image <path>`（已验证群图）
 
 ## 群 ID
 
@@ -35,7 +35,7 @@ tail -f runtime/feishu-listener.log
 - 3 分钟任务：已创建 `schedule-4a50210c-1610-42e7-a3b0-af29cf09fd57`
 - 群发：已验证可发出
 - 收信：需要飞书后台已开启 `im.message.receive_v1` 长连接；若用户 @DSH 后没有进入 inbox，说明事件订阅/版本发布还没生效
-- 已知限制：群内发图仍走 DM 的 `ops/lark_media.py`，后续补 group image send
+- 群图：已通过 `DSH_LARK_CHAT` 支持并实测发出
 
 ## 测试
 
