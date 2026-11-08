@@ -3748,3 +3748,14 @@
 .g-canvas-wrap canvas {
   filter: saturate(1.06) contrast(1.025);
 }
+
+.g-agent-portrait {
+  width: 64px;
+  height: 92px;
+  flex: none;
+  object-fit: contain;
+  object-position: center bottom;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f7f0df, #e8f1ea);
+  border: 1px solid var(--g-line);
+}

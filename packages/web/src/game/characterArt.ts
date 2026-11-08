@@ -419,6 +419,11 @@ function drawAccessory(ctx: CanvasRenderingContext2D, l: Look, role: RoleKey) {
   }
 }
 
+function getLook(index: number, role: RoleKey): Look {
+  const base = LOOKS[index % LOOKS.length]!;
+  return { ...base, shirt: ROLE_SHIRT[role], shirtDark: ROLE_SHIRT_DARK[role] };
+}
+
 function drawResident(ctx: CanvasRenderingContext2D, look: Look, role: RoleKey, pose: number) {
   drawHairBack(ctx, look);
   drawLegs(ctx, look, pose);
@@ -438,12 +443,7 @@ export function makeResidentAtlas(index: number, role: RoleKey): CanvasTexture {
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
 
-  const base = LOOKS[index % LOOKS.length]!;
-  const look: Look = {
-    ...base,
-    shirt: ROLE_SHIRT[role],
-    shirtDark: ROLE_SHIRT_DARK[role],
-  };
+  const look = getLook(index, role);
 
   for (let frame = 0; frame < 2; frame += 1) {
     ctx.save();
@@ -462,4 +462,18 @@ export function makeResidentAtlas(index: number, role: RoleKey): CanvasTexture {
   tex.repeat.set(0.5, 1);
   tex.offset.set(0, 0);
   return tex;
+}
+
+
+/** Transparent portrait for the right-hand dossier (idle frame). */
+export function makeResidentPortrait(index: number, role: RoleKey): string {
+  const canvas = document.createElement('canvas');
+  canvas.width = 384;
+  canvas.height = 576;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.scale(384 / 683, 384 / 683);
+  drawResident(ctx, getLook(index, role), role, 0);
+  return canvas.toDataURL('image/png');
 }

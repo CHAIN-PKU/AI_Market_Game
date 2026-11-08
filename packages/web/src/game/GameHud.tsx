@@ -1,9 +1,11 @@
+import { useMemo } from 'react';
 import type { BidDemoFixture, DemoAgent } from './types';
 import { DOMAIN_LABEL, ROLE_KEY, ROLE_LABEL, type RuleCompare } from './types';
 import { QUALITY, type Quality } from './quality';
 import { STEP_INDEX, TIMELINE, buildPlaybackCues, type StepId } from './playback';
 import { eventText } from './eventText';
 import { downloadCompareCard } from './shareCard';
+import { makeResidentPortrait } from './characterArt';
 import {
   decisionBadge,
   decisionHeadline,
@@ -555,6 +557,11 @@ export function AgentPanel({
   onClose: () => void;
 }) {
   const agent = fixture.agents.find((a) => a.id === selectedId) ?? null;
+  const agentIndex = agent ? fixture.agents.findIndex((a) => a.id === agent.id) : -1;
+  const portrait = useMemo(
+    () => (agent && agentIndex >= 0 ? makeResidentPortrait(agentIndex, ROLE_KEY[agent.role]) : ''),
+    [agent, agentIndex],
+  );
 
   if (!agent) return null;
 
@@ -572,7 +579,7 @@ export function AgentPanel({
           <CloseIcon size={15} />
         </button>
         <div className="g-agent-head">
-          <span className={`g-avatar g-avatar--lg g-avatar--${ROLE_KEY[agent.role]}`}>{roleIcon(agent)}</span>
+          <img className="g-agent-portrait" src={portrait} alt={`${agent.displayName} 立绘`} />
           <div>
             <h2>{agent.displayName}</h2>
             <span className="g-agent-role">
