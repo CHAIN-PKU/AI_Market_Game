@@ -13,13 +13,15 @@
    - 回复后 `ack`
    - 无 pending 不刷屏
 3. **主动同步**
-   - `python3 ops/feishu_queue.py group-send "..."` 发到 AI Market Game 群
+   - `python3 ops/feishu_queue.py group-send "..."` 需要先设置 `DSH_FEISHU_GROUP` 或写 `runtime/feishu-group.json`
    - 或 `DSH_LARK_CHAT=<chat_id> python3 ops/lark_mcp.py send "..."`
    - 图片：`DSH_LARK_CHAT=<chat_id> python3 ops/lark_media.py image <path>`（已验证群图）
 
 ## 群 ID
 
-默认：`oc_5e43db36ee32790f386ed608fdcf6ce5`
+**待确认。** `oc_5e43db36ee32790f386ed608fdcf6ce5` 是 EcoAI，已确认发错群；禁止再使用。
+
+正确群 ID 会在用户于 AI Market Game 群发 `@DSH` 后，由 listener 写入 `runtime/feishu-all.jsonl` / `runtime/feishu-inbox.jsonl`，用 `python3 ops/feishu_queue.py chats` 查看。
 
 ## 启动/保活
 
@@ -33,7 +35,7 @@ tail -f runtime/feishu-listener.log
 
 - 长连接：已连接（ws client ready）
 - 3 分钟任务：已创建 `schedule-4a50210c-1610-42e7-a3b0-af29cf09fd57`
-- 群发：已验证可发出
+- 群发：已验证可发出，但默认群 ID 已移除，避免再发错 EcoAI
 - 收信：需要飞书后台已开启 `im.message.receive_v1` 长连接；若用户 @DSH 后没有进入 inbox，说明事件订阅/版本发布还没生效
 - 群图：已通过 `DSH_LARK_CHAT` 支持并实测发出
 
