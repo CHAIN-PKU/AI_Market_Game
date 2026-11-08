@@ -4912,3 +4912,15 @@
     padding-top: 8px;
   }
 }
+
+/* 数据来源徽章：实时引擎 / 演示数据（审查要求不得混淆） */
+.g-source {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+.g-source.is-live { background: #dfeee2; color: #2f6b3a; border: 1px solid #b6d8b6; }
+.g-source.is-static { background: #f3e6df; color: #a4452c; border: 1px solid #e8c3b4; }

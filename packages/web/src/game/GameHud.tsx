@@ -105,6 +105,7 @@ export function TopBar({
   onOpenHistory,
   onOpenGuide,
   onOpenCast,
+  live = false,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
@@ -117,6 +118,8 @@ export function TopBar({
   onOpenHistory: () => void;
   onOpenGuide: () => void;
   onOpenCast: () => void;
+  /** 当前显示的这一轮是不是引擎实时跑出来的（审查要求：不能把预生成伪装成实时） */
+  live?: boolean;
 }) {
   return (
     <header className="g-top">
@@ -130,6 +133,9 @@ export function TopBar({
         <div className="g-brand-text">
           <strong>{fixture.civilization.name}</strong>
           <span className="g-rules">{fixture.civilization.rules.name} · 你定规则</span>
+          <span className={`g-source ${live ? 'is-live' : 'is-static'}`}>
+            {live ? '实时引擎' : '演示数据 · 未接引擎'}
+          </span>
         </div>
       </div>
 

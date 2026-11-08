@@ -559,6 +559,7 @@ export function GamePage() {
         onOpenHistory={() => setShowHistory(true)}
         onOpenGuide={() => setShowGuide(true)}
         onOpenCast={() => setShowCast(true)}
+        live={campaignId != null}
       />
 
       <main className={`g-stage ${view === '2d' ? 'g-stage--2d' : ''}`}>
