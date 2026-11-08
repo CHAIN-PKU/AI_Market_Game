@@ -284,6 +284,12 @@ function snapshotBidDemo(input: {
       personality: profile.personality,
       personalityLabel: profile.personalityLabel,
       personalityBlurb: profile.blurb,
+      strategy:
+        previous.traits.riskTolerance >= 0.55
+          ? '激进抢单'
+          : (previous.traits.cooperationPreference ?? 0) >= 0.6
+            ? '合作优先'
+            : '稳健报价',
       traits: {
         riskTolerance: previous.traits.riskTolerance,
         investAggression: previous.traits.investAggression,

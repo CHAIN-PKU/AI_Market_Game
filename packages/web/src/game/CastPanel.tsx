@@ -40,7 +40,7 @@ export function CastPanel({
             <img className="g-sheet-portrait" src={MIXAMO_AVATARS[pickedIndex % MIXAMO_AVATARS.length]!.thumb} alt={`${picked.displayName} 立绘`} />
             <div className="g-sheet-body">
               <span className={`g-cast-role g-cast-role--${role}`}>
-                {ROLE_LABEL[picked.role]} · {picked.personalityLabel}
+                {ROLE_LABEL[picked.role]} · {picked.personalityLabel} · {picked.strategy}
               </span>
               <p className="g-sheet-bio">{lore.bio}</p>
               <div className="g-sheet-stats">

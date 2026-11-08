@@ -119,6 +119,7 @@ export function factorChips(agent: DemoAgent): { label: string; value: string; e
   if (d.estimatedCost !== undefined) chips.push({ label: '预估成本', value: `${d.estimatedCost} 金` });
   if (d.reputation !== undefined) chips.push({ label: '履约声誉', value: `${Math.round(d.reputation * 100)}%` });
   if (d.competitors !== undefined) chips.push({ label: '同域对手', value: `${d.competitors} 人` });
+  chips.push({ label: '策略', value: agent.strategy });
   if (agent.busyUntilRound && agent.busyUntilRound > 0) {
     chips.push({ label: '档期', value: `忙到第 ${agent.busyUntilRound} 轮` });
   }

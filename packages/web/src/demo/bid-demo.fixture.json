@@ -59,6 +59,7 @@
       "personality": "cautious",
       "personalityLabel": "谨慎型",
       "personalityBlurb": "先算风险，再谈赚钱；报价要留出安全边际。",
+      "strategy": "稳健报价",
       "traits": {
         "riskTolerance": 0.25,
         "investAggression": 0.45,
@@ -184,6 +185,7 @@
       "personality": "pragmatic",
       "personalityLabel": "务实型",
       "personalityBlurb": "有把握才出手，平时先攒钱。",
+      "strategy": "稳健报价",
       "traits": {
         "riskTolerance": 0.42,
         "investAggression": 0.45,
@@ -309,6 +311,7 @@
       "personality": "curious",
       "personalityLabel": "好奇型",
       "personalityBlurb": "愿意试新领域，但更看重划算不划算。",
+      "strategy": "稳健报价",
       "traits": {
         "riskTolerance": 0.54,
         "investAggression": 0.6,
@@ -439,6 +442,7 @@
       "personality": "bold",
       "personalityLabel": "积极型",
       "personalityBlurb": "愿意用更低报价抢单，目标是把能力装备升级。",
+      "strategy": "激进抢单",
       "traits": {
         "riskTolerance": 0.7,
         "investAggression": 0.9,
@@ -564,6 +568,7 @@
       "personality": "quiet",
       "personalityLabel": "低调型",
       "personalityBlurb": "不抢风头，靠稳定交付积累口碑。",
+      "strategy": "激进抢单",
       "traits": {
         "riskTolerance": 0.66,
         "investAggression": 0.5,
@@ -694,6 +699,7 @@
       "personality": "balanced",
       "personalityLabel": "平衡型",
       "personalityBlurb": "风险与收益都要说得过去。",
+      "strategy": "合作优先",
       "traits": {
         "riskTolerance": 0.42,
         "investAggression": 0.7,
@@ -819,6 +825,7 @@
       "personality": "steady",
       "personalityLabel": "稳健型",
       "personalityBlurb": "看长期能力成长，不盲目抢最低价。",
+      "strategy": "合作优先",
       "traits": {
         "riskTolerance": 0.5,
         "investAggression": 0.6,
@@ -944,6 +951,7 @@
       "personality": "observer",
       "personalityLabel": "观察型",
       "personalityBlurb": "先看市场，再决定动不动手。",
+      "strategy": "稳健报价",
       "traits": {
         "riskTolerance": 0.54,
         "investAggression": 0.55,

@@ -48,6 +48,7 @@ export type DemoAgent = {
   personality: PersonalityId;
   personalityLabel: string;
   personalityBlurb: string;
+  strategy: '激进抢单' | '稳健报价' | '合作优先';
   traits: {
     riskTolerance: number;
     investAggression: number;
