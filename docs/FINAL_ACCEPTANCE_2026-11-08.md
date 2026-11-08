@@ -85,6 +85,7 @@ npm run dev -w @ai-civ/web -- --port 5180 --strictPort
 - 5 轮/编年史：`docs/screenshots/campaign/`
 - 播放：`docs/screenshots/playback/`
 - 大白话 UI：`docs/screenshots/plain-ui/`
+- 视觉重塑：`docs/screenshots/visual-rebuild/`（全景 / 设定卡 / 阵容海报）
 - 演示视频：`docs/recordings/ai-civ-demo-2026-11-08.mp4`
 - 事件 JSON：`docs/evidence/institution-high-tax.json`
 - 接入报告：`docs/MAC_TAKEOVER_2026-11-08.md`
