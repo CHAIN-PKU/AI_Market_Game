@@ -49,6 +49,10 @@
 - 保留当前规则层作为 fallback，避免 LLM 失败时空白
 - UI 标注 “LLM live” 或 “策略生成”
 
+## 截图
+
+- `docs/screenshots/visual-rebuild/negotiation-1920.png`
+
 ## 验证
 
 - `npm run build -w @ai-civ/web`
