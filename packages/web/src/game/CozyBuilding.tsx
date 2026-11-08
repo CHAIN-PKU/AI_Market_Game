@@ -144,7 +144,7 @@ function ChimneySmoke({ x, y, z }: { x: number; y: number; z: number }) {
 
 export function CozyBuilding({ role, height, width }: { role: BuildingRole; height: number; width: number }) {
   const s = STYLE[role];
-  const flatRoof = role === 'coding';
+  const flatRoof = role === 'coding' || role === 'design' || role === 'public-rd';
   const signTexture = useMemo(() => makeSignTexture(role), [role]);
   const w = width;
   const d = width * 0.68;
@@ -289,8 +289,22 @@ export function CozyBuilding({ role, height, width }: { role: BuildingRole; heig
           ))}
           <Box size={[w + 0.3, 0.1, 0.1]} position={[0, wallTop + 0.46, d / 2 + 0.05]} color={s.trim} />
           <Box size={[w + 0.3, 0.1, 0.1]} position={[0, wallTop + 0.46, -d / 2 - 0.05]} color={s.trim} />
-          <Box size={[0.7, 0.35, 0.6]} position={[0.45, wallTop + 0.25, -0.35]} color="#59645f" />
-          <Box size={[0.55, 0.3, 0.45]} position={[-0.45, wallTop + 0.22, -0.2]} color="#6f7d76" />
+          {role === 'coding' && (
+            <>
+              <Box size={[0.7, 0.35, 0.6]} position={[0.45, wallTop + 0.25, -0.35]} color="#59645f" />
+              <Box size={[0.55, 0.3, 0.45]} position={[-0.45, wallTop + 0.22, -0.2]} color="#6f7d76" />
+            </>
+          )}
+          {(role === 'design' || role === 'public-rd') && [0, 1, 2].map((i) => (
+            <group key={`saw-${i}`} position={[-w * 0.28 + i * w * 0.28, wallTop + 0.14, 0]} rotation={[0, 0, role === 'design' ? -0.35 : -0.5]}>
+              <Box size={[w * 0.26, 0.05, d * 0.78]} position={[0, 0.14, 0]} color="#f7f0df" />
+              <mesh position={[0, 0.18, 0]} rotation={[0, 0, 0]}>
+                <boxGeometry args={[w * 0.23, 0.025, d * 0.7]} />
+                <meshStandardMaterial color="#9fd4d0" roughness={0.16} metalness={0.08} transparent opacity={0.7} />
+              </mesh>
+              <Box size={[0.05, 0.26, d * 0.8]} position={[-w * 0.12, 0.02, 0]} color="#6b4a2f" />
+            </group>
+          ))}
         </group>
       )}
       {/* role toppers */}
