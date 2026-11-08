@@ -10,9 +10,9 @@ import { MIXAMO_AVATARS } from './avatarAssets';
 export type AgentVisualState = 'idle' | 'watching' | 'bidding' | 'selected' | 'working' | 'done' | 'shopping';
 const STATE_LABEL: Record<AgentVisualState, string> = { idle: '待机', watching: '观望', bidding: '竞标中', selected: '已中标', working: '工作中', done: '已完成', shopping: '去技能铺' };
 
-type Props = { agent: DemoAgent; index: number; start: [number, number, number]; target: [number, number, number]; state: AgentVisualState; selected: boolean; focused?: boolean; outline?: boolean; onSelect: (id: string) => void };
+type Props = { agent: DemoAgent; index: number; start: [number, number, number]; target: [number, number, number]; state: AgentVisualState; selected: boolean; focused?: boolean; outline?: boolean; onSelect: (id: string) => void; chatSay?: string | null; chatThink?: string | null; chatLift?: number };
 
-export function GameAgent({ agent, index, start, target, state, selected, focused = false, onSelect }: Props) {
+export function GameAgent({ agent, index, start, target, state, selected, focused = false, onSelect, chatSay = null, chatThink = null, chatLift = 0 }: Props) {
   const gltf = useGLTF(MIXAMO_AVATARS[index % MIXAMO_AVATARS.length]!.url);
   const dims = useMemo(() => {
     const box = new Box3().setFromObject(gltf.scene);
@@ -202,6 +202,26 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
         </div>
       </Html>
       <Html center position={[0, badgeY + 0.55, 0]} zIndexRange={[21, 0]} style={{ pointerEvents: 'none' }}>{bubble ? <div className={`ga-bubble ga-bubble--${state}`}>{bubble}</div> : null}</Html>
+      {/* 常驻挂载、只切可见性：每帧挂载/卸载会和 React 抢 DOM（removeChild 报错） */}
+      <Html center position={[0, badgeY + 2.05 + chatLift, 0]} zIndexRange={[30, 10]} style={{ pointerEvents: 'none' }}>
+        <div
+          className={`ga-chat ga-chat--think ${chatThink ? 'is-on' : 'is-off'}`}
+          data-testid={`think-${agent.id}`}
+          aria-hidden={!chatThink}
+        >
+          <span className="ga-chat-mark">💭</span>
+          <span className="ga-chat-text">{chatThink ?? ''}</span>
+        </div>
+      </Html>
+      <Html center position={[0, badgeY + 0.95 + chatLift, 0]} zIndexRange={[31, 10]} style={{ pointerEvents: 'none' }}>
+        <div
+          className={`ga-chat ga-chat--say ${chatSay ? 'is-on' : 'is-off'}`}
+          data-testid={`say-${agent.id}`}
+          aria-hidden={!chatSay}
+        >
+          <span className="ga-chat-text">{chatSay ?? ''}</span>
+        </div>
+      </Html>
     </group>
   );
 }

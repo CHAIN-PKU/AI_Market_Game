@@ -1,10 +1,11 @@
-import { ContactShadows, Html, Sky, SoftShadows, Sparkles } from '@react-three/drei';
+import { ContactShadows, Html, Sky, SoftShadows, Sparkles, useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useRef } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { MathUtils, Vector3, type PerspectiveCamera } from 'three';
 import { AGENT_SLOTS, BUILDING_SLOTS, TREE_SLOTS } from '../visual-lab/islandLayout';
 import { KENNEY_TREES } from '../visual-lab/assetUrls';
 import { GlbInstance } from '../visual-lab/GlbInstance';
+import { MIXAMO_AVATARS } from './avatarAssets';
 import { IslandBase } from '../visual-lab/IslandBase';
 import { NATIVE, WORLD, fitScale, sitOnGround } from '../visual-lab/assetScale';
 import { GameAgent, type AgentVisualState } from './GameAgent';
@@ -15,6 +16,7 @@ import { IslandLife } from './IslandLife';
 import { VillageDetails } from './VillageDetails';
 import { GridIcon, MarketIcon, PeopleIcon, RoleIcon, SkillIcon } from './icons';
 import { atLeast, type StepId } from './playback';
+import { activeChat } from './bargainScript';
 import { gold } from './presentation';
 import type { BidDemoFixture } from './types';
 import type { QualityConfig } from './quality';
@@ -184,6 +186,17 @@ function NoticeBoard({ fixture, step, onPublish }: { fixture: BidDemoFixture; st
   );
 }
 
+/**
+ * 预加载全部角色模型，再渲染场景。
+ * 不这样做的话：场景先挂载（Html 徽章/气泡已创建门户），随后模型加载完成触发
+ * Suspense 解析，门户在同一帧被同步卸载，React 抛 removeChild 错误。
+ */
+function AvatarWarmup({ children }: { children: ReactNode }) {
+  // 数量固定（8 个角色），因此可以安全地逐个调用 hook
+  for (const avatar of MIXAMO_AVATARS) useGLTF(avatar.url);
+  return <>{children}</>;
+}
+
 export function GameScene({
   fixture,
   step,
@@ -192,6 +205,7 @@ export function GameScene({
   onSelect,
   onPublish,
   quality,
+  theaterT,
 }: {
   fixture: BidDemoFixture;
   step: StepId;
@@ -199,10 +213,12 @@ export function GameScene({
   focusAgentId: string | null;
   onSelect: (id: string) => void;
   onPublish: () => void;
+  /** Seconds since the theater playback started, or null when the theater is off. */
+  theaterT?: number | null;
   quality: QualityConfig;
 }) {
   return (
-    <>
+    <AvatarWarmup>
       <CameraRig fixture={fixture} step={step} focusAgentId={focusAgentId} />
       <Sky sunPosition={[70, 18, 30]} turbidity={5.5} rayleigh={1.15} mieCoefficient={0.004} mieDirectionalG={0.82} />
       <fog attach="fog" args={['#f6ddc0', 44, 96]} />
@@ -283,11 +299,15 @@ export function GameScene({
           selected={selectedId === agent.id}
           focused={focusAgentId === agent.id}
           onSelect={onSelect}
+          chatSay={theaterT == null ? null : activeChat(agent.displayName, theaterT).say}
+          chatThink={theaterT == null ? null : activeChat(agent.displayName, theaterT).think}
+          // 相邻站位交替抬高，避免两个气泡在同一高度叠住
+          chatLift={(i % 2) * 0.62}
           outline={quality.outlines}
         />
       ))}
 
       <NoticeBoard fixture={fixture} step={step} onPublish={onPublish} />
-    </>
+    </AvatarWarmup>
   );
 }

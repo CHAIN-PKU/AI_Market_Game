@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiUrl } from '../apiBase';
 import { DOMAIN_LABEL, type BidDemoFixture, type ExperimentReport } from './types';
 import { downloadExperimentCard, experimentShareText } from './shareCard';
 import { CloseIcon, CoinIcon, PeopleIcon, SkillIcon } from './icons';
@@ -48,7 +49,7 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
     setExperimentBusy(true);
     setError(null);
     try {
-      const res = await fetch('/api/experiment', {
+      const res = await fetch(apiUrl('/api/experiment'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -77,7 +78,7 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
     setRunning(true);
     setError(null);
     try {
-      const res = await fetch('/api/demo/round', {
+      const res = await fetch(apiUrl('/api/demo/round'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
