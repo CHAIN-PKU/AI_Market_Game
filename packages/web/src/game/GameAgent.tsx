@@ -1,7 +1,7 @@
 import { Html, useAnimations, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
-import { Box3, Group, MathUtils } from 'three';
+import { Box3, Group, MathUtils, type Object3D } from 'three';
 import { clone as cloneWithSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { ROLE_KEY, ROLE_LABEL, type DemoAgent } from './types';
 import { RoleIcon } from './icons';
@@ -23,6 +23,24 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
   const { actions } = useAnimations(gltf.animations, clone);
   const current = useRef<string | null>(null);
   const groupRef = useRef<Group>(null);
+  const walkBones = useMemo(() => {
+    const byName = new Map<string, Object3D>();
+    clone.traverse((o) => {
+      const key = o.name.replace('mixamorig:', '');
+      byName.set(key, o);
+    });
+    const pick = (name: string) => byName.get(name) ?? null;
+    const legL = pick('LeftUpLeg');
+    const legR = pick('RightUpLeg');
+    const armL = pick('LeftArm');
+    const armR = pick('RightArm');
+    const spine = pick('Spine');
+    const base = (o: Object3D | null) => (o ? { x: o.rotation.x, z: o.rotation.z } : { x: 0, z: 0 });
+    return {
+      legL, legR, armL, armR, spine,
+      legLBase: base(legL), legRBase: base(legR), armLBase: base(armL), armRBase: base(armR), spineBase: base(spine),
+    };
+  }, [clone]);
   const walkPhase = useRef(0);
   const baseY = start[1];
 
@@ -46,6 +64,13 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
       g.rotation.y = MathUtils.damp(g.rotation.y, Math.atan2(dx, dz), 8, dt);
       walkPhase.current += dt * 9;
       g.position.y = baseY + Math.abs(Math.sin(walkPhase.current)) * 0.035;
+      const s = Math.sin(walkPhase.current);
+      const b = walkBones;
+      if (b.legL) b.legL.rotation.x = b.legLBase.x + s * 0.55;
+      if (b.legR) b.legR.rotation.x = b.legRBase.x - s * 0.55;
+      if (b.armL) b.armL.rotation.x = b.armLBase.x - s * 0.35;
+      if (b.armR) b.armR.rotation.x = b.armRBase.x + s * 0.35;
+      if (b.spine) b.spine.rotation.z = b.spineBase.z + s * 0.03;
     } else {
       g.rotation.y = MathUtils.damp(g.rotation.y, (index % 8) * 0.06, 4, dt);
       g.position.y = MathUtils.damp(g.position.y, baseY, 10, dt);

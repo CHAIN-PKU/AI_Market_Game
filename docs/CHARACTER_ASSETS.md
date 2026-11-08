@@ -27,7 +27,7 @@
 
 ## 动画
 
-每个 GLB 内嵌一个 `mixamo.com` 动画（idle）。当前移动时播放 idle + 程序化上下浮动，**还没有步行动画**；下一步可从 three.ws 动画库下载 walk/run clip 或做骨骼 retarget。
+每个 GLB 内嵌一个 `mixamo.com` 动画（idle）。移动时叠加程序化的腿/臂摆动 + 上下浮动（`GameAgent.tsx`），不是下载的 walk clip；下一步可换成真实 walk/run 动画。
 
 ## 缩略图
 
