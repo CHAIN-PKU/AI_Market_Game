@@ -99,9 +99,10 @@ export class MockAgentDecisionProvider implements AgentDecisionProvider {
         return ability >= ownAbility - 5;
       }).length;
       const affinity = agent.traits.domainAffinity[domain];
+      const ringDefections = agent.stats.ringDefections ?? 0;
       const reputation =
         (agent.stats.tasksCompleted + 1) /
-        (agent.stats.tasksCompleted + agent.stats.tasksFailed + 3);
+        (agent.stats.tasksCompleted + agent.stats.tasksFailed + ringDefections * 2 + 3);
       const estimatedCost = Math.round(
         task.reward * (0.3 + (1 - quality) * 0.15 + (1 - probability) * 0.05),
       );

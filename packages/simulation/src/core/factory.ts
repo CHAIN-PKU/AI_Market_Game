@@ -107,6 +107,7 @@ function createAgent(civilizationId: string, index: number, initialAbility: numb
       grossEarnings: 0,
       taxPaid: 0,
       skillSpend: 0,
+      ringDefections: 0,
     },
   };
 }

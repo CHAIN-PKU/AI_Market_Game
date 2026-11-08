@@ -58,7 +58,7 @@ export type DemoAgent = {
   walletBefore: number;
   walletAfter: number;
   skillsAfter: { id: string; name: string }[];
-  publicRecord: { tasksCompleted: number; tasksFailed: number; grossEarnings: number; taxPaid: number };
+  publicRecord: { tasksCompleted: number; tasksFailed: number; grossEarnings: number; taxPaid: number; ringDefections?: number };
   goal: { id: string; label: string; skillId: string | null; skillName: string | null; price: number | null };
   decision: DemoDecision;
   isFocus: boolean;

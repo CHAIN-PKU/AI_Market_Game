@@ -302,6 +302,7 @@ function snapshotBidDemo(input: {
         tasksFailed: previous.stats.tasksFailed,
         grossEarnings: previous.stats.grossEarnings,
         taxPaid: previous.stats.taxPaid,
+        ringDefections: previous.stats.ringDefections ?? 0,
       },
       goal: {
         id: goal.id,

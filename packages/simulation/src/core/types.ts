@@ -51,6 +51,8 @@ export interface AgentState {
     grossEarnings: number;
     taxPaid: number;
     skillSpend: number;
+    /** Times this agent broke a price ring and was reported. */
+    ringDefections?: number;
   };
 }
 
@@ -102,6 +104,7 @@ export type GameEventKind =
   | 'team_settled'
   | 'price_ring'
   | 'ring_defected'
+  | 'ring_reported'
   | 'ring_payout'
   | 'task_completed'
   | 'task_failed'

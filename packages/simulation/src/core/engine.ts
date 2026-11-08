@@ -82,9 +82,17 @@ export function runSingleRound(
           reasonFactors: bid.reasonFactors,
         });
         if (bid.ringDefected) {
+          const civ = state.civilizations.find((c) => c.id === bid.civilizationId);
+          const defector = civ?.agents.find((a) => a.id === bid.agentId);
+          if (defector) defector.stats.ringDefections = (defector.stats.ringDefections ?? 0) + 1;
           pushEvent(state, 'ring_defected', `${bid.agentId} broke the price ring on ${bid.taskId}`, {
             taskId: bid.taskId,
             agentId: bid.agentId,
+          });
+          pushEvent(state, 'ring_reported', `${bid.agentId} was reported by the ring`, {
+            taskId: bid.taskId,
+            agentId: bid.agentId,
+            reason: 'ring_defection',
           });
         }
       }

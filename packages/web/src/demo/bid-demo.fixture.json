@@ -81,7 +81,8 @@
         "tasksCompleted": 0,
         "tasksFailed": 0,
         "grossEarnings": 0,
-        "taxPaid": 0
+        "taxPaid": 0,
+        "ringDefections": 0
       },
       "goal": {
         "id": "save_for_skill",
@@ -205,7 +206,8 @@
         "tasksCompleted": 0,
         "tasksFailed": 0,
         "grossEarnings": 0,
-        "taxPaid": 0
+        "taxPaid": 0,
+        "ringDefections": 0
       },
       "goal": {
         "id": "save_for_skill",
@@ -334,7 +336,8 @@
         "tasksCompleted": 0,
         "tasksFailed": 0,
         "grossEarnings": 0,
-        "taxPaid": 0
+        "taxPaid": 0,
+        "ringDefections": 0
       },
       "goal": {
         "id": "save_for_skill",
@@ -458,7 +461,8 @@
         "tasksCompleted": 0,
         "tasksFailed": 0,
         "grossEarnings": 0,
-        "taxPaid": 0
+        "taxPaid": 0,
+        "ringDefections": 0
       },
       "goal": {
         "id": "save_for_skill",
@@ -587,7 +591,8 @@
         "tasksCompleted": 0,
         "tasksFailed": 0,
         "grossEarnings": 0,
-        "taxPaid": 0
+        "taxPaid": 0,
+        "ringDefections": 0
       },
       "goal": {
         "id": "save_for_skill",
@@ -711,7 +716,8 @@
         "tasksCompleted": 0,
         "tasksFailed": 0,
         "grossEarnings": 0,
-        "taxPaid": 0
+        "taxPaid": 0,
+        "ringDefections": 0
       },
       "goal": {
         "id": "save_for_skill",
@@ -835,7 +841,8 @@
         "tasksCompleted": 0,
         "tasksFailed": 0,
         "grossEarnings": 0,
-        "taxPaid": 0
+        "taxPaid": 0,
+        "ringDefections": 0
       },
       "goal": {
         "id": "save_for_skill",
@@ -959,7 +966,8 @@
         "tasksCompleted": 0,
         "tasksFailed": 0,
         "grossEarnings": 0,
-        "taxPaid": 0
+        "taxPaid": 0,
+        "ringDefections": 0
       },
       "goal": {
         "id": "save_for_skill",
@@ -2498,6 +2506,17 @@
     {
       "id": "evt-20",
       "round": 1,
+      "kind": "ring_reported",
+      "message": "civ-a-agent-3 was reported by the ring",
+      "payload": {
+        "taskId": "player-task-1-r0",
+        "agentId": "civ-a-agent-3",
+        "reason": "ring_defection"
+      }
+    },
+    {
+      "id": "evt-21",
+      "round": 1,
       "kind": "bid_placed",
       "message": "Delta bid on task-r2-2",
       "payload": {
@@ -2582,7 +2601,7 @@
       }
     },
     {
-      "id": "evt-21",
+      "id": "evt-22",
       "round": 1,
       "kind": "bid_placed",
       "message": "Delta bid on player-task-1-r0",
@@ -2680,7 +2699,7 @@
       }
     },
     {
-      "id": "evt-22",
+      "id": "evt-23",
       "round": 1,
       "kind": "bid_declined",
       "message": "Delta passed on task-r2-3",
@@ -2764,7 +2783,7 @@
       }
     },
     {
-      "id": "evt-23",
+      "id": "evt-24",
       "round": 1,
       "kind": "bid_declined",
       "message": "Delta passed on task-r2-4",
@@ -2848,7 +2867,7 @@
       }
     },
     {
-      "id": "evt-24",
+      "id": "evt-25",
       "round": 1,
       "kind": "bid_placed",
       "message": "Echo bid on task-r2-2",
@@ -2934,7 +2953,7 @@
       }
     },
     {
-      "id": "evt-25",
+      "id": "evt-26",
       "round": 1,
       "kind": "bid_declined",
       "message": "Echo passed on player-task-1-r0",
@@ -3018,7 +3037,7 @@
       }
     },
     {
-      "id": "evt-26",
+      "id": "evt-27",
       "round": 1,
       "kind": "bid_declined",
       "message": "Echo passed on task-r2-3",
@@ -3102,7 +3121,7 @@
       }
     },
     {
-      "id": "evt-27",
+      "id": "evt-28",
       "round": 1,
       "kind": "bid_declined",
       "message": "Echo passed on task-r2-4",
@@ -3186,7 +3205,7 @@
       }
     },
     {
-      "id": "evt-28",
+      "id": "evt-29",
       "round": 1,
       "kind": "bid_placed",
       "message": "Flux bid on task-r2-3",
@@ -3272,7 +3291,7 @@
       }
     },
     {
-      "id": "evt-29",
+      "id": "evt-30",
       "round": 1,
       "kind": "bid_declined",
       "message": "Flux passed on player-task-1-r0",
@@ -3356,7 +3375,7 @@
       }
     },
     {
-      "id": "evt-30",
+      "id": "evt-31",
       "round": 1,
       "kind": "bid_declined",
       "message": "Flux passed on task-r2-2",
@@ -3440,7 +3459,7 @@
       }
     },
     {
-      "id": "evt-31",
+      "id": "evt-32",
       "round": 1,
       "kind": "bid_declined",
       "message": "Flux passed on task-r2-4",
@@ -3524,7 +3543,7 @@
       }
     },
     {
-      "id": "evt-32",
+      "id": "evt-33",
       "round": 1,
       "kind": "bid_placed",
       "message": "Grove bid on player-task-1-r0",
@@ -3610,7 +3629,7 @@
       }
     },
     {
-      "id": "evt-33",
+      "id": "evt-34",
       "round": 1,
       "kind": "bid_placed",
       "message": "Grove bid on task-r2-2",
@@ -3696,7 +3715,7 @@
       }
     },
     {
-      "id": "evt-34",
+      "id": "evt-35",
       "round": 1,
       "kind": "bid_declined",
       "message": "Grove passed on task-r2-3",
@@ -3780,7 +3799,7 @@
       }
     },
     {
-      "id": "evt-35",
+      "id": "evt-36",
       "round": 1,
       "kind": "bid_declined",
       "message": "Grove passed on task-r2-4",
@@ -3864,7 +3883,7 @@
       }
     },
     {
-      "id": "evt-36",
+      "id": "evt-37",
       "round": 1,
       "kind": "bid_placed",
       "message": "Helix bid on task-r2-2",
@@ -3950,7 +3969,7 @@
       }
     },
     {
-      "id": "evt-37",
+      "id": "evt-38",
       "round": 1,
       "kind": "bid_declined",
       "message": "Helix passed on player-task-1-r0",
@@ -4034,7 +4053,7 @@
       }
     },
     {
-      "id": "evt-38",
+      "id": "evt-39",
       "round": 1,
       "kind": "bid_declined",
       "message": "Helix passed on task-r2-3",
@@ -4118,7 +4137,7 @@
       }
     },
     {
-      "id": "evt-39",
+      "id": "evt-40",
       "round": 1,
       "kind": "bid_declined",
       "message": "Helix passed on task-r2-4",
@@ -4202,7 +4221,7 @@
       }
     },
     {
-      "id": "evt-40",
+      "id": "evt-41",
       "round": 1,
       "kind": "task_assigned",
       "message": "civ-a-agent-2 assigned Icon set refresh (Design)",
@@ -4215,7 +4234,7 @@
       }
     },
     {
-      "id": "evt-41",
+      "id": "evt-42",
       "round": 1,
       "kind": "task_assigned",
       "message": "civ-a-agent-4 assigned Prototype material (Research)",
@@ -4228,7 +4247,7 @@
       }
     },
     {
-      "id": "evt-42",
+      "id": "evt-43",
       "round": 1,
       "kind": "task_assigned",
       "message": "civ-a-agent-3 assigned 修复网站登录问题",
@@ -4242,7 +4261,7 @@
       }
     },
     {
-      "id": "evt-43",
+      "id": "evt-44",
       "round": 1,
       "kind": "team_formed",
       "message": "civ-a-agent-3 + civ-a-agent-0 team up for 修复网站登录问题",
@@ -4256,7 +4275,7 @@
       }
     },
     {
-      "id": "evt-44",
+      "id": "evt-45",
       "round": 1,
       "kind": "tax_collected",
       "message": "Delta paid 6 tax on 修复网站登录问题",
@@ -4270,7 +4289,7 @@
       }
     },
     {
-      "id": "evt-45",
+      "id": "evt-46",
       "round": 1,
       "kind": "tax_collected",
       "message": "Astra paid 2 tax on 修复网站登录问题",
@@ -4284,7 +4303,7 @@
       }
     },
     {
-      "id": "evt-46",
+      "id": "evt-47",
       "round": 1,
       "kind": "team_settled",
       "message": "Delta + Astra split 修复网站登录问题",
@@ -4301,7 +4320,7 @@
       }
     },
     {
-      "id": "evt-47",
+      "id": "evt-48",
       "round": 1,
       "kind": "task_completed",
       "message": "Delta completed 修复网站登录问题",
@@ -4315,7 +4334,7 @@
       }
     },
     {
-      "id": "evt-48",
+      "id": "evt-49",
       "round": 1,
       "kind": "tax_collected",
       "message": "Echo paid 12 tax on Prototype material (Research)",
@@ -4328,7 +4347,7 @@
       }
     },
     {
-      "id": "evt-49",
+      "id": "evt-50",
       "round": 1,
       "kind": "task_completed",
       "message": "Echo completed Prototype material (Research)",
@@ -4341,7 +4360,7 @@
       }
     },
     {
-      "id": "evt-50",
+      "id": "evt-51",
       "round": 1,
       "kind": "tax_collected",
       "message": "Cinder paid 13 tax on Icon set refresh (Design)",
@@ -4354,7 +4373,7 @@
       }
     },
     {
-      "id": "evt-51",
+      "id": "evt-52",
       "round": 1,
       "kind": "task_completed",
       "message": "Cinder completed Icon set refresh (Design)",
@@ -4367,7 +4386,7 @@
       }
     },
     {
-      "id": "evt-52",
+      "id": "evt-53",
       "round": 1,
       "kind": "skill_purchased",
       "message": "Cinder bought Visual Composition",
@@ -4378,7 +4397,7 @@
       }
     },
     {
-      "id": "evt-53",
+      "id": "evt-54",
       "round": 1,
       "kind": "skill_purchased",
       "message": "Echo bought Literature Review",
@@ -4389,7 +4408,7 @@
       }
     },
     {
-      "id": "evt-54",
+      "id": "evt-55",
       "round": 1,
       "kind": "story",
       "message": "第 1 天，市集开门。",
@@ -4402,7 +4421,7 @@
       }
     },
     {
-      "id": "evt-55",
+      "id": "evt-56",
       "round": 1,
       "kind": "story",
       "message": "新到 3 单系统订单。",
@@ -4415,7 +4434,7 @@
       }
     },
     {
-      "id": "evt-56",
+      "id": "evt-57",
       "round": 1,
       "kind": "story",
       "message": "「材料原型试做」成了香饽饽，5 人报价。",
@@ -4462,7 +4481,7 @@
       }
     },
     {
-      "id": "evt-57",
+      "id": "evt-58",
       "round": 1,
       "kind": "story",
       "message": "另有 2 单被抢下。",
@@ -4478,7 +4497,7 @@
       }
     },
     {
-      "id": "evt-58",
+      "id": "evt-59",
       "round": 1,
       "kind": "story",
       "message": "顺利交差 3 单！",
@@ -4495,7 +4514,7 @@
       }
     },
     {
-      "id": "evt-59",
+      "id": "evt-60",
       "round": 1,
       "kind": "story",
       "message": "2 人投资了新技能。",
@@ -4511,7 +4530,7 @@
       }
     },
     {
-      "id": "evt-60",
+      "id": "evt-61",
       "round": 1,
       "kind": "story",
       "message": "Delta 交差成功",

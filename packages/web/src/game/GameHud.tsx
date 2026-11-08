@@ -739,6 +739,11 @@ export function AgentPanel({
             <span>
               交过税 <b>{gold(agent.publicRecord.taxPaid)}</b>
             </span>
+            {(agent.publicRecord.ringDefections ?? 0) > 0 && (
+              <span>
+                被举报 <b>{agent.publicRecord.ringDefections}</b> 次
+              </span>
+            )}
           </div>
         </div>
       </section>
@@ -841,6 +846,7 @@ const EVENT_LABEL: Record<string, string> = {
   price_ring: '串标',
   ring_payout: '分钱',
   ring_defected: '背叛',
+  ring_reported: '举报',
   task_completed: '做完了',
   task_failed: '搞砸了',
   tax_collected: '交税',
@@ -862,6 +868,7 @@ export function EventDrawer({ fixture, step, onClose }: { fixture: BidDemoFixtur
     'team_settled',
     'price_ring',
     'ring_defected',
+    'ring_reported',
     'ring_payout',
     'task_completed',
     'task_failed',
