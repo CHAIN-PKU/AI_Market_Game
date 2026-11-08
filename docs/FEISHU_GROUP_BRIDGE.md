@@ -19,9 +19,9 @@
 
 ## 群 ID
 
-**待确认。** `oc_5e43db36ee32790f386ed608fdcf6ce5` 是 EcoAI，已确认发错群；禁止再使用。
+AI Market Game：`oc_f0756707302f3291bb7eedb0ea1fe69d`（已确认）。`oc_5e43db36ee32790f386ed608fdcf6ce5` 是 EcoAI，禁止使用。
 
-正确群 ID 会在用户于 AI Market Game 群发 `@DSH` 后，由 listener 写入 `runtime/feishu-all.jsonl` / `runtime/feishu-inbox.jsonl`，用 `python3 ops/feishu_queue.py chats` 查看。
+群 ID 由 EcoAI 里的用户消息确认；listener 仍会记录实际消息 chat_id。
 
 ## 启动/保活
 

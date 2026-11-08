@@ -43,6 +43,21 @@ export function IslandBase() {
   });
   return (
     <group>
+      {/* rocky underside: the island reads as a floating diorama rock, not a cylinder */}
+      <mesh position={[0, -4.2, 0]} rotation={[Math.PI, 0, 0]} castShadow receiveShadow>
+        <coneGeometry args={[12.1, 8.4, 64, 1]} />
+        <meshStandardMaterial color="#6f6153" roughness={1} flatShading />
+      </mesh>
+      {Array.from({ length: 18 }, (_, i) => {
+        const a = (i / 18) * Math.PI * 2;
+        const r = 11.4 + Math.sin(i * 2.7) * 0.45;
+        return (
+          <mesh key={i} position={[Math.cos(a) * r, -0.55 - (i % 3) * 0.3, Math.sin(a) * r]} rotation={[0.4, a, 0.2]} scale={[0.7 + (i % 4) * 0.16, 0.5 + (i % 3) * 0.15, 0.65]} castShadow>
+            <dodecahedronGeometry args={[0.7, 0]} />
+            <meshStandardMaterial color={i % 2 === 0 ? '#7a6b5b' : '#8a7765'} roughness={1} flatShading />
+          </mesh>
+        );
+      })}
       {/* extruded soil gives the island a table-top model thickness and an irregular coast */}
       <mesh geometry={soilGeo} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow castShadow>
         <meshStandardMaterial color="#8a6a4b" roughness={1} />
