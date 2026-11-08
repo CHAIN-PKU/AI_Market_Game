@@ -4773,3 +4773,35 @@
   font-variant-numeric: tabular-nums;
   color: var(--text-1);
 }
+
+/* 角色身份三件套：座右铭 + 性格色条 + 目标 */
+.g-agent-motto {
+  margin: 2px 0 var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 3px solid #c9b48c;
+  background: #fffdf6;
+  color: #4a4237;
+  font-size: var(--fs-13);
+  line-height: 1.5;
+}
+.g-agent-identity {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-pill);
+  background: #f6efdf;
+  font-size: var(--fs-12);
+  color: var(--text-2);
+}
+.g-agent-identity b { color: var(--text-1); }
+.g-identity-label { font-size: var(--fs-11); color: var(--text-3); }
+.g-identity-sep { color: var(--text-3); }
+/* 三种性格用左边一条色带区分，不靠读文字 */
+.g-agent-identity.g-persona--cautious { border-left: 3px solid #4f7a46; }
+.g-agent-identity.g-persona--steady { border-left: 3px solid #3f8f96; }
+.g-agent-identity.g-persona--eager { border-left: 3px solid #d97a52; }
+.g-agent-identity.g-persona--curious { border-left: 3px solid #8f7cc9; }
+.g-agent-identity.g-persona--balanced { border-left: 3px solid #e0a94f; }

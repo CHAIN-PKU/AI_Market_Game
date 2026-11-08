@@ -718,6 +718,16 @@ export function AgentPanel({
           </div>
         </div>
 
+        {/* 身份三件套：座右铭 / 性格色条 / 经济目标 —— 不看数字也能认出这是谁 */}
+        <p className="g-agent-motto">「{loreFor(agent.displayName).motto}」</p>
+        <div className={`g-agent-identity ${personalityTone(agent)}`}>
+          <span className="g-identity-label">性格</span>
+          <b>{agent.personalityLabel}</b>
+          <span className="g-identity-sep">·</span>
+          <span className="g-identity-label">目标</span>
+          <b>{agent.goal?.label ?? '攒钱'}</b>
+        </div>
+
         <p className="g-agent-bio">{loreFor(agent.displayName).bio}</p>
         <blockquote className="g-mood">「{publicLine(agent)}」</blockquote>
 
