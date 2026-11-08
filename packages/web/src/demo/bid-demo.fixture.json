@@ -4576,6 +4576,52 @@
     }
   },
   "rival": {
+    "crossCiv": {
+      "rule": "评分 = 0.55 × 质量 + 0.45 × 价格优势（引擎 scoreBid）",
+      "scores": [
+        {
+          "who": "Echo",
+          "civ": "远岸文明",
+          "civId": "civ-b",
+          "amount": 73,
+          "quality": 0.66,
+          "score": 0.485
+        },
+        {
+          "who": "Kite",
+          "civ": "远岸文明",
+          "civId": "civ-b",
+          "amount": 75,
+          "quality": 0.66,
+          "score": 0.476
+        },
+        {
+          "who": "Helix",
+          "civ": "远岸文明",
+          "civId": "civ-b",
+          "amount": 78,
+          "quality": 0.66,
+          "score": 0.462
+        },
+        {
+          "who": "Delta",
+          "civ": "晨曦文明",
+          "civId": "civ-a",
+          "amount": 66,
+          "quality": 0.45,
+          "score": 0.401
+        }
+      ],
+      "winner": {
+        "who": "Echo",
+        "civ": "远岸文明",
+        "civId": "civ-b",
+        "amount": 73,
+        "quality": 0.66,
+        "score": 0.485
+      },
+      "rivalLost": false
+    },
     "id": "civ-b",
     "name": "远岸文明",
     "rules": {

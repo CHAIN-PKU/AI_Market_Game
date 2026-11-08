@@ -146,6 +146,12 @@ export type BidDemoFixture = {
     treasuryAfter: number;
     generatedBy?: string;
     bids: BidSummary[];
+    crossCiv?: {
+      rule: string;
+      scores: { who: string; civ: string; civId: string; amount: number; quality: number; score: number }[];
+      winner: { who: string; civ: string; civId: string; amount: number; score: number } | null;
+      rivalLost: boolean;
+    };
   };
   treasuryBreakdown: {
     start: number;

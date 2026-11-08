@@ -4610,3 +4610,14 @@
   align-items: flex-start;
   gap: 2px;
 }
+
+.g-bid--rival .g-bid-civ {
+  margin-left: 5px;
+  padding: 0 5px;
+  border-radius: var(--r-pill);
+  background: #efe3c8;
+  color: var(--text-3);
+  font-size: 10px;
+  font-style: normal;
+}
+.g-bid--rival.is-foe .g-bid-civ { background: #f3ddd2; color: #a4452c; }

@@ -402,16 +402,30 @@ export function LeftPanel({
         {showBids && fixture.rival && (
           <div className="g-rivalbox">
             <div className="g-bidbox-head">
-              <span>对手文明 · {fixture.rival.name}</span>
-              <em>{fixture.rival.rules.name} · 税率 {Math.round(fixture.rival.rules.taxRate * 100)}%</em>
+              <span>A 模式预演 · 若两岛同场</span>
+              <em>
+                {fixture.rival.name}（{fixture.rival.rules.name}，税率{' '}
+                {Math.round(fixture.rival.rules.taxRate * 100)}%）
+              </em>
             </div>
-            {fixture.rival.bids.slice(0, 3).map((bid) => (
-              <div key={bid.agentId} className="g-bid g-bid--rival">
-                <span className="g-bid-name">{bid.displayName}</span>
-                <span className="g-bid-amount">{bid.bidAmount} 金</span>
+            {(fixture.rival.crossCiv?.scores ?? []).slice(0, 4).map((row) => (
+              <div
+                key={`${row.civId}-${row.who}`}
+                className={row.civId === fixture.civilization.id ? 'g-bid g-bid--rival' : 'g-bid g-bid--rival is-foe'}
+              >
+                <span className="g-bid-name">
+                  {row.who}
+                  <em className="g-bid-civ">{row.civId === fixture.civilization.id ? '本岛' : '对岸'}</em>
+                </span>
+                <span className="g-bid-amount">
+                  {row.amount} 金 · 评分 {row.score.toFixed(2)}
+                </span>
               </div>
             ))}
-            <p className="g-rivalbox-note">同一张单，两座岛都在抢（报价由引擎跑出）</p>
+            <p className="g-rivalbox-note">
+              评分按「质量 0.55 + 价格 0.45」算：对岸共享技能、质量更高，这把尺子下会抢走单子。
+              当前仍是单岛演示，所以正片里中标的是本岛。
+            </p>
           </div>
         )}
 

@@ -15,6 +15,7 @@ import {
   createRng,
   MockAgentDecisionProvider,
   effectiveAbility,
+  scoreBid,
 } from '../packages/simulation/dist/index.js';
 
 const FIXTURE = path.resolve('packages/web/src/demo/bid-demo.fixture.json');
@@ -65,7 +66,35 @@ for (const decision of decisions) {
 
 bids.sort((a, b) => b.bidAmount - a.bidAmount);
 
+// 跨文明评分：主文明的报价也在同一把尺子上量一遍，看对手到底能不能抢走。
+const mainBids = (fixture.bids ?? []).map((bid) => ({
+  who: bid.displayName,
+  civ: fixture.civilization.name,
+  civId: fixture.civilization.id,
+  amount: bid.bidAmount,
+  quality: bid.expectedQuality,
+  score: Number(scoreBid(bid, task).toFixed(3)),
+}));
+const rivalScored = bids.map((bid) => ({
+  who: bid.displayName,
+  civ: '远岸文明',
+  civId: rivals.id,
+  amount: bid.bidAmount,
+  quality: bid.expectedQuality,
+  score: Number(scoreBid(bid, task).toFixed(3)),
+}));
+
+const allScored = [...mainBids, ...rivalScored].sort((a, b) => b.score - a.score);
+const crossCiv = {
+  rule: '评分 = 0.55 × 质量 + 0.45 × 价格优势（引擎 scoreBid）',
+  scores: allScored.slice(0, 4),
+  winner: allScored[0] ?? null,
+  /** 对手的最高分是否被主文明压住 */
+  rivalLost: allScored[0]?.civId !== rivals.id,
+};
+
 fixture.rival = {
+  crossCiv,
   id: rivals.id,
   name: '远岸文明',
   rules: {
