@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type { Mesh, MeshStandardMaterial } from 'three';
-import { BufferGeometry, DoubleSide, Float32BufferAttribute } from 'three';
+import { BufferGeometry, CanvasTexture, DoubleSide, Float32BufferAttribute, SRGBColorSpace } from 'three';
 import type { BuildingRole } from '../visual-lab/islandLayout';
 
 type Style = {
@@ -21,6 +21,40 @@ const STYLE: Record<BuildingRole, Style> = {
   'public-rd': { wall: '#f7f0df', roof: '#b8842f', roofAlt: '#e0b85f', trim: '#8a5a2f', door: '#6b4a2f' },
   homes: { wall: '#f9f0df', roof: '#7cbf7a', roofAlt: '#a9dc9a', trim: '#4f8b52', door: '#8b5e3c' },
 };
+
+const SIGN_LABEL: Record<BuildingRole, string> = {
+  market: '市集',
+  skill: '技能',
+  coding: '程序',
+  research: '研究',
+  design: '设计',
+  'public-rd': '公研',
+  homes: '居民',
+};
+
+function makeSignTexture(role: BuildingRole): CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+  const st = STYLE[role];
+  ctx.fillStyle = '#fdf7e9';
+  ctx.fillRect(0, 0, 256, 64);
+  ctx.fillStyle = st.trim;
+  ctx.fillRect(0, 0, 8, 64);
+  ctx.fillStyle = st.roof;
+  ctx.beginPath();
+  ctx.arc(44, 32, 14, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#2f4f45';
+  ctx.font = '700 30px "PingFang SC", "Hiragino Sans GB", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(SIGN_LABEL[role], 136, 34);
+  const tex = new CanvasTexture(canvas);
+  tex.colorSpace = SRGBColorSpace;
+  return tex;
+}
 
 function Box({
   size,
@@ -110,6 +144,7 @@ function ChimneySmoke({ x, y, z }: { x: number; y: number; z: number }) {
 
 export function CozyBuilding({ role, height, width }: { role: BuildingRole; height: number; width: number }) {
   const s = STYLE[role];
+  const signTexture = useMemo(() => makeSignTexture(role), [role]);
   const w = width;
   const d = width * 0.68;
   const base = 0.16;
@@ -185,7 +220,10 @@ export function CozyBuilding({ role, height, width }: { role: BuildingRole; heig
       <Window position={[w / 2 + 0.01, base + 0.95, 0]} rotation={[0, Math.PI / 2, 0]} trim={s.trim} />
       {/* hanging sign */}
       <Box size={[0.82, 0.24, 0.06]} position={[0, base + 1.45, frontZ + 0.06]} color={s.trim} />
-      <Box size={[0.64, 0.12, 0.03]} position={[0, base + 1.45, frontZ + 0.1]} color="#fdf7e9" />
+      <mesh position={[0, base + 1.45, frontZ + 0.115]}>
+        <planeGeometry args={[0.62, 0.115]} />
+        <meshBasicMaterial map={signTexture} transparent />
+      </mesh>
       {/* gable ends */}
       <mesh geometry={gable}>
         <meshStandardMaterial color={s.wall} roughness={0.95} side={DoubleSide} />
