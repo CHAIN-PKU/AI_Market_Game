@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DOMAIN_LABEL, type BidDemoFixture, type ExperimentReport } from './types';
-import { downloadExperimentCard } from './shareCard';
+import { downloadExperimentCard, experimentShareText } from './shareCard';
 import { CloseIcon, CoinIcon, PeopleIcon, SkillIcon } from './icons';
 
 type Props = {
@@ -41,6 +41,7 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
   const [running, setRunning] = useState(false);
   const [experimentBusy, setExperimentBusy] = useState(false);
   const [experiment, setExperiment] = useState<ExperimentReport | null>(null);
+  const [copiedExperiment, setCopiedExperiment] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function runExperiment() {
@@ -221,6 +222,18 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
             <div className="g-experiment-head">
               <strong>5 轮制度实验</strong>
               <span>{experiment.a.rules.name} vs {experiment.b.rules.name} · 种子 {experiment.seed}</span>
+              <button
+                type="button"
+                className="g-btn g-btn--ghost g-experiment-download"
+                onClick={() => {
+                  void navigator.clipboard?.writeText(experimentShareText(experiment)).then(() => {
+                    setCopiedExperiment(true);
+                    window.setTimeout(() => setCopiedExperiment(false), 1500);
+                  });
+                }}
+              >
+                {copiedExperiment ? '已复制' : '复制文案'}
+              </button>
               <button type="button" className="g-btn g-btn--ghost g-experiment-download" onClick={() => downloadExperimentCard(experiment)}>
                 存成图片
               </button>

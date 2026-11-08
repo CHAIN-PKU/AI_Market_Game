@@ -212,3 +212,17 @@ export function downloadExperimentCard(report: ExperimentReport): void {
     URL.revokeObjectURL(url);
   }, 'image/png');
 }
+
+export function experimentShareText(report: ExperimentReport): string {
+  const a = report.a.stats;
+  const b = report.b.stats;
+  const deltaNet = b.totalNet - a.totalNet;
+  const deltaGini = Math.round((b.gini - a.gini) * 1000) / 1000;
+  return [
+    `同一批 AI，两套制度（种子 ${report.seed}，${report.maxRounds} 轮）`,
+    `${report.a.rules.name}：总到手 ${a.totalNet} 金，税 ${a.totalTax}，基尼 ${a.gini}，组队 ${a.teamBids}，串标 ${a.ringBids}，举报 ${a.reports}`,
+    `${report.b.rules.name}：总到手 ${b.totalNet} 金，税 ${b.totalTax}，基尼 ${b.gini}，组队 ${b.teamBids}，串标 ${b.ringBids}，举报 ${b.reports}`,
+    `变化：总到手 ${deltaNet >= 0 ? '+' : ''}${deltaNet}，基尼 ${deltaGini >= 0 ? '+' : ''}${deltaGini}`,
+    `不是 NPC 换皮：成本、利润、声誉、产能、组队、串标、背叛、举报都在引擎里跑。`,
+  ].join('\n');
+}
