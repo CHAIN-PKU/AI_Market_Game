@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "npm run build -w @ai-civ/simulation",
-    "test": "npm run test -w @ai-civ/simulation",
+    "test": "npm run test -w @ai-civ/simulation && npm run test -w @ai-civ/web",
     "sim": "npm run sim -w @ai-civ/simulation",
     "sim:dual": "npm run sim:dual -w @ai-civ/simulation",
     "sim:agents": "npm run sim:agents -w @ai-civ/simulation",

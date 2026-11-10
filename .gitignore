@@ -15,3 +15,5 @@ dsh-plugins/
 .dsh/
 # local npm cache during builds
 .npm-cache/
+
+runtime/campaigns/

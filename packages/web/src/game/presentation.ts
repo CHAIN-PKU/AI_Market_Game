@@ -38,15 +38,16 @@ export function goalGap(agent: DemoAgent): number | null {
 }
 
 export function decisionHeadline(agent: DemoAgent): string {
-  if (agent.decision.action === 'pass') return '观望';
-  return `竞标 ${agent.decision.bidAmount} 金`;
+  if (agent.decision.action === 'pass') return '不接';
+  return `报价 ${agent.decision.bidAmount} 金`;
 }
 
 export function decisionBadge(agent: DemoAgent): { label: string; tone: 'pass' | 'bid' } {
-  if (agent.decision.action === 'bid') return { label: '参与竞标', tone: 'bid' };
-  if (agent.decision.reasonCode === 'risk_above_comfort') return { label: '风险不合', tone: 'pass' };
-  if (agent.decision.reasonCode === 'too_little_upside') return { label: '收益太低', tone: 'pass' };
-  return { label: '优先他单', tone: 'pass' };
+  if (agent.decision.action === 'bid') return { label: '想接', tone: 'bid' };
+  if (agent.decision.reasonCode === 'risk_above_comfort') return { label: '风险太高', tone: 'pass' };
+  if (agent.decision.reasonCode === 'too_little_upside') return { label: '不划算', tone: 'pass' };
+  if (agent.decision.reasonCode === 'price_ring') return { label: '价格联盟', tone: 'pass' };
+  return { label: '先做别的', tone: 'pass' };
 }
 
 /** Main public line — 1–2 sentences, generated from structured factors only. */
@@ -59,15 +60,15 @@ export function publicLine(agent: DemoAgent): string {
   if (d.action === 'pass') {
     if (d.reasonCode === 'risk_above_comfort') {
       if (agent.personality === 'cautious') {
-        return `这单成功率只有 ${probability}，低于我能接受的安全线 ${floor}。报价再高，也不够补我的工具箱。`;
+        return `这单只有 ${probability} 把握，低于我要求的 ${floor}。报价再高，也不够补我的工具箱。`;
       }
       if (agent.personality === 'steady') {
-        return `成功率 ${probability}，波动太大。我宁愿把长期能力先练稳，也不接这单。`;
+        return `${probability} 的把握，太悬了。我宁愿先把本事练稳，也不接这单。`;
       }
-      return `成功率 ${probability}，风险偏高；这单我先观望。`;
+      return `${probability} 的把握，风险偏高；这单我先不接。`;
     }
     if (d.reasonCode === 'too_little_upside') {
-      return `算下来风险评估后的价值只有 ${d.expectedValue}，不值得我出手。`;
+      return `算下来不划算，这单我不出手。`;
     }
     return '这轮我先去抢另一单，这单就不跟了。';
   }
@@ -76,12 +77,12 @@ export function publicLine(agent: DemoAgent): string {
   const skill = agent.goal.skillName;
   if (agent.personality === 'bold') {
     if (skill && gap !== null) {
-      return `我差 ${gap} 金就能买「${skill}」。${gold(d.bidAmount ?? 0)}我接了，抢单就得报得狠一点。`;
+      return `我差 ${gap} 金就能买「${skill}」。${gold(d.bidAmount ?? 0)}我接了，抢单得报狠一点。`;
     }
     return `${gold(d.bidAmount ?? 0)}我接了，先把这一单吃下来。`;
   }
   if (agent.personality === 'steady') {
-    return `我不抢最低价。${gold(d.bidAmount ?? 0)}、成功率 ${probability}，拿下它我的${domain}能再长一截。`;
+    return `我不抢最低价。${gold(d.bidAmount ?? 0)}、${probability} 把握，拿下它我的${domain}能再强一点。`;
   }
   if (agent.personality === 'cautious') {
     return `风险可以接受，但报价要够安全：${gold(d.bidAmount ?? 0)}，否则不划算。`;
@@ -110,18 +111,49 @@ export function reactionLine(agent: DemoAgent, fixture: BidDemoFixture): string 
 export function factorChips(agent: DemoAgent): { label: string; value: string; emphasis?: boolean }[] {
   const d = agent.decision;
   const chips: { label: string; value: string; emphasis?: boolean }[] = [
-    { label: '自估成功率', value: pct(d.successProbability) },
-    { label: '风险安全线', value: pct(d.riskComfortFloor) },
-    { label: '风险调整价值', value: String(d.expectedValue) },
+    { label: '有把握', value: pct(d.successProbability) },
+    { label: '它要求', value: pct(d.riskComfortFloor) },
+    { label: d.expectedProfit !== undefined ? '预计利润' : '这单值', value: String(d.expectedProfit ?? d.expectedValue) },
     { label: '钱包', value: gold(agent.walletBefore) },
-    { label: '更强同行', value: `${d.observedCompetitors.strongerSpecialists} 人` },
   ];
+  if (d.estimatedCost !== undefined) chips.push({ label: '预估成本', value: `${d.estimatedCost} 金` });
+  if (d.reputation !== undefined) chips.push({ label: '履约声誉', value: `${Math.round(d.reputation * 100)}%` });
+  if (d.competitors !== undefined) chips.push({ label: '同域对手', value: `${d.competitors} 人` });
+  chips.push({ label: '策略', value: agent.strategy });
+  if (agent.busyUntilRound && agent.busyUntilRound > 0) {
+    chips.push({ label: '档期', value: `忙到第 ${agent.busyUntilRound} 轮` });
+  }
   if (agent.goal.price !== null) {
-    chips.push({ label: '目标', value: agent.goal.label, emphasis: true });
+    chips.push({ label: '想要', value: agent.goal.label, emphasis: true });
   }
   return chips;
 }
 
 export function waitLabel(agent: DemoAgent): string {
   return agent.decision.action === 'bid' ? `${agent.decision.bidAmount} 金` : '观望';
+}
+
+
+export type MarketStats = {
+  teams: number;
+  rings: number;
+  reports: number;
+  defections: number;
+  bids: number;
+  spread: number;
+  busy: number;
+};
+
+export function marketStats(fixture: import('./types').BidDemoFixture): MarketStats {
+  const amounts = fixture.bids.map((b) => b.bidAmount);
+  const spread = amounts.length ? Math.max(...amounts) - Math.min(...amounts) : 0;
+  return {
+    teams: fixture.bids.filter((b) => (b.teamAgentIds?.length ?? 0) > 1).length,
+    rings: fixture.bids.filter((b) => (b.ringAgentIds?.length ?? 0) > 1).length,
+    reports: fixture.rawEvents.filter((e) => e.kind === 'ring_reported').length,
+    defections: fixture.rawEvents.filter((e) => e.kind === 'ring_defected').length,
+    bids: fixture.bids.length,
+    spread,
+    busy: fixture.agents.filter((a) => (a.busyUntilRound ?? 0) > fixture.demoRound).length,
+  };
 }

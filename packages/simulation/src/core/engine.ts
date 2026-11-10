@@ -65,11 +65,36 @@ export function runSingleRound(
           riskComfortFloor: bid.riskComfortFloor,
           expectedReward: bid.expectedReward,
           expectedValue: bid.expectedValue,
+          estimatedCost: bid.estimatedCost,
+          expectedProfit: bid.expectedProfit,
+          reputation: bid.reputation,
+          competitors: bid.competitors,
+          teamAgentIds: bid.teamAgentIds,
+          teamQuality: bid.teamQuality,
+          teamProbability: bid.teamProbability,
+          teamCost: bid.teamCost,
+          teamProfit: bid.teamProfit,
+          ringAgentIds: bid.ringAgentIds,
+          ringDefected: bid.ringDefected,
           personalGoalId: bid.personalGoalId,
           personalGoalLabel: bid.personalGoalLabel,
           observedCompetitors: bid.observedCompetitors,
           reasonFactors: bid.reasonFactors,
         });
+        if (bid.ringDefected) {
+          const civ = state.civilizations.find((c) => c.id === bid.civilizationId);
+          const defector = civ?.agents.find((a) => a.id === bid.agentId);
+          if (defector) defector.stats.ringDefections = (defector.stats.ringDefections ?? 0) + 1;
+          pushEvent(state, 'ring_defected', `${bid.agentId} broke the price ring on ${bid.taskId}`, {
+            taskId: bid.taskId,
+            agentId: bid.agentId,
+          });
+          pushEvent(state, 'ring_reported', `${bid.agentId} was reported by the ring`, {
+            taskId: bid.taskId,
+            agentId: bid.agentId,
+            reason: 'ring_defection',
+          });
+        }
       }
       for (const decline of decision.declines ?? []) {
         pushEvent(state, 'bid_declined', `${agent.displayName} passed on ${decline.taskId}`, {
@@ -81,11 +106,22 @@ export function runSingleRound(
           riskComfortFloor: decline.riskComfortFloor,
           expectedReward: decline.expectedReward,
           expectedValue: decline.expectedValue,
+          estimatedCost: decline.estimatedCost,
+          expectedProfit: decline.expectedProfit,
+          reputation: decline.reputation,
+          competitors: decline.competitors,
           personalGoalId: decline.personalGoalId,
           personalGoalLabel: decline.personalGoalLabel,
           observedCompetitors: decline.observedCompetitors,
           reasonFactors: decline.reasonFactors,
         });
+        if (decline.reasonCode === 'price_ring') {
+          pushEvent(state, 'price_ring', `${agent.displayName} honors the price ring on ${decline.taskId}`, {
+            taskId: decline.taskId,
+            agentId: agent.id,
+            ringAgentIds: [agent.id],
+          });
+        }
       }
     }
   }
@@ -97,14 +133,45 @@ export function runSingleRound(
     task.status = 'assigned';
     task.assignedAgentId = bid.agentId;
     task.assignedCivilizationId = bid.civilizationId;
+    task.assignedTeamIds = bid.teamAgentIds ?? [bid.agentId];
+    task.ringAgentIds = bid.ringAgentIds;
+    task.durationRounds = task.durationRounds ?? 1;
+    task.assignedRound = state.round;
     task.winningBid = bid.bidAmount;
+    const civ = state.civilizations.find((c) => c.id === bid.civilizationId);
+    if (civ) {
+      const until = state.round + task.durationRounds;
+      for (const id of task.assignedTeamIds) {
+        const worker = civ.agents.find((a) => a.id === id);
+        if (worker) worker.busyUntilRound = Math.max(worker.busyUntilRound ?? 0, until);
+      }
+    }
     pushEvent(state, 'task_assigned', `${bid.agentId} assigned ${task.title}`, {
       taskId,
       agentId: bid.agentId,
+      teamAgentIds: bid.teamAgentIds ?? [bid.agentId],
     });
+    if (bid.ringAgentIds && bid.ringAgentIds.length > 1) {
+      pushEvent(state, 'price_ring', `${bid.ringAgentIds.join(' + ')} price ring on ${task.title}`, {
+        taskId,
+        agentId: bid.agentId,
+        ringAgentIds: bid.ringAgentIds,
+      });
+    }
+    if (bid.teamAgentIds && bid.teamAgentIds.length > 1) {
+      pushEvent(state, 'team_formed', `${bid.teamAgentIds.join(' + ')} team up for ${task.title}`, {
+        taskId,
+        agentId: bid.agentId,
+        teamAgentIds: bid.teamAgentIds,
+      });
+    }
   }
 
-  const assigned = state.marketTasks.filter((t) => t.status === 'assigned');
+  const assigned = state.marketTasks.filter((t) => {
+    if (t.status !== 'assigned') return false;
+    const ready = (t.assignedRound ?? 0) + (t.durationRounds ?? 1) - 1;
+    return state.round >= ready;
+  });
   for (const task of assigned) {
     executeAssignedTask(state, task, rng);
   }

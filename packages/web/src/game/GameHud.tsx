@@ -1,8 +1,13 @@
+import { useMemo } from 'react';
 import type { BidDemoFixture, DemoAgent } from './types';
-import { ROLE_KEY, ROLE_LABEL } from './types';
-import { STEP_INDEX, TIMELINE, type StepId } from './playback';
+import { DOMAIN_LABEL, ROLE_KEY, ROLE_LABEL, type RuleCompare } from './types';
+import { QUALITY, type Quality } from './quality';
+import { STEP_INDEX, TIMELINE, buildPlaybackCues, type StepId } from './playback';
+import { eventText } from './eventText';
+import { downloadCompareCard } from './shareCard';
+import { MIXAMO_AVATARS } from './avatarAssets';
+import { loreFor } from './agentLore';
 import {
-  cooperationLabel,
   decisionBadge,
   decisionHeadline,
   factorChips,
@@ -92,10 +97,26 @@ export function TopBar({
   fixture,
   derived,
   onToggleDebug,
+  onOpenInstitutions,
+  campaign,
+  campaignBusy,
+  onStartCampaign,
+  onNextCampaign,
+  onOpenHistory,
+  onOpenGuide,
+  onOpenCast,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
   onToggleDebug: () => void;
+  onOpenInstitutions: () => void;
+  campaign: { round: number; maxRounds: number; done: boolean } | null;
+  campaignBusy: boolean;
+  onStartCampaign: () => void;
+  onNextCampaign: () => void;
+  onOpenHistory: () => void;
+  onOpenGuide: () => void;
+  onOpenCast: () => void;
 }) {
   return (
     <header className="g-top">
@@ -108,7 +129,7 @@ export function TopBar({
         </div>
         <div className="g-brand-text">
           <strong>{fixture.civilization.name}</strong>
-          <span className="g-rules">{fixture.civilization.rules.name}</span>
+          <span className="g-rules">{fixture.civilization.rules.name} · 你定规则</span>
         </div>
       </div>
 
@@ -135,10 +156,38 @@ export function TopBar({
       <div className="g-top-actions">
         {derived.posted && (
           <span className="g-turn-label">
-            步骤 <b>{STEP_INDEX[derived.step] + 1}</b> / {TIMELINE.length}
+            第 <b>{STEP_INDEX[derived.step] + 1}</b>/{TIMELINE.length} 步
           </span>
         )}
-        <button type="button" className="g-icon-btn" title="帮助与开发者信息" onClick={onToggleDebug}>
+        {campaign ? (
+          <>
+            <button type="button" className="g-campaign-chip" onClick={onOpenHistory} title="看这 5 轮">
+              文明 {campaign.round}/{campaign.maxRounds}
+            </button>
+            <button
+              type="button"
+              className="g-btn g-btn--primary g-campaign-btn"
+              onClick={campaign.done ? onStartCampaign : onNextCampaign}
+              disabled={campaignBusy}
+            >
+              {campaign.done ? '再跑 5 轮' : campaignBusy ? '跑着呢…' : '再来一轮'}
+            </button>
+          </>
+        ) : (
+          <button type="button" className="g-btn g-btn--ghost g-campaign-btn" onClick={onStartCampaign} disabled={campaignBusy}>
+            {campaignBusy ? '准备中…' : '看 5 轮'}
+          </button>
+        )}
+        <button type="button" className="g-btn g-btn--ghost g-rules-btn" onClick={onOpenInstitutions}>
+          改规则
+        </button>
+        <button type="button" className="g-icon-btn" onClick={onOpenCast} aria-label="居民图鉴" title="居民图鉴">
+          <PeopleIcon size={16} />
+        </button>
+        <button type="button" className="g-icon-btn g-guide-open" onClick={onOpenGuide} aria-label="怎么玩" title="怎么玩">
+          ?
+        </button>
+        <button type="button" className="g-icon-btn" title="帮助与开发者信息" aria-label="开发者信息" onClick={onToggleDebug}>
           <GearIcon size={16} />
         </button>
       </div>
@@ -161,7 +210,7 @@ function FocusCard({
   return (
     <div className={`g-focus ${agent.decision.action === 'bid' ? 'is-bid' : 'is-pass'}`}>
       <div className="g-focus-head">
-        <span className="g-focus-step">居民 {focusNumber}/3</span>
+        <span className="g-focus-step">第 {focusNumber} 位</span>
         <span className={personalityTone(agent)}>{agent.personalityLabel}</span>
         <span className={badge.tone === 'bid' ? 'g-focus-decision is-bid' : 'g-focus-decision is-pass'}>{badge.label}</span>
       </div>
@@ -187,11 +236,11 @@ function FocusCard({
         <span className={agent.decision.action === 'bid' ? 'g-focus-out is-bid' : 'g-focus-out is-pass'}>
           决策：{decisionHeadline(agent)}
         </span>
-        <span className="g-muted">{agent.decision.action === 'bid' ? '愿意承担风险' : '放弃这一单'}</span>
+        <span className="g-muted">{agent.decision.action === 'bid' ? '愿意接' : agent.decision.reasonCode === 'risk_above_comfort' ? '风险太高' : '觉得不划算'}</span>
       </div>
       {step === 'focus_astra' && <p className="g-focus-note">下一位：Delta · 积极型</p>}
       {step === 'focus_delta' && <p className="g-focus-note">下一位：Grove · 稳健型</p>}
-      {step === 'focus_grove' && <p className="g-focus-note">三位重点居民已表态，其余 5 人收在竞标名单里。</p>}
+      {step === 'focus_grove' && <p className="g-focus-note">三位重点居民已表态，其余 5 人收在「谁想接」里。</p>}
     </div>
   );
 }
@@ -201,11 +250,17 @@ export function LeftPanel({
   derived,
   focusAgent,
   focusNumber,
+  compare,
+  onStart,
+  onOpenRules,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
   focusAgent: DemoAgent | null;
   focusNumber: number | null;
+  compare: RuleCompare | null;
+  onStart: () => void;
+  onOpenRules: () => void;
 }) {
   const posted = derived.posted;
   const showBids = derived.bidsOpen;
@@ -218,21 +273,35 @@ export function LeftPanel({
 
   return (
     <aside className="g-left">
+      {!derived.posted && (
+        <div className="g-mission">
+          <strong>你是制度设计师</strong>
+          <p>改规则，看 8 个 AI 自己接单、赚钱、买技能、变强。</p>
+          <ol className="g-mission-steps">
+            <li>发任务</li>
+            <li>看 AI 抢单</li>
+            <li>改规则</li>
+          </ol>
+          <button type="button" className="g-btn g-btn--primary g-mission-btn" onClick={onStart}>
+            先看一轮
+          </button>
+        </div>
+      )}
       <section className="g-card g-task">
         <div className="g-card-head">
-          <h2>主任务</h2>
+          <h2>今天这单</h2>
           <span className={`g-chip is-${derived.step}`}>{STEP_SHORT[derived.step]}</span>
         </div>
 
         <div className="g-task-ticket">
           <div className="g-task-meta">
-            <span className="g-domain g-domain--coding">
-              <RoleIcon role="coding" size={13} /> 写程序
+            <span className={`g-domain g-domain--${fixture.scenario.domain}`}>
+              <RoleIcon role={fixture.scenario.domain} size={13} /> {DOMAIN_LABEL[fixture.scenario.domain]}
             </span>
             <span className="g-difficulty">难度 {fixture.scenario.difficulty}</span>
           </div>
           <h3>{fixture.scenario.title}</h3>
-          <p className="g-task-desc">客户网站的登录入口一直报错，需要在今天内修好。</p>
+          <p className="g-task-desc">{fixture.scenario.description}</p>
           <div className="g-reward">
             <CoinIcon size={18} />
             <strong>{fixture.scenario.reward}</strong>
@@ -240,14 +309,89 @@ export function LeftPanel({
           </div>
         </div>
 
+        {!posted && compare && (
+          <div className="g-compare">
+            <div className="g-compare-head">
+              <span>上次改规则 · 同一批人，结果变了</span>
+              <span className="g-compare-actions">
+                <button
+                  type="button"
+                  className="g-compare-retry"
+                  onClick={() => downloadCompareCard(compare, fixture.civilization.name)}
+                >
+                  存成图片
+                </button>
+                <button type="button" className="g-compare-retry" onClick={onOpenRules}>
+                  再改一次
+                </button>
+              </span>
+            </div>
+            <div className="g-compare-row">
+              <span>中标</span>
+              <b>{compare.beforeWinner} → {compare.afterWinner}</b>
+            </div>
+            <div className="g-compare-row">
+              <span>到手</span>
+              <b>{gold(compare.beforeNet ?? 0)} → {gold(compare.afterNet ?? 0)}</b>
+            </div>
+            <div className="g-compare-row">
+              <span>技能</span>
+              <b>{compare.beforeSkill ? '买了' : '没买'} → {compare.afterSkill ? '买了' : '没买'}</b>
+            </div>
+            {compare.beforeBids !== undefined && (
+              <div className="g-compare-row">
+                <span>报价</span>
+                <b>{compare.beforeBids} 人 / 价差 {compare.beforeSpread} → {compare.afterBids} 人 / 价差 {compare.afterSpread}</b>
+              </div>
+            )}
+            {compare.beforeTeams !== undefined && (
+              <div className="g-compare-row">
+                <span>组队</span>
+                <b>{compare.beforeTeams} → {compare.afterTeams}</b>
+              </div>
+            )}
+            {compare.beforeRings !== undefined && (
+              <div className="g-compare-row">
+                <span>串标 / 举报</span>
+                <b>{compare.beforeRings} / {compare.beforeReports} → {compare.afterRings} / {compare.afterReports}</b>
+              </div>
+            )}
+          </div>
+        )}
         {!posted ? (
           <p className="g-board-hint">
-            市集还空着。点击场景里<b>市集公告板</b>上的「发布第一笔任务」，让居民自己来竞标。
+            市集还空着。点公告板上的「发布任务」，让居民自己来抢。
           </p>
         ) : (
           <div className="g-task-status">
             <span className="g-task-status-label">{derived.statusLabel}</span>
-            <span className="g-muted">{derived.hint}</span>
+            {derived.step === 'settled' && fixture.treasuryBreakdown ? (
+              <span className="g-task-status-note">
+                国库 {gold(fixture.treasuryBreakdown.start)} → {gold(fixture.treasuryBreakdown.end)}：
+                本任务税 +{gold(fixture.treasuryBreakdown.mainTaskTax)}
+                {fixture.treasuryBreakdown.otherTaskTax > 0
+                  ? `，其他任务 +${gold(fixture.treasuryBreakdown.otherTaskTax)}`
+                  : ''}
+                {fixture.treasuryBreakdown.publicResearch > 0
+                  ? `，公共研发 −${gold(fixture.treasuryBreakdown.publicResearch)}`
+                  : ''}
+              </span>
+            ) : derived.step === 'skill' && derived.skillDone && winner ? (
+              fixture.skillPurchase[0] ? (
+                <span className="g-task-status-note is-good">
+                  {winner.displayName} 花 {gold(fixture.skillPurchase[0].price)} 买「{fixture.skillPurchase[0].name}」，
+                  {DOMAIN_LABEL[fixture.scenario.domain]} {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter}。
+                </span>
+              ) : (
+                <span className="g-task-status-note is-warn">
+                  {winner.displayName} 税后剩 {gold(fixture.settlement?.net ?? 0)}
+                  {winner.goal.price ? `，买不起 ${gold(winner.goal.price)} 的「${winner.goal.skillName ?? winner.goal.label}」` : ''}
+                  ；{DOMAIN_LABEL[fixture.scenario.domain]}能力停在 {winner.abilities[fixture.scenario.domain]}。
+                </span>
+              )
+            ) : (
+              <span className="g-muted">{derived.hint}</span>
+            )}
           </div>
         )}
 
@@ -258,19 +402,25 @@ export function LeftPanel({
         {showBids && (
           <div className="g-bidbox">
             <div className="g-bidbox-head">
-              <span>竞标名单</span>
+              <span>谁想接</span>
               <em>
-                {fixture.bids.length} 人参与 · {passers.length} 人观望
+                {fixture.bids.length} 人报价 · {passers.length} 人不接
               </em>
             </div>
             {fixture.bids.map((bid) => {
               const agent = fixture.agents.find((a) => a.id === bid.agentId)!;
               const isWinner = derived.assigned && bid.agentId === derived.winnerId;
               return (
-                <div key={bid.agentId} className={isWinner ? 'g-bid is-winner' : 'g-bid'}>
+                <div key={`${bid.agentId}-${bid.bidAmount}-${bid.teamAgentIds?.[1] ?? ""}-${bid.ringDefected ? "d" : ""}`} className={isWinner ? 'g-bid is-winner' : 'g-bid'}>
                   <span className={`g-avatar g-avatar--${ROLE_KEY[agent.role]}`}>{roleIcon(agent)}</span>
                   <span className="g-bid-name">
                     {bid.displayName}
+                    {bid.teamAgentIds && bid.teamAgentIds.length > 1
+                      ? ` + ${bid.teamAgentIds.slice(1).map((id) => fixture.agents.find((a) => a.id === id)?.displayName ?? id).join(' + ')}`
+                      : ''}
+                    {bid.teamAgentIds && bid.teamAgentIds.length > 1 && <em className="g-team-inline">组队</em>}
+                    {bid.ringAgentIds && bid.ringAgentIds.length > 1 && <em className="g-team-inline">串标</em>}
+                    {bid.ringDefected && <em className="g-team-inline">背叛</em>}
                     <em className={personalityTone(agent)}>{agent.personalityLabel}</em>
                   </span>
                   <span className="g-bid-amount">{gold(bid.bidAmount)}</span>
@@ -281,13 +431,28 @@ export function LeftPanel({
                     <span>
                       质量 <b>{pct(bid.expectedQuality)}</b>
                     </span>
+                    {bid.expectedProfit !== undefined && (
+                      <span>
+                        利润 <b>{bid.expectedProfit} 金</b>
+                      </span>
+                    )}
+                    {bid.reputation !== undefined && (
+                      <span>
+                        声誉 <b>{Math.round(bid.reputation * 100)}%</b>
+                      </span>
+                    )}
+                    {bid.competitors !== undefined && (
+                      <span>
+                        对手 <b>{bid.competitors} 人</b>
+                      </span>
+                    )}
                   </span>
                   {isWinner && <span className="g-win-tag">中标</span>}
                 </div>
               );
             })}
             <div className="g-passers">
-              <span className="g-passers-label">观望：</span>
+              <span className="g-passers-label">不接：</span>
               {passers.slice(0, 5).map((a) => (
                 <span key={a.id} className="g-passer" title={a.decision.reasonCode}>
                   {a.displayName}
@@ -295,14 +460,17 @@ export function LeftPanel({
               ))}
               {passers.length > 5 && <span className="g-passer">+{passers.length - 5}</span>}
             </div>
-            <p className="g-why">放弃的人不是没能力，而是自估成功率低于自己的风险安全线。</p>
+            <p className="g-why">不接，是因为它觉得这单风险太高。</p>
           </div>
         )}
 
         {derived.assigned && winner && focusWinnerReaction && (
           <div className="g-reaction">
             <div className="g-reaction-head">
-              <CheckIcon size={15} /> {winner.displayName} 中标，价格 {gold(fixture.winner?.bidAmount ?? 0)}
+              <CheckIcon size={15} /> {fixture.winner?.teamAgentIds && fixture.winner.teamAgentIds.length > 1
+                ? fixture.winner.teamAgentIds.map((id) => fixture.agents.find((a) => a.id === id)?.displayName ?? id).join(' + ')
+                : winner.displayName}{' '}
+              中标，价格 {gold(fixture.winner?.bidAmount ?? 0)}
             </div>
             <p>「{focusWinnerReaction}」</p>
             {losers.map((a) => (
@@ -321,17 +489,59 @@ export function LeftPanel({
         {derived.settled && fixture.settlement && (
           <div className="g-settle">
             <div className="g-settle-row">
-              <span>任务奖励</span>
+              <span>这单收入</span>
               <b>+{gold(fixture.settlement.gross)}</b>
             </div>
             <div className="g-settle-row">
-              <span>税金（{Math.round(fixture.civilization.rules.taxRate * 100)}%）</span>
+              <span>税（{Math.round(fixture.civilization.rules.taxRate * 100)}%）</span>
               <b className="is-tax">−{gold(fixture.settlement.tax)}</b>
             </div>
             <div className="g-settle-row is-total">
               <span>{winner?.displayName} 到手</span>
               <b>+{gold(fixture.settlement.net)}</b>
             </div>
+            {fixture.treasuryBreakdown && (
+              <div className="g-treasury">
+                <div className="g-treasury-head">
+                  <span>国库</span>
+                  <b>
+                    {gold(fixture.treasuryBreakdown.start)} → {gold(fixture.treasuryBreakdown.end)}
+                  </b>
+                </div>
+                <div className="g-treasury-row">
+                  <span>这单交税</span>
+                  <b>+{gold(fixture.treasuryBreakdown.mainTaskTax)}</b>
+                </div>
+                {fixture.treasuryBreakdown.otherTaskTax > 0 && (
+                  <div className="g-treasury-row">
+                    <span>别的单交税</span>
+                    <b>+{gold(fixture.treasuryBreakdown.otherTaskTax)}</b>
+                  </div>
+                )}
+                <div className="g-treasury-row">
+                  <span>拿去做公共研发</span>
+                  <b>−{gold(fixture.treasuryBreakdown.publicResearch)}</b>
+                </div>
+                <div className="g-treasury-row is-total">
+                  <span>国库实际多了</span>
+                  <b>+{gold(fixture.treasuryBreakdown.toTreasury)}</b>
+                </div>
+                {!fixture.treasuryBreakdown.consistent && (
+                  <p className="g-treasury-warn">
+                    账不平：按事件应为 +{gold(fixture.treasuryBreakdown.toTreasury)}，引擎实际
+                    +{gold(fixture.treasuryBreakdown.delta)}
+                  </p>
+                )}
+              </div>
+            )}
+            {derived.skillDone && !fixture.skillPurchase[0] && winner && (
+              <p className="g-settle-miss">
+                税后 {gold(fixture.settlement.net)} 金
+                {winner.goal.price ? ` < 目标「${winner.goal.skillName ?? winner.goal.label}」${gold(winner.goal.price)} 金` : ''}
+                ：这轮买不起技能，{DOMAIN_LABEL[fixture.scenario.domain]}能力停在{' '}
+                {winner.abilities[fixture.scenario.domain]}。
+              </p>
+            )}
           </div>
         )}
 
@@ -343,8 +553,25 @@ export function LeftPanel({
                 {winner?.displayName} 买了「{fixture.skillPurchase[0].name}」
               </strong>
               <span>
-                {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter} 写程序能力 ·
-                下轮同难度成功率 {pct(derived.successBefore)} → {pct(derived.successAfter)}
+                {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter}{' '}
+                {DOMAIN_LABEL[fixture.scenario.domain]}能力 · 下轮同难度成功率 {pct(derived.successBefore)} →{' '}
+                {pct(derived.successAfter)}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {derived.skillDone && !fixture.skillPurchase[0] && winner && (
+          <div className="g-skill-note is-muted">
+            <SkillIcon size={16} />
+            <div>
+              <strong>{winner.displayName} 这轮没有买技能</strong>
+              <span>
+                税后到手 {gold(fixture.settlement?.net ?? 0)}
+                {winner.goal.price && (fixture.settlement?.net ?? 0) < winner.goal.price
+                  ? `，不够买「${winner.goal.skillName ?? winner.goal.label}」（${gold(winner.goal.price)} 金）`
+                  : ''}
+                ；{DOMAIN_LABEL[fixture.scenario.domain]}能力停在 {winner.abilities[fixture.scenario.domain]}，下一轮成功率不变。
               </span>
             </div>
           </div>
@@ -354,12 +581,16 @@ export function LeftPanel({
   );
 }
 
-function abilityRows(agent: DemoAgent, codingOverride?: number) {
+function abilityRows(
+  agent: DemoAgent,
+  domain: 'coding' | 'research' | 'design',
+  domainOverride?: number,
+) {
   return [
-    { key: 'coding', label: '写程序', value: codingOverride ?? agent.abilities.coding },
+    { key: 'coding', label: '写程序', value: agent.abilities.coding },
     { key: 'research', label: '做研究', value: agent.abilities.research },
     { key: 'design', label: '做设计', value: agent.abilities.design },
-  ];
+  ].map((row) => (row.key === domain && domainOverride !== undefined ? { ...row, value: domainOverride } : row));
 }
 
 export function AgentPanel({
@@ -374,6 +605,11 @@ export function AgentPanel({
   onClose: () => void;
 }) {
   const agent = fixture.agents.find((a) => a.id === selectedId) ?? null;
+  const agentIndex = agent ? fixture.agents.findIndex((a) => a.id === agent.id) : -1;
+  const portrait = useMemo(
+    () => (agent && agentIndex >= 0 ? MIXAMO_AVATARS[agentIndex % MIXAMO_AVATARS.length]!.thumb : ''),
+    [agent, agentIndex],
+  );
 
   if (!agent) return null;
 
@@ -391,7 +627,7 @@ export function AgentPanel({
           <CloseIcon size={15} />
         </button>
         <div className="g-agent-head">
-          <span className={`g-avatar g-avatar--lg g-avatar--${ROLE_KEY[agent.role]}`}>{roleIcon(agent)}</span>
+          <img key={agent.id} className="g-agent-portrait" src={portrait} alt={`${agent.displayName} 立绘`} />
           <div>
             <h2>{agent.displayName}</h2>
             <span className="g-agent-role">
@@ -401,6 +637,7 @@ export function AgentPanel({
           </div>
         </div>
 
+        <p className="g-agent-bio">{loreFor(agent.displayName).bio}</p>
         <blockquote className="g-mood">「{publicLine(agent)}」</blockquote>
 
         <div className="g-agent-stats">
@@ -416,40 +653,68 @@ export function AgentPanel({
           </div>
         </div>
 
+        <div className="g-public">
+          <div className="g-public-head">
+            <h3>它怎么想的</h3>
+            <span className={badge.tone === 'bid' ? 'g-focus-decision is-bid' : 'g-focus-decision is-pass'}>
+              {badge.label}
+            </span>
+          </div>
+          <div className="g-fact-grid">
+            {factorChips(agent).map((chip) => (
+              <span key={chip.label} className={chip.emphasis ? 'g-fact is-emphasis' : 'g-fact'}>
+                <em>{chip.label}</em>
+                <b>{chip.value}</b>
+              </span>
+            ))}
+          </div>
+          <p className="g-public-result">
+            结果：
+            {!derived.assigned
+              ? '还没定'
+              : agent.decision.action === 'bid'
+                ? isWinner
+                  ? `接了（${gold(agent.decision.bidAmount ?? 0)}）`
+                  : '没抢到'
+                : '没接'}
+            {derived.assigned && isWinner && ' · 按「靠不靠谱 × 报价」选的'}
+          </p>
+          <p className="g-public-observed">
+            它看到的：比它强的人 {agent.decision.observedCompetitors.strongerSpecialists} 人
+            {agent.decision.observedCompetitors.topEarnerName
+              ? ` · 累计收入最高 ${agent.decision.observedCompetitors.topEarnerName}`
+              : ''}
+          </p>
+        </div>
+
         <div className="g-traits">
-          <h3>性格参数（影响决策）</h3>
+          <h3>它的性格</h3>
           <div className="g-trait">
-            <span>风险偏好</span>
+            <span>敢冒险吗</span>
             <div className="g-bar">
               <i className="g-bar-fill g-bar-fill--risk" style={{ width: `${agent.traits.riskTolerance * 100}%` }} />
             </div>
             <b>{riskLabel(agent.traits.riskTolerance)}</b>
           </div>
           <div className="g-trait">
-            <span>投资倾向</span>
+            <span>爱花钱吗</span>
             <div className="g-bar">
               <i className="g-bar-fill g-bar-fill--invest" style={{ width: `${agent.traits.investAggression * 100}%` }} />
             </div>
             <b>{investLabel(agent.traits.investAggression)}</b>
           </div>
-          <div className="g-trait g-trait--future" title="下一阶段多人机制才会使用">
-            <span>合作偏好</span>
-            <div className="g-bar">
-              <i className="g-bar-fill g-bar-fill--coop" style={{ width: `${agent.traits.cooperationPreference * 100}%` }} />
-            </div>
-            <b>{cooperationLabel(agent.traits.cooperationPreference)}</b>
-          </div>
+
         </div>
 
         <div className="g-goal">
-          <span className="g-goal-label">当前目标</span>
+          <span className="g-goal-label">现在想要</span>
           <strong>{agent.goal.label}</strong>
           {gap !== null && <em>{gap === 0 ? '已经买得起' : `还差 ${gold(gap)}`}</em>}
         </div>
 
         <div className="g-abilities">
-          <h3>能力</h3>
-          {abilityRows(agent, isWinner && derived.skillDone ? derived.focusAbilityAfter : undefined).map((row) => (
+          <h3>本事</h3>
+          {abilityRows(agent, fixture.scenario.domain, isWinner && derived.skillDone ? derived.focusAbilityAfter : undefined).map((row) => (
             <div key={row.key} className="g-ability">
               <span>{row.label}</span>
               <div className="g-bar">
@@ -470,61 +735,33 @@ export function AgentPanel({
               新 Skill：{fixture.skillPurchase[0].name}
               <em>
                 {' '}
-                · 写程序 {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter}
+                · {DOMAIN_LABEL[fixture.scenario.domain]} {fixture.skillPurchase[0].abilityBefore} →{' '}
+                {fixture.skillPurchase[0].abilityAfter}
               </em>
             </span>
           </div>
         )}
 
-        <div className="g-public">
-          <div className="g-public-head">
-            <h3>公开决策记录</h3>
-            <span className={badge.tone === 'bid' ? 'g-focus-decision is-bid' : 'g-focus-decision is-pass'}>
-              {badge.label}
-            </span>
-          </div>
-          <div className="g-fact-grid">
-            {factorChips(agent).map((chip) => (
-              <span key={chip.label} className={chip.emphasis ? 'g-fact is-emphasis' : 'g-fact'}>
-                <em>{chip.label}</em>
-                <b>{chip.value}</b>
-              </span>
-            ))}
-          </div>
-          <p className="g-public-result">
-            结果：
-            {!derived.assigned
-              ? '待决标'
-              : agent.decision.action === 'bid'
-                ? isWinner
-                  ? `中标（${gold(agent.decision.bidAmount ?? 0)}）`
-                  : '落标'
-                : '未参与'}
-            {derived.assigned && isWinner && ' · 系统按质量 × 报价选出'}
-          </p>
-          <p className="g-public-observed">
-            可观察信息：更强同行 {agent.decision.observedCompetitors.strongerSpecialists} 人
-            {agent.decision.observedCompetitors.topEarnerName
-              ? ` · 累计收入最高 ${agent.decision.observedCompetitors.topEarnerName}`
-              : ''}
-          </p>
-        </div>
-
         <div className="g-record">
-          <h3>公开履历</h3>
+          <h3>过往成绩</h3>
           <div className="g-record-grid">
             <span>
-              完成 <b>{agent.publicRecord.tasksCompleted}</b> 单
+              接过 <b>{agent.publicRecord.tasksCompleted}</b> 单
             </span>
             <span>
               累计收入 <b>{gold(agent.publicRecord.grossEarnings)}</b>
             </span>
             <span>
-              失败 <b>{agent.publicRecord.tasksFailed}</b> 单
+              搞砸 <b>{agent.publicRecord.tasksFailed}</b> 单
             </span>
             <span>
-              已缴税 <b>{gold(agent.publicRecord.taxPaid)}</b>
+              交过税 <b>{gold(agent.publicRecord.taxPaid)}</b>
             </span>
+            {(agent.publicRecord.ringDefections ?? 0) > 0 && (
+              <span>
+                被举报 <b>{agent.publicRecord.ringDefections}</b> 次
+              </span>
+            )}
           </div>
         </div>
       </section>
@@ -542,6 +779,9 @@ export function Dock({
   onNext,
   onPrev,
   onReset,
+  onSkip,
+  cuePosition,
+  cueCount,
   onSpeed,
   onOpenEvents,
   onRestart,
@@ -549,10 +789,13 @@ export function Dock({
   step: StepId;
   playing: boolean;
   speed: number;
+  cuePosition: number;
+  cueCount: number;
   onTogglePlay: () => void;
   onNext: () => void;
   onPrev: () => void;
   onReset: () => void;
+  onSkip: () => void;
   onSpeed: () => void;
   onOpenEvents: () => void;
   onRestart: () => void;
@@ -565,8 +808,9 @@ export function Dock({
         <span className="g-dock-step-label">{active.label}</span>
         <span className="g-dock-step-hint">{active.hint}</span>
         <span className="g-dock-step-count">
-          {idx + 1} / {TIMELINE.length}
+          步骤 {idx + 1} / {TIMELINE.length}
         </span>
+        <span className="g-dock-cue">事件 {cuePosition} / {cueCount}</span>
       </div>
 
       <div className="g-playback">
@@ -587,6 +831,9 @@ export function Dock({
         <button type="button" className="g-icon-btn" onClick={onNext} title="单步" disabled={idx >= TIMELINE.length - 1}>
           <StepIcon size={16} />
         </button>
+        <button type="button" className="g-icon-btn" onClick={onSkip} title="跳过动画" disabled={idx >= TIMELINE.length - 1}>
+          <span className="g-skip-glyph">⏭</span>
+        </button>
         <button type="button" className="g-speed" onClick={onSpeed} title="播放速度">
           <SpeedIcon size={15} /> {speed}x
         </button>
@@ -606,22 +853,52 @@ export function Dock({
 
 /* ---------------- overlays ---------------- */
 
+const EVENT_LABEL: Record<string, string> = {
+  round_started: '开一轮',
+  task_posted: '发任务',
+  bid_placed: '报价',
+  bid_declined: '不接',
+  task_assigned: '选人',
+  team_formed: '组队',
+  team_settled: '分账',
+  price_ring: '串标',
+  ring_payout: '分钱',
+  ring_defected: '背叛',
+  ring_reported: '举报',
+  task_completed: '做完了',
+  task_failed: '搞砸了',
+  tax_collected: '交税',
+  skill_purchased: '买技能',
+  skill_shared: '共享技能',
+  competition_checkpoint: '对比',
+  rules_updated: '改规则',
+  story: '旁白',
+  simulation_finished: '结束',
+};
+
 export function EventDrawer({ fixture, step, onClose }: { fixture: BidDemoFixture; step: StepId; onClose: () => void }) {
   const focusKinds = new Set([
     'task_posted',
     'bid_placed',
     'bid_declined',
     'task_assigned',
+    'team_formed',
+    'team_settled',
+    'price_ring',
+    'ring_defected',
+    'ring_reported',
+    'ring_payout',
     'task_completed',
     'task_failed',
     'tax_collected',
     'skill_purchased',
   ]);
+  const cue = buildPlaybackCues(fixture).find((c) => c.step === step);
   return (
     <div className="g-drawer">
       <div className="g-drawer-head">
-        <h2>本轮事件记录</h2>
-        <span className="g-muted">来自模拟引擎 · 第 {fixture.demoRound} 轮</span>
+        <h2>这一轮发生了什么</h2>
+        <span className="g-muted">第 {fixture.demoRound} 轮 · 现在看到 {cue?.events.length ?? 0} 条 · 共 {fixture.rawEvents.length} 条</span>
         <button type="button" className="g-close g-close--static" onClick={onClose} aria-label="关闭">
           <CloseIcon size={15} />
         </button>
@@ -629,14 +906,13 @@ export function EventDrawer({ fixture, step, onClose }: { fixture: BidDemoFixtur
       <ol className="g-events">
         {fixture.rawEvents.map((e) => (
           <li key={e.id} className={focusKinds.has(e.kind) ? 'g-event is-focus' : 'g-event'}>
-            <span className={`g-event-kind g-event-kind--${e.kind}`}>{e.kind}</span>
-            <span className="g-event-msg">{e.message}</span>
-            {typeof e.payload?.reasonCode === 'string' && <em className="g-event-tag">{e.payload.reasonCode}</em>}
+            <span className={`g-event-kind g-event-kind--${e.kind}`}>{EVENT_LABEL[e.kind] ?? e.kind}</span>{' '}
+            <span className="g-event-msg">{eventText(e, fixture)}</span>
           </li>
         ))}
       </ol>
       <p className="g-drawer-note">
-        当前步骤：{step} · 事件来自 <code>packages/web/src/demo/bid-demo.fixture.json</code>
+        当前步骤：{step} · 数字来自引擎，动画只负责播
       </p>
     </div>
   );
@@ -646,11 +922,19 @@ export function DebugPanel({
   fixture,
   view,
   onViewChange,
+  labelsHidden,
+  onToggleLabels,
+  quality,
+  onQualityChange,
   onClose,
 }: {
   fixture: BidDemoFixture;
   view: ViewMode;
   onViewChange: (v: ViewMode) => void;
+  labelsHidden: boolean;
+  onToggleLabels: () => void;
+  quality: Quality;
+  onQualityChange: (q: Quality) => void;
   onClose: () => void;
 }) {
   const focusEvents = fixture.rawEvents.filter(
@@ -691,6 +975,29 @@ export function DebugPanel({
           <dd>仅由 simulation 引擎决定</dd>
         </div>
         <div>
+          <dt>画质（性能）</dt>
+          <dd className="g-debug-view">
+            {(Object.keys(QUALITY) as Quality[]).map((q) => (
+              <button
+                key={q}
+                type="button"
+                className={quality === q ? 'g-debug-chip is-on' : 'g-debug-chip'}
+                onClick={() => onQualityChange(q)}
+              >
+                {QUALITY[q].label}
+              </button>
+            ))}
+          </dd>
+        </div>
+        <div>
+          <dt>建筑标签（剪影验收）</dt>
+          <dd className="g-debug-view">
+            <button type="button" className="g-debug-chip" onClick={onToggleLabels}>
+              {labelsHidden ? '显示标签' : '隐藏标签'}
+            </button>
+          </dd>
+        </div>
+        <div>
           <dt>视图（开发对照）</dt>
           <dd className="g-debug-view">
             <button type="button" className={view === '2.5d' ? 'g-debug-chip is-on' : 'g-debug-chip'} onClick={() => onViewChange('2.5d')}>
@@ -699,6 +1006,15 @@ export function DebugPanel({
             <button type="button" className={view === '2d' ? 'g-debug-chip is-on' : 'g-debug-chip'} onClick={() => onViewChange('2d')}>
               2D
             </button>
+          </dd>
+        </div>
+        <div>
+          <dt>播放队列（事件 → 步骤）</dt>
+          <dd>
+            {buildPlaybackCues(fixture)
+              .filter((c) => c.events.length > 0)
+              .map((c) => `${c.step}:${c.events.length}`)
+              .join(' · ')}
           </dd>
         </div>
       </dl>
@@ -724,8 +1040,9 @@ export function BidBoard2D({
   return (
     <div className="g-board2d">
       <div className="g-board2d-head">
-        <span className="g-domain g-domain--coding">
-          <RoleIcon role="coding" size={13} /> 写程序 · 难度 {fixture.scenario.difficulty}
+        <span className={`g-domain g-domain--${fixture.scenario.domain}`}>
+          <RoleIcon role={fixture.scenario.domain} size={13} /> {DOMAIN_LABEL[fixture.scenario.domain]} · 难度{' '}
+          {fixture.scenario.difficulty}
         </span>
         <h2>{fixture.scenario.title}</h2>
         <span className="g-board2d-reward">
@@ -762,7 +1079,7 @@ export function BidBoard2D({
             const isWinner = derived.assigned && bid.agentId === derived.winnerId;
             return (
               <button
-                key={bid.agentId}
+                key={`${bid.agentId}-${bid.bidAmount}-${bid.teamAgentIds?.[1] ?? ""}-${bid.ringDefected ? "d" : ""}`}
                 type="button"
                 className={isWinner ? 'g-board2d-bidder is-winner' : 'g-board2d-bidder'}
                 onClick={() => onSelect(agent.id)}
@@ -802,7 +1119,7 @@ export function BidBoard2D({
             </span>
             {derived.skillDone && fixture.skillPurchase[0] && (
               <span className="g-board2d-skill">
-                <SkillIcon size={14} /> 买「{fixture.skillPurchase[0].name}」：写程序{' '}
+                <SkillIcon size={14} /> 买「{fixture.skillPurchase[0].name}」：{DOMAIN_LABEL[fixture.scenario.domain]}{' '}
                 {fixture.skillPurchase[0].abilityBefore} → {fixture.skillPurchase[0].abilityAfter}
               </span>
             )}

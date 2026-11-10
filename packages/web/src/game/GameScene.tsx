@@ -1,22 +1,65 @@
-import { Html, Sky } from '@react-three/drei';
-import { useThree } from '@react-three/fiber';
-import { useEffect } from 'react';
+import { ContactShadows, Html, Sky, SoftShadows, Sparkles } from '@react-three/drei';
+import { useFrame, useThree } from '@react-three/fiber';
+import { useRef } from 'react';
+import { MathUtils, Vector3, type PerspectiveCamera } from 'three';
 import { AGENT_SLOTS, BUILDING_SLOTS, TREE_SLOTS } from '../visual-lab/islandLayout';
-import { KENNEY_BUILDINGS, KENNEY_TREES } from '../visual-lab/assetUrls';
+import { KENNEY_TREES } from '../visual-lab/assetUrls';
 import { GlbInstance } from '../visual-lab/GlbInstance';
 import { IslandBase } from '../visual-lab/IslandBase';
 import { NATIVE, WORLD, fitScale, sitOnGround } from '../visual-lab/assetScale';
 import { GameAgent, type AgentVisualState } from './GameAgent';
+import { EnvironmentDetails } from './EnvironmentDetails';
+import { CozyBuilding } from './CozyBuilding';
+import { BuildingExtras } from './BuildingExtras';
+import { IslandLife } from './IslandLife';
+import { VillageDetails } from './VillageDetails';
 import { GridIcon, MarketIcon, PeopleIcon, RoleIcon, SkillIcon } from './icons';
 import { atLeast, type StepId } from './playback';
 import { gold } from './presentation';
 import type { BidDemoFixture } from './types';
-function FixedCamera() {
-  const camera = useThree((s) => s.camera);
-  useEffect(() => {
-    camera.position.set(0, 19, 25);
-    camera.lookAt(0, 1, 0);
-  }, [camera]);
+import type { QualityConfig } from './quality';
+function CameraRig({
+  fixture,
+  step,
+  focusAgentId,
+}: {
+  fixture: BidDemoFixture;
+  step: StepId;
+  focusAgentId: string | null;
+}) {
+  const camera = useThree((s) => s.camera) as PerspectiveCamera;
+  const size = useThree((s) => s.size);
+  const look = useRef(new Vector3(0, 1, 0));
+  const focusIndex = focusAgentId ? fixture.agents.findIndex((a) => a.id === focusAgentId) : -1;
+  const focusSlot = focusIndex >= 0 ? AGENT_SLOTS[focusIndex]?.position : null;
+  const closeUp = step.startsWith('focus_') && !!focusSlot;
+
+  useFrame((_, dt) => {
+    const aspect = size.width / Math.max(1, size.height);
+    const pull = Math.max(1, 1.14 / aspect);
+    const targetPos = new Vector3(0, 17.2 * pull, 23.8 * pull);
+    const targetLook = new Vector3(0, 1, 0);
+    let targetFov = 38;
+
+    if (closeUp && focusSlot) {
+      const p = new Vector3(focusSlot[0] * 0.72, 0, focusSlot[2] * 0.72);
+      // Characters face roughly +Z (small per-index yaw), so put the camera
+      // in front of the resident rather than toward the island center.
+      const faceY = (focusIndex >= 0 ? focusIndex : 0) * 0.08;
+      const front = new Vector3(Math.sin(faceY), 0, Math.cos(faceY));
+      targetPos.copy(p).add(front.multiplyScalar(4.8));
+      targetPos.y = 2.1;
+      targetLook.copy(p).add(new Vector3(0, 1.18, 0));
+      targetFov = 34;
+    }
+
+    const k = 1 - Math.exp(-dt * 4.2);
+    camera.position.lerp(targetPos, k);
+    look.current.lerp(targetLook, k);
+    camera.lookAt(look.current);
+    camera.fov = MathUtils.damp(camera.fov, targetFov, 4, dt);
+    camera.updateProjectionMatrix();
+  });
   return null;
 }
 
@@ -72,6 +115,7 @@ function agentVisual(
   return isWinner ? 'done' : 'idle';
 }
 
+
 function BuildingLabel({ x, z, label, role, height }: { x: number; z: number; label: string; role: string; height: number }) {
   const icon =
     role === 'market' ? (
@@ -110,7 +154,7 @@ function NoticeBoard({ fixture, step, onPublish }: { fixture: BidDemoFixture; st
           <span className="notice-title">市集公告板</span>
           {idle ? (
             <button type="button" className="notice-action" onClick={onPublish}>
-              发布第一笔任务
+              发布任务
             </button>
           ) : (
             <div className="notice-task">
@@ -124,7 +168,7 @@ function NoticeBoard({ fixture, step, onPublish }: { fixture: BidDemoFixture; st
           {posted && bidsOpen && (
             <div className="notice-slips">
               {fixture.bids.map((bid) => (
-                <span key={bid.agentId} className="notice-slip">
+                <span key={`${bid.agentId}-${bid.bidAmount}-${bid.teamAgentIds?.[1] ?? ""}-${bid.ringDefected ? "d" : ""}`} className="notice-slip">
                   {bid.displayName} {gold(bid.bidAmount)}
                 </span>
               ))}
@@ -147,6 +191,7 @@ export function GameScene({
   focusAgentId,
   onSelect,
   onPublish,
+  quality,
 }: {
   fixture: BidDemoFixture;
   step: StepId;
@@ -154,48 +199,59 @@ export function GameScene({
   focusAgentId: string | null;
   onSelect: (id: string) => void;
   onPublish: () => void;
+  quality: QualityConfig;
 }) {
   return (
     <>
-      <FixedCamera />
-      <Sky sunPosition={[60, 30, 40]} turbidity={0.6} rayleigh={0.4} />
-      <fog attach="fog" args={['#cfe8ec', 40, 82]} />
-      <ambientLight intensity={0.6} color="#fff9ed" />
-      <hemisphereLight intensity={0.45} color="#b8e8ff" groundColor="#7cbf7a" />
+      <CameraRig fixture={fixture} step={step} focusAgentId={focusAgentId} />
+      <Sky sunPosition={[70, 18, 30]} turbidity={5.5} rayleigh={1.15} mieCoefficient={0.004} mieDirectionalG={0.82} />
+      <fog attach="fog" args={['#f6ddc0', 44, 96]} />
+      {quality.softShadows && <SoftShadows size={28} samples={16} focus={0.8} />}
+      <ambientLight intensity={0.58} color="#ffe9d2" />
+      <hemisphereLight intensity={0.65} color="#ffd9b5" groundColor="#7e9b67" />
       <directionalLight
         castShadow
         position={[16, 26, 14]}
-        intensity={1.45}
-        color="#fff3d0"
-        shadow-mapSize={[2048, 2048]}
-        shadow-bias={-0.0004}
-        shadow-camera-far={70}
-        shadow-camera-left={-22}
-        shadow-camera-right={22}
-        shadow-camera-top={22}
-        shadow-camera-bottom={-22}
+        intensity={2.35}
+        color="#ffd2a3"
+        shadow-mapSize={[quality.shadowMap, quality.shadowMap]}
+        shadow-bias={-0.0003}
+        shadow-camera-far={80}
+        shadow-camera-left={-24}
+        shadow-camera-right={24}
+        shadow-camera-top={24}
+        shadow-camera-bottom={-24}
       />
+      <directionalLight position={[-14, 9, 10]} intensity={0.55} color="#b9ddff" />
+      <directionalLight position={[0, 7, 22]} intensity={0.65} color="#fff4e2" />
+      <directionalLight position={[-8, 14, -18]} intensity={1.25} color="#7fe0ea" />
+      {quality.contactShadows && (
+        <ContactShadows
+          position={[0, 0.015, 0]}
+          opacity={0.28}
+          scale={28}
+          blur={2.6}
+          far={5}
+          resolution={1024}
+          color="#57452f"
+        />
+      )}
+      {quality.sparkles && (
+        <Sparkles count={38} scale={[18, 3.4, 18]} position={[0, 2.6, 0]} size={2.2} speed={0.16} opacity={0.32} color="#ffe8a8" />
+      )}
       <IslandBase />
+      <IslandLife />
+      <VillageDetails />
+      <EnvironmentDetails />
 
-      {BUILDING_SLOTS.map((slot, i) => {
-        const asset = KENNEY_BUILDINGS[i];
-        if (!asset) return null;
-        const scale = fitScale(
-          NATIVE.kenneyBuildingHeight[i]!,
-          WORLD.buildingByRole[slot.role],
-          NATIVE.kenneyBuildingWidth[i]!,
-          WORLD.buildingMaxWidth.kenney
-        );
-        const height = NATIVE.kenneyBuildingHeight[i]! * scale;
+      {BUILDING_SLOTS.map((slot) => {
+        const height = WORLD.buildingByRole[slot.role];
+        const width = slot.role === 'market' ? 2.7 : slot.role === 'homes' ? 2.5 : 2.2;
         return (
-          <group key={slot.id}>
-            <GlbInstance
-              url={asset}
-              position={[slot.position[0], sitOnGround(0, scale, 0.02), slot.position[2]]}
-              rotation={[0, slot.rotationY, 0]}
-              scale={scale}
-            />
-            <BuildingLabel x={slot.position[0]} z={slot.position[2]} label={slot.label} role={slot.role} height={height} />
+          <group key={slot.id} position={slot.position} rotation={[0, slot.rotationY, 0]}>
+            <CozyBuilding role={slot.role} height={height} width={width} />
+            <BuildingExtras role={slot.role} height={height} width={width} />
+            <BuildingLabel x={0} z={0} label={slot.label} role={slot.role} height={height} />
           </group>
         );
       })}
@@ -227,6 +283,7 @@ export function GameScene({
           selected={selectedId === agent.id}
           focused={focusAgentId === agent.id}
           onSelect={onSelect}
+          outline={quality.outlines}
         />
       ))}
 

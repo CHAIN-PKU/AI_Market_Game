@@ -41,6 +41,8 @@ export interface AgentState {
   wallet: number;
   abilities: Abilities;
   skills: OwnedSkill[];
+  /** Round until which this agent is occupied by an assigned task (0 = free). */
+  busyUntilRound?: number;
   traits: AgentTraits;
   /** Lifetime stats for reporting. */
   stats: {
@@ -49,6 +51,8 @@ export interface AgentState {
     grossEarnings: number;
     taxPaid: number;
     skillSpend: number;
+    /** Times this agent broke a price ring and was reported. */
+    ringDefections?: number;
   };
 }
 
@@ -81,8 +85,12 @@ export interface MarketTask {
   status: TaskStatus;
   source?: 'system' | 'player';
   playerTitle?: string;
+  durationRounds?: number;
+  assignedRound?: number;
   assignedAgentId?: string;
   assignedCivilizationId?: string;
+  assignedTeamIds?: string[];
+  ringAgentIds?: string[];
   winningBid?: number;
 }
 
@@ -92,6 +100,12 @@ export type GameEventKind =
   | 'bid_placed'
   | 'bid_declined'
   | 'task_assigned'
+  | 'team_formed'
+  | 'team_settled'
+  | 'price_ring'
+  | 'ring_defected'
+  | 'ring_reported'
+  | 'ring_payout'
   | 'task_completed'
   | 'task_failed'
   | 'tax_collected'

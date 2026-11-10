@@ -92,6 +92,7 @@ function createAgent(civilizationId: string, index: number, initialAbility: numb
     civilizationId,
     displayName: agentDisplayName(civilizationId, index),
     wallet: 0,
+    busyUntilRound: 0,
     abilities,
     skills: [],
     traits: {
@@ -106,6 +107,7 @@ function createAgent(civilizationId: string, index: number, initialAbility: numb
       grossEarnings: 0,
       taxPaid: 0,
       skillSpend: 0,
+      ringDefections: 0,
     },
   };
 }

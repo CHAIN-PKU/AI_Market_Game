@@ -27,13 +27,27 @@ export interface Bid {
   riskComfortFloor?: number;
   expectedReward?: number;
   expectedValue?: number;
+  /** Market-depth fields; absent in the classic demo. */
+  estimatedCost?: number;
+  expectedProfit?: number;
+  reputation?: number;
+  competitors?: number;
+  /** Joint bid: lead + partners. */
+  teamAgentIds?: string[];
+  teamQuality?: number;
+  teamProbability?: number;
+  teamCost?: number;
+  teamProfit?: number;
+  /** Price-ring members: leader + suppressed partners. */
+  ringAgentIds?: string[];
+  ringDefected?: boolean;
   personalGoalId?: string;
   personalGoalLabel?: string;
   observedCompetitors?: ObservedCompetitors;
   reasonFactors?: PublicReasonFactor[];
 }
 
-export type DeclineReasonCode = 'risk_above_comfort' | 'too_little_upside' | 'lower_priority';
+export type DeclineReasonCode = 'risk_above_comfort' | 'too_little_upside' | 'lower_priority' | 'price_ring';
 
 export interface BidDecline {
   taskId: string;
@@ -45,6 +59,10 @@ export interface BidDecline {
   riskComfortFloor: number;
   expectedReward: number;
   expectedValue: number;
+  estimatedCost?: number;
+  expectedProfit?: number;
+  reputation?: number;
+  competitors?: number;
   personalGoalId: string;
   personalGoalLabel: string;
   observedCompetitors: ObservedCompetitors;
@@ -210,8 +228,9 @@ export function selectWinningBids(
   for (const task of openTasks) {
     const taskBids = bids.filter((b) => {
       if (b.taskId !== task.id) return false;
-      const wins = winsByAgent.get(b.agentId) ?? 0;
-      return wins < maxTasksPerAgent;
+      return (b.teamAgentIds ?? [b.agentId]).every(
+        (id) => (winsByAgent.get(id) ?? 0) < maxTasksPerAgent,
+      );
     });
     if (taskBids.length === 0) continue;
 
@@ -232,7 +251,9 @@ export function selectWinningBids(
     }
 
     winners.set(task.id, pick);
-    winsByAgent.set(pick.agentId, (winsByAgent.get(pick.agentId) ?? 0) + 1);
+    for (const id of pick.teamAgentIds ?? [pick.agentId]) {
+      winsByAgent.set(id, (winsByAgent.get(id) ?? 0) + 1);
+    }
     winsByCiv.set(pick.civilizationId, (winsByCiv.get(pick.civilizationId) ?? 0) + 1);
   }
 

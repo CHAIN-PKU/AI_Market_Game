@@ -82,9 +82,17 @@ interface PlaybackStep {
 3. `speed 2x` 不丢 step  
 4. 同一 `skill_purchased` 不重复扣款展示  
 
-路径（计划）：`packages/web/src/playback/__tests__/contract.test.ts`
+路径（已落地 v1）：`packages/web/src/game/playback.test.ts`
 
 ---
+
+## 4.5 cue-by-cue 落地（2026-11-08）
+
+- `buildPlaybackCues(fixture)` 把 `rawEvents` 映射到 11 个 narrative step；`flattenPlaybackCues` 再展开为 19 个逐事件点。
+- 播放坞显示 `事件 X / Y`；单步/回退按事件推进，跨 step 时叙事卡片同步切换。
+- 「跳过动画」= 直接到 `next`，只改播放状态；测试断言 fixture 完全不变。
+- 7 条契约测试通过：队列映射、逐事件覆盖全部步骤、skip 不改数据、pause 不推进、2x 只改时长、单 skill 只一个 cue。
+- 尚未做：跳跃到任意事件、事件级 3D 动作绑定。
 
 ## 5. 演示 replay
 

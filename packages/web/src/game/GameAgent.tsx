@@ -1,74 +1,159 @@
 import { Html, useAnimations, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Group, MathUtils, type AnimationAction } from 'three';
+import { AnimationClip, Box3, Group, LoopOnce, LoopRepeat, MathUtils, type AnimationAction, type Object3D } from 'three';
 import { clone as cloneWithSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
-import { KENNEY_AGENTS } from '../visual-lab/assetUrls';
-import { resolveGlbUrl } from '../visual-lab/GlbInstance';
-import { NATIVE, WORLD, fitScale } from '../visual-lab/assetScale';
 import { ROLE_KEY, ROLE_LABEL, type DemoAgent } from './types';
 import { RoleIcon } from './icons';
+import { MIXAMO_AVATARS } from './avatarAssets';
 
 export type AgentVisualState = 'idle' | 'watching' | 'bidding' | 'selected' | 'working' | 'done' | 'shopping';
+const STATE_LABEL: Record<AgentVisualState, string> = { idle: '待机', watching: '观望', bidding: '竞标中', selected: '已中标', working: '工作中', done: '已完成', shopping: '去技能铺' };
 
-const STATE_LABEL: Record<AgentVisualState, string> = {
-  idle: '待机',
-  watching: '观望',
-  bidding: '竞标中',
-  selected: '已中标',
-  working: '工作中',
-  done: '已完成',
-  shopping: '去技能铺',
-};
-
-type Props = {
-  agent: DemoAgent;
-  index: number;
-  start: [number, number, number];
-  target: [number, number, number];
-  state: AgentVisualState;
-  selected: boolean;
-  focused?: boolean;
-  onSelect: (id: string) => void;
-};
+type Props = { agent: DemoAgent; index: number; start: [number, number, number]; target: [number, number, number]; state: AgentVisualState; selected: boolean; focused?: boolean; outline?: boolean; onSelect: (id: string) => void };
 
 export function GameAgent({ agent, index, start, target, state, selected, focused = false, onSelect }: Props) {
-  const gltf = useGLTF(resolveGlbUrl(KENNEY_AGENTS[index]!));
-  const clone = useMemo(() => {
-    const g = cloneWithSkeleton(gltf.scene) as Group;
-    g.traverse((obj) => {
-      if ('castShadow' in obj) obj.castShadow = true;
-      if ('receiveShadow' in obj) obj.receiveShadow = true;
-    });
-    return g;
+  const gltf = useGLTF(MIXAMO_AVATARS[index % MIXAMO_AVATARS.length]!.url);
+  const dims = useMemo(() => {
+    const box = new Box3().setFromObject(gltf.scene);
+    const h = Math.max(0.001, box.max.y - box.min.y);
+    return { scale: 1.68 / h, minY: box.min.y };
   }, [gltf.scene]);
-
-  const { actions } = useAnimations(gltf.animations, clone);
-  const idleName = useMemo(() => gltf.animations.find((a) => /^idle$/i.test(a.name))?.name, [gltf.animations]);
-  const walkName = useMemo(() => gltf.animations.find((a) => /^walk$/i.test(a.name))?.name, [gltf.animations]);
-  const currentAction = useRef<AnimationAction | null>(null);
-  const [moving, setMoving] = useState(false);
+  const clone = useMemo(() => cloneWithSkeleton(gltf.scene) as Group, [gltf.scene]);
+  const { actions, mixer } = useAnimations(gltf.animations, clone);
+  const [walkClip, setWalkClip] = useState<AnimationClip | null>(null);
+  const [gestureClips, setGestureClips] = useState<Partial<Record<'celebrate' | 'wave', AnimationClip>>>({});
+  const gestureActions = useRef<Partial<Record<'celebrate' | 'wave', AnimationAction>>>({});
+  const gestureRef = useRef<AnimationAction | null>(null);
+  const previousState = useRef<AgentVisualState>(state);
+  const idleAction = useRef<AnimationAction | null>(null);
+  const walkAction = useRef<AnimationAction | null>(null);
   const movingRef = useRef(false);
+  const current = useRef<string | null>(null);
   const groupRef = useRef<Group>(null);
-
-  const scale = fitScale(NATIVE.kenneyAgentHeight[index]!, WORLD.agentHeight);
-  const faceY = index * 0.08;
-
-  useEffect(() => {
-    const name = moving ? walkName : idleName;
-    if (!name) return;
-    const next = actions[name];
-    if (!next || next === currentAction.current) return;
-    currentAction.current?.fadeOut(0.15);
-    next.reset().fadeIn(0.15).play();
-    currentAction.current = next;
-  }, [actions, moving, idleName, walkName]);
-
-  useEffect(() => {
-    return () => {
-      currentAction.current?.stop();
+  const walkBones = useMemo(() => {
+    const byName = new Map<string, Object3D>();
+    clone.traverse((o) => {
+      const key = o.name.replace('mixamorig:', '');
+      byName.set(key, o);
+    });
+    const pick = (name: string) => byName.get(name) ?? null;
+    const legL = pick('LeftUpLeg');
+    const legR = pick('RightUpLeg');
+    const armL = pick('LeftArm');
+    const armR = pick('RightArm');
+    const spine = pick('Spine');
+    const base = (o: Object3D | null) => (o ? { x: o.rotation.x, z: o.rotation.z } : { x: 0, z: 0 });
+    return {
+      legL, legR, armL, armR, spine,
+      legLBase: base(legL), legRBase: base(legR), armLBase: base(armL), armRBase: base(armR), spineBase: base(spine),
     };
+  }, [clone]);
+  const walkPhase = useRef(0);
+  const baseY = start[1];
+
+  useEffect(() => {
+    fetch('/assets/mixamo/walk.json')
+      .then((r) => r.json())
+      .then((data) => {
+        const clip = AnimationClip.parse(data);
+        clip.name = 'Walk';
+        clip.tracks.forEach((track) => {
+          if (!track.name.startsWith('mixamorig:')) {
+            track.name = track.name.replace(/^([^.]+)\./, 'mixamorig:$1.');
+          }
+        });
+        setWalkClip(clip);
+      })
+      .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    Promise.all(
+      (['celebrate', 'wave'] as const).map(async (name) => {
+        const res = await fetch(`/assets/mixamo/${name}.json`);
+        if (!res.ok) return null;
+        const data = await res.json();
+        const clip = AnimationClip.parse(data);
+        clip.name = name;
+        clip.tracks.forEach((track) => {
+          if (!track.name.startsWith('mixamorig:')) {
+            track.name = track.name.replace(/^([^.]+)\./, 'mixamorig:$1.');
+          }
+        });
+        return [name, clip] as const;
+      }),
+    )
+      .then((entries) => {
+        const next: Partial<Record<'celebrate' | 'wave', AnimationClip>> = {};
+        for (const entry of entries) if (entry) next[entry[0]] = entry[1];
+        setGestureClips(next);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const a = Object.values(actions)[0];
+    if (!a) return;
+    a.reset().play();
+    idleAction.current = a;
+    current.current = a.getClip().name;
+    if (walkClip) {
+      const w = mixer.clipAction(walkClip);
+      w.setLoop(LoopRepeat, Infinity);
+      w.enabled = false;
+      walkAction.current = w;
+      if (movingRef.current) {
+        a.fadeOut(0.12);
+        w.reset().fadeIn(0.12).play();
+      }
+    }
+    for (const [name, clip] of Object.entries(gestureClips)) {
+      if (!clip) continue;
+      const action = mixer.clipAction(clip);
+      action.setLoop(LoopOnce, 1);
+      action.clampWhenFinished = true;
+      action.enabled = false;
+      gestureActions.current[name as 'celebrate' | 'wave'] = action;
+    }
+    return () => {
+      walkAction.current?.stop();
+    };
+  }, [actions, mixer, walkClip, gestureClips]);
+
+  useEffect(() => {
+    const prev = previousState.current;
+    previousState.current = state;
+    if (state === prev) return;
+    const name = state === 'done' ? 'celebrate' : state === 'selected' ? 'wave' : null;
+    if (!name) return;
+    const action = gestureActions.current[name];
+    if (!action) return;
+    gestureRef.current = action;
+    idleAction.current?.fadeOut(0.12);
+    walkAction.current?.fadeOut(0.12);
+    action.reset().setLoop(LoopOnce, 1).fadeIn(0.12).play();
+    window.setTimeout(() => {
+      if (gestureRef.current !== action) return;
+      gestureRef.current = null;
+      action.fadeOut(0.2);
+      if (movingRef.current) walkAction.current?.reset().fadeIn(0.2).play();
+      else idleAction.current?.reset().fadeIn(0.2).play();
+    }, Math.max(700, action.getClip().duration * 1000));
+  }, [state]);
+
+  const setMoving = (moving: boolean) => {
+    if (gestureRef.current) return;
+    if (movingRef.current === moving) return;
+    movingRef.current = moving;
+    if (moving) {
+      idleAction.current?.fadeOut(0.12);
+      walkAction.current?.reset().fadeIn(0.12).play();
+    } else {
+      walkAction.current?.fadeOut(0.12);
+      idleAction.current?.reset().fadeIn(0.12).play();
+    }
+  };
 
   useFrame((_, dt) => {
     const g = groupRef.current;
@@ -80,84 +165,43 @@ export function GameAgent({ agent, index, start, target, state, selected, focuse
       const stepLen = Math.min(dist, dt * 1.7);
       g.position.x += (dx / dist) * stepLen;
       g.position.z += (dz / dist) * stepLen;
-      const desired = Math.atan2(dx, dz);
-      g.rotation.y = MathUtils.damp(g.rotation.y, desired, 8, dt);
-      if (!movingRef.current) {
-        movingRef.current = true;
-        setMoving(true);
+      g.rotation.y = MathUtils.damp(g.rotation.y, Math.atan2(dx, dz), 8, dt);
+      walkPhase.current += dt * 9;
+      g.position.y = baseY + Math.abs(Math.sin(walkPhase.current)) * 0.02;
+      setMoving(true);
+      if (!walkAction.current) {
+        const s = Math.sin(walkPhase.current);
+        const b = walkBones;
+        if (b.legL) b.legL.rotation.x = b.legLBase.x + s * 0.55;
+        if (b.legR) b.legR.rotation.x = b.legRBase.x - s * 0.55;
+        if (b.armL) b.armL.rotation.x = b.armLBase.x - s * 0.35;
+        if (b.armR) b.armR.rotation.x = b.armRBase.x + s * 0.35;
+        if (b.spine) b.spine.rotation.z = b.spineBase.z + s * 0.03;
       }
     } else {
-      g.rotation.y = MathUtils.damp(g.rotation.y, faceY, 4, dt);
-      if (movingRef.current) {
-        movingRef.current = false;
-        setMoving(false);
-      }
+      g.rotation.y = MathUtils.damp(g.rotation.y, (index % 8) * 0.06, 4, dt);
+      g.position.y = MathUtils.damp(g.position.y, baseY, 10, dt);
+      setMoving(false);
     }
   });
 
   const roleKey = ROLE_KEY[agent.role];
-  const focusedLine =
-    agent.decision.action === 'bid' ? `${agent.decision.bidAmount} 金` : '先观望';
-  const bubble = focused
-    ? focusedLine
-    : state === 'bidding' && agent.decision.action === 'bid'
-      ? `${agent.decision.bidAmount} 金`
-      : state === 'selected'
-        ? '中标'
-        : state === 'working'
-          ? '工作中…'
-          : state === 'shopping'
-            ? '去技能铺…'
-            : state === 'done'
-              ? '✓ 交差'
-              : null;
-  const roleVisible =
-    focused ||
-    selected ||
-    state === 'bidding' ||
-    state === 'selected' ||
-    state === 'working' ||
-    state === 'done' ||
-    state === 'shopping';
+  const bubble = state === 'selected' ? '中标' : state === 'working' ? '工作中…' : state === 'shopping' ? '去技能铺…' : state === 'done' ? '✓ 交差' : focused ? (agent.decision.action === 'bid' ? `${agent.decision.bidAmount} 金` : '先观望') : null;
+  const roleVisible = focused || selected || state === 'bidding' || state === 'selected' || state === 'working' || state === 'done' || state === 'shopping';
   const badgeY = 1.9 + (index % 2) * 0.28;
-  const bubbleY = badgeY + 0.55;
 
   return (
-    <group
-      ref={groupRef}
-      position={start}
-      onClick={(e) => {
-        e.stopPropagation();
-        onSelect(agent.id);
-      }}
-      onPointerOver={() => {
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerOut={() => {
-        document.body.style.cursor = '';
-      }}
-    >
-      <primitive object={clone} scale={scale} />
-      {selected && (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]}>
-          <ringGeometry args={[0.5, 0.66, 40]} />
-          <meshBasicMaterial color="#2f6f75" transparent opacity={0.9} />
-        </mesh>
-      )}
+    <group ref={groupRef} position={start} onClick={(e) => { e.stopPropagation(); onSelect(agent.id); }}>
+      <primitive object={clone} scale={dims.scale} position={[0, -dims.minY * dims.scale, 0]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.018, 0]}><circleGeometry args={[0.3, 24]} /><meshBasicMaterial color="#3b3024" transparent opacity={0.2} depthWrite={false} /></mesh>
+      {selected && <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]}><ringGeometry args={[0.5, 0.66, 40]} /><meshBasicMaterial color="#2f6f75" transparent opacity={0.9} /></mesh>}
       <Html center position={[0, badgeY, 0]} zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
         <div className={`ga-badge ga-role-${roleKey} ${selected ? 'is-selected' : ''} ${state !== 'idle' ? 'is-active' : ''}`}>
-          <RoleIcon role={roleKey} size={11} />
-          <span className="ga-badge-name">{agent.displayName}</span>
-          {roleVisible && (
-            <span className="ga-badge-role">
-              {ROLE_LABEL[agent.role]} · {STATE_LABEL[state]}
-            </span>
-          )}
+          <RoleIcon role={roleKey} size={11} /><span className="ga-badge-name">{agent.displayName}</span>
+          {roleVisible && <span className="ga-badge-role">{ROLE_LABEL[agent.role]} · {STATE_LABEL[state]}</span>}
         </div>
       </Html>
-      <Html center position={[0, bubbleY, 0]} zIndexRange={[21, 0]} style={{ pointerEvents: 'none' }}>
-        {bubble ? <div className={`ga-bubble ga-bubble--${state}`}>{bubble}</div> : null}
-      </Html>
+      <Html center position={[0, badgeY + 0.55, 0]} zIndexRange={[21, 0]} style={{ pointerEvents: 'none' }}>{bubble ? <div className={`ga-bubble ga-bubble--${state}`}>{bubble}</div> : null}</Html>
     </group>
   );
 }
