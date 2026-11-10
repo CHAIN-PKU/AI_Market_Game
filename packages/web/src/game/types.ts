@@ -130,6 +130,52 @@ export type BidDemoFixture = {
     treasuryStart: number;
     treasuryAfter: number;
   };
+  /** 中标之后的投资进化：服务端用引擎算的（/api/demo/round 返回），不是前端预置 */
+  evolution?: EvolutionSummary;
+  /** A 模式：引擎真跑的一轮双文明同场抢单，见 scripts/add-a-mode-demo.mjs */
+  aMode?: {
+    generatedBy: string;
+    seed: number;
+    round: number;
+    civilizations: { id: string; name: string; rules: string; taxRate: number; treasury: number; agents: number }[];
+    tasksPlayed: number;
+    bidsByCiv: { civId: string; name: string; bids: number }[];
+    winners: {
+      taskId: string;
+      title: string;
+      reward: number;
+      winnerAgentId: string | null;
+      winnerName: string | null;
+      winnerCivId: string | null;
+      winningBid: number | null;
+      status: string;
+    }[];
+    wonByRival: number;
+    wonByHome: number;
+  };
+  /** 对手文明（多人对抗的第一块地基）：数据由引擎跑出，见 scripts/add-rival-demo.mjs */
+  rival?: {
+    id: string;
+    name: string;
+    rules: {
+      name: string;
+      taxRate: number;
+      publicResearchShare: number;
+      skillOwnership: string;
+      allowFreeHire: boolean;
+      allowCollaboration: boolean;
+    };
+    treasuryStart: number;
+    treasuryAfter: number;
+    generatedBy?: string;
+    bids: BidSummary[];
+    crossCiv?: {
+      rule: string;
+      scores: { who: string; civ: string; civId: string; amount: number; quality: number; score: number }[];
+      winner: { who: string; civ: string; civId: string; amount: number; score: number } | null;
+      rivalLost: boolean;
+    };
+  };
   treasuryBreakdown: {
     start: number;
     end: number;
@@ -221,6 +267,21 @@ export type RoundHistory = {
 };
 
 export type RuleCompare = {
+  /** 改规则前后每个居民的决策差异（审查要求解释「为什么变」） */
+  decisions?: { name: string; before: string; after: string; changed: boolean }[];
+  /** 谁在这次改规则后获得了新技能 */
+  newSkills?: { name: string; skill: string }[];
+  /** 制度对照的资金去向分解（私人投资 vs 公共研发池） */
+  money?: {
+    beforePrivate: number;
+    afterPrivate: number;
+    beforePublic: number;
+    afterPublic: number;
+    beforeToTreasury: number;
+    afterToTreasury: number;
+    beforeTax: number;
+    afterTax: number;
+  };
   beforeWinner: string;
   afterWinner: string;
   beforeNet: number | null;
@@ -264,4 +325,26 @@ export type ExperimentReport = {
   maxRounds: number;
   a: { rules: { name: string; taxRate: number }; stats: ExperimentStats };
   b: { rules: { name: string; taxRate: number }; stats: ExperimentStats };
+};
+
+export type EvolutionSummary = {
+  agentId: string;
+  displayName: string;
+  domain: string;
+  reason: string;
+  taskTitle: string;
+  taskReward: number;
+  bidAmount: number;
+  walletBefore: number;
+  taxPaid: number;
+  trainingCost: number;
+  trainingBonus: number;
+  walletAfter: number;
+  abilityBefore: number;
+  abilityAfter: number;
+  successBefore: number;
+  successAfter: number;
+  cheapestSkillPrice: number;
+  shortfallToSkill: number;
+  civLean: Record<string, number>;
 };

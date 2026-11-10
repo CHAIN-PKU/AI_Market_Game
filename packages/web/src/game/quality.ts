@@ -13,7 +13,9 @@ export type QualityConfig = {
 export const QUALITY: Record<Quality, QualityConfig> = {
   high: {
     label: '高',
-    dpr: [2.5, 3],
+    // 2.5~3 倍在 1920 视口下会渲染到 4800×3240，低多边形场景完全没必要；
+    // 实测把倍率压到 2 以内，画质肉眼无差别，帧率明显回升
+    dpr: [2, 2.5],
     shadowMap: 4096,
     softShadows: true,
     contactShadows: true,

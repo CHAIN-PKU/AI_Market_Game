@@ -17,3 +17,6 @@ dsh-plugins/
 .npm-cache/
 
 runtime/campaigns/
+
+# 大文件不进仓库：录屏/视频放 runtime 或飞书
+ docs/evidence/*.mp4

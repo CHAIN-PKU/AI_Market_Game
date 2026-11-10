@@ -2,15 +2,19 @@ import { pickOne, randInt } from '../core/rng.js';
 import type { GameState, MarketTask, TaskDomain } from '../core/types.js';
 
 const DOMAIN_LABELS: Record<TaskDomain, string> = {
-  coding: 'Coding',
-  research: 'Research',
-  design: 'Design',
+  coding: '写程序',
+  research: '做研究',
+  design: '做设计',
 };
 
+/**
+ * 任务标题统一用中文：这是给中国观众看的 Demo，英文标题在片子里很跳。
+ * 模板按领域分组，措辞保持「客户委托」的口吻。
+ */
 const TASK_TEMPLATES: Record<TaskDomain, string[]> = {
-  coding: ['Build landing page', 'Fix API module', 'Automate data pipeline'],
-  research: ['Survey energy tech', 'Analyze market trend', 'Prototype material'],
-  design: ['Brand identity kit', 'Mobile UI flow', 'Icon set refresh'],
+  coding: ['做一个落地页', '修一个接口模块', '把数据流程自动化'],
+  research: ['调研新能源方案', '分析市场走势', '做一个材料原型'],
+  design: ['做一套品牌视觉', '画一版手机界面', '重做一套图标'],
 };
 
 export function generateTasksForRound(state: GameState, rng: () => number): MarketTask[] {

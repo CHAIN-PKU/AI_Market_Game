@@ -10,9 +10,10 @@ import { Guide } from './Guide';
 import { CastPanel } from './CastPanel';
 import { NegotiationPanel } from './NegotiationPanel';
 import { EvolutionPanel } from './EvolutionPanel';
+import { AModePanel } from './AModePanel';
 import { StoryOverlay } from './StoryOverlay';
 import { BARGAIN_LENGTH } from './bargainScript';
-import { InstitutionPanel, summarizeRun } from './InstitutionPanel';
+import { InstitutionPanel, diffDecisions, summarizeRun } from './InstitutionPanel';
 import { QUALITY, readQuality, writeQuality, type Quality } from './quality';
 import {
   AgentPanel,
@@ -37,7 +38,7 @@ import { marketStats } from './presentation';
 import { CloseIcon } from './icons';
 import './game.css';
 
-const bundledFixture = fixtureJson as BidDemoFixture;
+const bundledFixture = fixtureJson as unknown as BidDemoFixture;
 
 const STATUS_LABEL: Record<StepId, string> = {
   idle: '等你发任务',
@@ -144,6 +145,9 @@ export function GamePage() {
   const [showCast, setShowCast] = useState(false);
   const [showNegotiation, setShowNegotiation] = useState(false);
   const [showEvolution, setShowEvolution] = useState(false);
+  const [showAMode, setShowAMode] = useState(false);
+  const [roundBusy, setRoundBusy] = useState(false);
+  const [campaignId, setCampaignId] = useState<string | null>(null);
   const [theaterT, setTheaterT] = useState<number | null>(null);
 
   // Theater playback: drives the speech bubbles above each resident's head.
@@ -220,13 +224,67 @@ export function GamePage() {
     return () => clearTimeout(timer);
   }, [playing, safeCueIndex, speed, points]);
 
-  const startDemo = useCallback(() => {
-    if (step !== 'idle') return;
-    const posted = points.findIndex((p) => p.step === 'posted');
-    if (posted < 0) return;
-    setCueIndex(posted);
+  /**
+   * 「先看一轮」= 建一个真实 campaign 并跑第一轮（服务端引擎），不再回放打包 fixture。
+   * 之后每点一次「下一轮」推进一轮，走 /api/campaign/:id/next。
+   */
+  const applyLiveFixture = useCallback((live: BidDemoFixture) => {
+    setFixture(live);
+    const cues = flattenPlaybackCues(live);
+    const posted = cues.findIndex((p) => p.step === 'posted');
+    setCueIndex(posted >= 0 ? posted : 0);
     setPlaying(true);
-  }, [step, points]);
+  }, []);
+
+  const startDemo = useCallback(async () => {
+    if (roundBusy) return;
+    setRoundBusy(true);
+    try {
+      const res = await fetch(apiUrl('/api/games'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ demo: true }),
+      });
+      if (!res.ok) {
+        const detail = await res.text().catch(() => '');
+        throw new Error(`引擎返回 ${res.status}${detail ? `：${detail.slice(0, 80)}` : ''}`);
+      }
+      const data = (await res.json()) as { id: string; fixture: BidDemoFixture; campaign?: { round: number; maxRounds: number } };
+      setCampaignId(data.id);
+      window.localStorage.setItem('dsh-live-campaign', data.id);
+      applyLiveFixture(data.fixture);
+      setNotice(`引擎开始实时跑：第 ${data.campaign?.round ?? 1} / ${data.campaign?.maxRounds ?? 3} 轮`);
+    } catch (err) {
+      setNotice(`跑不起来：${err instanceof Error ? err.message : '引擎不可用'}（需要 API 3001）`);
+    } finally {
+      setRoundBusy(false);
+    }
+  }, [roundBusy, applyLiveFixture]);
+
+  /** 推进下一轮：同一 campaign，真实引擎接着跑 */
+  const nextRound = useCallback(async () => {
+    if (!campaignId || roundBusy) return;
+    setRoundBusy(true);
+    try {
+      const res = await fetch(apiUrl(`/api/campaign/${campaignId}/next`), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (res.status === 409) {
+        setNotice('这个 campaign 已经跑完了（可以重新开一局）');
+        return;
+      }
+      if (!res.ok) throw new Error(`引擎返回 ${res.status}`);
+      const data = (await res.json()) as { fixture: BidDemoFixture; campaign?: { round: number; maxRounds: number } };
+      applyLiveFixture(data.fixture);
+      setNotice(`第 ${data.campaign?.round ?? '?'} / ${data.campaign?.maxRounds ?? 3} 轮跑完（引擎实时）`);
+    } catch (err) {
+      setNotice(`推进失败：${err instanceof Error ? err.message : '引擎不可用'}`);
+    } finally {
+      setRoundBusy(false);
+    }
+  }, [campaignId, roundBusy, applyLiveFixture]);
 
   const restartDemo = useCallback(() => {
     const posted = points.findIndex((p) => p.step === 'posted');
@@ -324,7 +382,27 @@ export function GamePage() {
       if (beforeNet !== undefined && afterNet !== undefined) {
         const bm = marketStats(fixture);
         const am = marketStats(next);
+        const privateSpend = (f: BidDemoFixture) =>
+          f.agents.reduce((sum, a) => sum + (a.skillsAfter?.length ?? 0) * 80, 0);
         setCompare({
+          decisions: diffDecisions(fixture, next),
+          newSkills: next.agents
+            .map((a) => {
+              const before = new Set((fixture.agents.find((x) => x.id === a.id)?.skillsAfter ?? []).map((s) => s.name));
+              const added = (a.skillsAfter ?? []).filter((s) => !before.has(s.name)).map((s) => s.name);
+              return added.length ? { name: a.displayName, skill: added.join('、') } : null;
+            })
+            .filter((x): x is { name: string; skill: string } => !!x),
+          money: {
+            beforePrivate: privateSpend(fixture),
+            afterPrivate: privateSpend(next),
+            beforePublic: fixture.treasuryBreakdown.publicResearch,
+            afterPublic: next.treasuryBreakdown.publicResearch,
+            beforeToTreasury: fixture.treasuryBreakdown.toTreasury,
+            afterToTreasury: next.treasuryBreakdown.toTreasury,
+            beforeTax: Math.round(fixture.civilization.rules.taxRate * 100),
+            afterTax: Math.round(next.civilization.rules.taxRate * 100),
+          },
           beforeWinner,
           afterWinner,
           beforeNet,
@@ -488,6 +566,7 @@ export function GamePage() {
         onOpenHistory={() => setShowHistory(true)}
         onOpenGuide={() => setShowGuide(true)}
         onOpenCast={() => setShowCast(true)}
+        live={campaignId != null}
       />
 
       <main className={`g-stage ${view === '2d' ? 'g-stage--2d' : ''}`}>
@@ -596,9 +675,29 @@ export function GamePage() {
         <span>投资 · 进化</span>
         <em>中标之后呢？</em>
       </button>
+      <button
+        type="button"
+        className="g-dock-btn g-dock-btn--strong"
+        disabled={!campaignId || roundBusy}
+        onClick={() => { void nextRound(); }}
+        title={campaignId ? '同一 campaign 推进一轮（真实引擎）' : '先点「先看一轮」建立 campaign'}
+      >
+        <span>下一轮</span>
+        <em>{campaignId ? '引擎接着跑' : '先建立对局'}</em>
+      </button>
+      <button
+        type="button"
+        className="g-dock-btn g-dock-btn--accent"
+        onClick={() => { setShowAMode(true); setTheaterT(null); }}
+      >
+        <span>A 模式</span>
+        <em>两岛同场</em>
+      </button>
       </div>
 
       {showEvolution && <EvolutionPanel fixture={fixture} onClose={() => setShowEvolution(false)} />}
+
+      {showAMode && <AModePanel fixture={fixture} onClose={() => setShowAMode(false)} />}
 
       {showCast && (
         <CastPanel fixture={fixture} onClose={() => setShowCast(false)} onSelect={setSelectedId} />

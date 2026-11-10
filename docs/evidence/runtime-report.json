@@ -1,0 +1,16 @@
+{
+  "url": "http://127.0.0.1:5180/game",
+  "loadMs": 382,
+  "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+  "vendor": "Google Inc. (Apple)",
+  "software": false,
+  "fps": 46,
+  "domContentLoadedMs": 362,
+  "canvas": {
+    "w": 3840,
+    "h": 2160
+  },
+  "dpr": 1,
+  "consoleErrors": [],
+  "pageErrors": []
+}

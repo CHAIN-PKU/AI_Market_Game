@@ -303,6 +303,7 @@ export function GameScene({
           chatThink={theaterT == null ? null : activeChat(agent.displayName, theaterT).think}
           // 相邻站位交替抬高，避免两个气泡在同一高度叠住
           chatLift={(i % 2) * 0.62}
+          winner={step === 'assigned' || step === 'working' || step === 'settled' ? agent.id === fixture.winner?.agentId : false}
           outline={quality.outlines}
         />
       ))}

@@ -33,6 +33,22 @@ function rulesName(taxPct: number, ownership: 'private' | 'shared'): string {
   return '自由市场';
 }
 
+function describeDecision(agent: { decision: { action: string; bidAmount: number | null } }): string {
+  return agent.decision.action === 'bid' && agent.decision.bidAmount != null
+    ? `报价 ${agent.decision.bidAmount}`
+    : '不接';
+}
+
+/** 同一个居民在两套规则下的决策差异（按名字对齐，人不变，只有决策会变） */
+export function diffDecisions(before: BidDemoFixture, after: BidDemoFixture) {
+  return before.agents.map((old) => {
+    const now = after.agents.find((a) => a.displayName === old.displayName);
+    const b = describeDecision(old);
+    const a = now ? describeDecision(now) : '—';
+    return { name: old.displayName, before: b, after: a, changed: b !== a };
+  });
+}
+
 export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
   const rules = fixture.civilization.rules;
   const [taxPct, setTaxPct] = useState(Math.round(rules.taxRate * 100));
@@ -44,6 +60,7 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
   const [experiment, setExperiment] = useState<ExperimentReport | null>(null);
   const [copiedExperiment, setCopiedExperiment] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
 
   async function runExperiment() {
     setExperimentBusy(true);
@@ -133,6 +150,23 @@ export function InstitutionPanel({ fixture, onClose, onApplied }: Props) {
             <PeopleIcon size={14} /> {fixture.agents.length} 名居民
           </span>
           <span>种子 {seed}</span>
+        </div>
+
+        {/* 后果预览：跟着滑块实时变，让"改了多少"和"会怎样"挨在一起 */}
+        <div className="g-rule-preview" aria-live="polite">
+          <span className="g-rule-preview-title">按这套规则</span>
+          <div>
+            <span>一单 {fixture.scenario.reward} 金到手约</span>
+            <b>{Math.round(fixture.scenario.reward * (1 - taxPct / 100))} 金</b>
+          </div>
+          <div>
+            <span>每 100 金税进公共研发</span>
+            <b>{Math.round(sharePct)} 金</b>
+          </div>
+          <div>
+            <span>技能</span>
+            <b>{ownership === 'shared' ? '8 人共用，谁买全体受益' : '各买各的，只影响自己'}</b>
+          </div>
         </div>
 
         <label className="g-rule-field">

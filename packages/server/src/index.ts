@@ -2,19 +2,7 @@ import Fastify from 'fastify';
 import fs from 'node:fs';
 import path from 'node:path';
 import cors from '@fastify/cors';
-import {
-  advanceBidDemoCampaign,
-  buildBidDemoFixture,
-  createBidDemoCampaign,
-  createDualCivilizationGame,
-  runSingleRound,
-  MockAgentDecisionProvider,
-  postPlayerTask,
-  createFreeMarketRules,
-  createPublicResearchRules,
-  type BidDemoCampaign,
-  type RulesPatch,
-} from '@ai-civ/simulation';
+import { advanceBidDemoCampaign, buildBidDemoFixture, createBidDemoCampaign, createDualCivilizationGame, runSingleRound, MockAgentDecisionProvider, postPlayerTask, createFreeMarketRules, createPublicResearchRules, type BidDemoCampaign, type RulesPatch, SKILL_CATALOG, TRAINING_COST, TRAINING_BONUS, successProbability } from '@ai-civ/simulation';
 import { randomUUID } from 'node:crypto';
 import { playerBrainLabel, readServerConfig } from './config.js';
 import { GameStore } from './game-store.js';
@@ -514,8 +502,10 @@ app.post<{
     initialAbility: body.initialAbility,
     rules: body.rules,
   });
+  // 中标之后到底有没有变强，必须在服务端用引擎算，而不是前端预置。
   return {
     fixture,
+    evolution: computeEvolution(fixture),
     meta: {
       engine: 'deterministic-mock',
       generator: 'buildBidDemoFixture',
@@ -523,6 +513,54 @@ app.post<{
     },
   };
 });
+
+/**
+ * 从这一轮的真实结算推出「投资 · 进化」这一步：
+ * 赢家到手多少、够不够买技能、买不起就用训练（40 金 +4 能力），能力与成功率怎么变。
+ * 训练规则本身由引擎的 TRAINING_COST / TRAINING_BONUS 决定。
+ */
+function computeEvolution(fixture: ReturnType<typeof buildBidDemoFixture>) {
+  const winner = fixture.winner;
+  const settlement = fixture.settlement;
+  if (!winner || !settlement) return null;
+
+  const agent = fixture.agents.find((a) => a.id === winner.agentId);
+  if (!agent) return null;
+
+  const domain = 'coding' as const;
+  const difficulty = 40;
+  const minAbility = 30;
+  const abilityBefore = agent.abilities[domain];
+  const cheapest = Math.min(...SKILL_CATALOG.map((s) => s.price));
+  const affordableTraining = settlement.walletAfter >= TRAINING_COST;
+  const abilityAfter = affordableTraining ? abilityBefore + TRAINING_BONUS : abilityBefore;
+
+  return {
+    agentId: winner.agentId,
+    displayName: winner.displayName,
+    domain,
+    reason: `把 ${domain} 练强`,
+    taskTitle: fixture.scenario.title,
+    taskReward: fixture.scenario.reward,
+    bidAmount: winner.bidAmount,
+    walletBefore: settlement.walletAfter,
+    taxPaid: settlement.tax,
+    trainingCost: affordableTraining ? TRAINING_COST : 0,
+    trainingBonus: affordableTraining ? TRAINING_BONUS : 0,
+    walletAfter: settlement.walletAfter - (affordableTraining ? TRAINING_COST : 0),
+    abilityBefore,
+    abilityAfter,
+    successBefore: successProbability(abilityBefore, difficulty, minAbility),
+    successAfter: successProbability(abilityAfter, difficulty, minAbility),
+    cheapestSkillPrice: cheapest,
+    shortfallToSkill: Math.max(0, cheapest - settlement.walletAfter),
+    civLean: {
+      coding: abilityAfter,
+      research: agent.abilities.research,
+      design: agent.abilities.design,
+    },
+  };
+}
 
 app.get('/api/active-game', async () => ({
   gameId: (await readActiveGame(cfg.repoRoot)) ?? null,

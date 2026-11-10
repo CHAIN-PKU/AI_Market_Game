@@ -105,6 +105,7 @@ export function TopBar({
   onOpenHistory,
   onOpenGuide,
   onOpenCast,
+  live = false,
 }: {
   fixture: BidDemoFixture;
   derived: Derived;
@@ -117,6 +118,8 @@ export function TopBar({
   onOpenHistory: () => void;
   onOpenGuide: () => void;
   onOpenCast: () => void;
+  /** 当前显示的这一轮是不是引擎实时跑出来的（审查要求：不能把预生成伪装成实时） */
+  live?: boolean;
 }) {
   return (
     <header className="g-top">
@@ -130,6 +133,9 @@ export function TopBar({
         <div className="g-brand-text">
           <strong>{fixture.civilization.name}</strong>
           <span className="g-rules">{fixture.civilization.rules.name} · 你定规则</span>
+          <span className={`g-source ${live ? 'is-live' : 'is-static'}`}>
+            {live ? '实时引擎' : '演示数据 · 未接引擎'}
+          </span>
         </div>
       </div>
 
@@ -309,6 +315,59 @@ export function LeftPanel({
           </div>
         </div>
 
+        {!posted && compare && compare.decisions && compare.decisions.length > 0 && (
+          <div className="g-rule-diff">
+            <header>
+              <b>谁的决策变了</b>
+              <em>
+                {compare.decisions.filter((d) => d.changed).length} / {compare.decisions.length} 人改变
+              </em>
+            </header>
+            <ul>
+              {compare.decisions.map((d) => (
+                <li key={d.name} className={d.changed ? 'is-changed' : ''}>
+                  <span>{d.name}</span>
+                  <b>{d.before}</b>
+                  <i>→</i>
+                  <b>{d.after}</b>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {!posted && compare?.newSkills && compare.newSkills.length > 0 && (
+          <div className="g-new-skill">
+            <span>谁获得了新能力</span>
+            {compare.newSkills.map((s) => (
+              <b key={s.name}>
+                {s.name}：{s.skill}
+              </b>
+            ))}
+          </div>
+        )}
+
+        {!posted && compare?.money && (
+          <div className="g-money-split">
+            <header>
+              <b>钱去哪了</b>
+              <em>税率 {compare.money.beforeTax}% → {compare.money.afterTax}%</em>
+            </header>
+            <div>
+              <span>私人买技能</span>
+              <b>{compare.money.beforePrivate} → {compare.money.afterPrivate} 金</b>
+            </div>
+            <div>
+              <span>公共研发池</span>
+              <b>{compare.money.beforePublic} → {compare.money.afterPublic} 金</b>
+            </div>
+            <div>
+              <span>进国库</span>
+              <b>{compare.money.beforeToTreasury} → {compare.money.afterToTreasury} 金</b>
+            </div>
+          </div>
+        )}
+
         {!posted && compare && (
           <div className="g-compare">
             <div className="g-compare-head">
@@ -399,6 +458,45 @@ export function LeftPanel({
           <FocusCard agent={focusAgent} focusNumber={focusNumber} step={derived.step} />
         )}
 
+        {showBids && fixture.rival && (
+          <div className="g-rivalbox">
+            <div className="g-bidbox-head">
+              <span>A 模式预演 · 若两岛同场</span>
+              <em>
+                {fixture.rival.name}（{fixture.rival.rules.name}，税率{' '}
+                {Math.round(fixture.rival.rules.taxRate * 100)}%）
+              </em>
+            </div>
+            {(fixture.rival.crossCiv?.scores ?? []).slice(0, 4).map((row) => (
+              <div
+                key={`${row.civId}-${row.who}`}
+                className={row.civId === fixture.civilization.id ? 'g-bid g-bid--rival' : 'g-bid g-bid--rival is-foe'}
+              >
+                <span className="g-bid-name">
+                  {row.who}
+                  <em className="g-bid-civ">{row.civId === fixture.civilization.id ? '本岛' : '对岸'}</em>
+                </span>
+                <span className="g-bid-amount">
+                  {row.amount} 金 · 评分 {row.score.toFixed(2)}
+                </span>
+              </div>
+            ))}
+            {fixture.rival.crossCiv?.winner && (
+              <p className={`g-rivalbox-verdict ${fixture.rival.crossCiv.rivalLost ? '' : 'is-foe'}`}>
+                这把尺子下：
+                <b>
+                  {fixture.rival.crossCiv.winner.civ} · {fixture.rival.crossCiv.winner.who}
+                </b>
+                以 {fixture.rival.crossCiv.winner.score.toFixed(2)} 分拿下
+              </p>
+            )}
+            <p className="g-rivalbox-note">
+              评分 = 质量 0.55 + 价格 0.45。对岸共享技能、质量更高，所以会赢。
+              当前仍是单岛演示，正片里中标的是本岛。
+            </p>
+          </div>
+        )}
+
         {showBids && (
           <div className="g-bidbox">
             <div className="g-bidbox-head">
@@ -407,11 +505,15 @@ export function LeftPanel({
                 {fixture.bids.length} 人报价 · {passers.length} 人不接
               </em>
             </div>
-            {fixture.bids.map((bid) => {
+            {fixture.bids.map((bid, bidIndex) => {
               const agent = fixture.agents.find((a) => a.id === bid.agentId)!;
               const isWinner = derived.assigned && bid.agentId === derived.winnerId;
               return (
-                <div key={`${bid.agentId}-${bid.bidAmount}-${bid.teamAgentIds?.[1] ?? ""}-${bid.ringDefected ? "d" : ""}`} className={isWinner ? 'g-bid is-winner' : 'g-bid'}>
+                <div
+                  key={`${bid.agentId}-${bid.bidAmount}-${bid.teamAgentIds?.[1] ?? ""}-${bid.ringDefected ? "d" : ""}`}
+                  className={`g-bid g-bid--staggered${isWinner ? ' is-winner' : ''}`}
+                  style={{ animationDelay: `${bidIndex * 90}ms` }}
+                >
                   <span className={`g-avatar g-avatar--${ROLE_KEY[agent.role]}`}>{roleIcon(agent)}</span>
                   <span className="g-bid-name">
                     {bid.displayName}
@@ -635,6 +737,16 @@ export function AgentPanel({
             </span>
             <span className={personalityTone(agent)}>{agent.personalityLabel}</span>
           </div>
+        </div>
+
+        {/* 身份三件套：座右铭 / 性格色条 / 经济目标 —— 不看数字也能认出这是谁 */}
+        <p className="g-agent-motto">「{loreFor(agent.displayName).motto}」</p>
+        <div className={`g-agent-identity ${personalityTone(agent)}`}>
+          <span className="g-identity-label">性格</span>
+          <b>{agent.personalityLabel}</b>
+          <span className="g-identity-sep">·</span>
+          <span className="g-identity-label">目标</span>
+          <b>{agent.goal?.label ?? '攒钱'}</b>
         </div>
 
         <p className="g-agent-bio">{loreFor(agent.displayName).bio}</p>

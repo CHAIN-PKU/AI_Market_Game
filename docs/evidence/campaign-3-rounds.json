@@ -1,0 +1,58 @@
+{
+  "source": "/api/games (demo) + /api/campaign/:id/next x3, server-side engine",
+  "rounds": [
+    {
+      "round": 1,
+      "winner": "Boreal",
+      "bid": 78,
+      "completed": true,
+      "gross": 110,
+      "tax": 6,
+      "net": 71,
+      "walletAfter": 71,
+      "skillsBought": [],
+      "abilityBefore": 41,
+      "abilityAfter": 41,
+      "successBefore": 0.375,
+      "successAfter": 0.375,
+      "taskTitle": "整理竞品研究报告",
+      "reward": 110
+    },
+    {
+      "round": 2,
+      "winner": "Cinder",
+      "bid": 84,
+      "completed": false,
+      "gross": null,
+      "tax": null,
+      "net": null,
+      "walletAfter": null,
+      "skillsBought": [],
+      "abilityBefore": 42,
+      "abilityAfter": 42,
+      "successBefore": 0.39999999999999997,
+      "successAfter": 0.39999999999999997,
+      "taskTitle": "设计品牌视觉套件",
+      "reward": 120
+    },
+    {
+      "round": 3,
+      "winner": "Astra",
+      "bid": 67,
+      "completed": true,
+      "gross": 100,
+      "tax": 6,
+      "net": 64,
+      "walletAfter": 43,
+      "skillsBought": [
+        "Literature Review"
+      ],
+      "abilityBefore": 28,
+      "abilityAfter": 36,
+      "successBefore": 0.04999999999999993,
+      "successAfter": 0.24999999999999997,
+      "taskTitle": "修复网站登录问题",
+      "reward": 100
+    }
+  ]
+}
