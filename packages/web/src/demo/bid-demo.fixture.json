@@ -4549,5 +4549,30 @@
         "round": 1
       }
     }
-  ]
+  ],
+  "evolution": {
+    "agentId": "civ-a-agent-3",
+    "displayName": "Delta",
+    "domain": "coding",
+    "reason": "攒钱买「Clean Code Patterns」",
+    "taskTitle": "修复网站登录问题",
+    "taskReward": 100,
+    "bidAmount": 71,
+    "walletBefore": 64,
+    "taxPaid": 6,
+    "trainingCost": 40,
+    "trainingBonus": 4,
+    "walletAfter": 24,
+    "abilityBefore": 40,
+    "abilityAfter": 44,
+    "successBefore": 0.35,
+    "successAfter": 0.44999999999999996,
+    "cheapestSkillPrice": 80,
+    "shortfallToSkill": 16,
+    "civLean": {
+      "coding": 44,
+      "research": 31,
+      "design": 21
+    }
+  }
 }

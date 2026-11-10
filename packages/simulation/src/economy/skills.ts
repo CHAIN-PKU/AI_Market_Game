@@ -1,6 +1,33 @@
 import { pushEvent } from '../core/events.js';
 import { getSkillById } from '../core/skills.js';
-import type { AgentState, CivilizationState, GameState } from '../core/types.js';
+import type { Abilities, AgentState, CivilizationState, GameState, TaskDomain } from '../core/types.js';
+
+/** Small, always-affordable step between "no skill" and buying one outright. */
+export const TRAINING_COST = 40;
+export const TRAINING_BONUS = 4;
+
+/**
+ * Pay for hands-on training in one domain: cheaper than a skill, smaller gain.
+ * This is what lets a resident that just won a 100-gold task actually improve
+ * next round instead of sitting 16 gold short of the cheapest skill.
+ */
+export function trainAbility(
+  state: GameState,
+  agent: AgentState,
+  domain: TaskDomain,
+): boolean {
+  if (agent.wallet < TRAINING_COST) return false;
+  agent.wallet -= TRAINING_COST;
+  agent.stats.skillSpend += TRAINING_COST;
+  agent.abilities = { ...agent.abilities, [domain]: agent.abilities[domain] + TRAINING_BONUS } as Abilities;
+  pushEvent(state, 'ability_trained', `${agent.displayName} trained ${domain} +${TRAINING_BONUS}`, {
+    agentId: agent.id,
+    domain,
+    cost: TRAINING_COST,
+    bonus: TRAINING_BONUS,
+  });
+  return true;
+}
 
 export function purchaseSkill(
   state: GameState,

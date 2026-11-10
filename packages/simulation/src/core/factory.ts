@@ -132,27 +132,51 @@ export function createCivilization(
   };
 }
 
+export interface CivilizationSpec {
+  id: string;
+  displayName: string;
+  rules: CivilizationRules;
+}
+
+/**
+ * 任意数量文明的游戏（多人对抗的地基）。
+ * 每个文明是一份独立状态：国库、税率、技能策略、居民、独立指标。
+ */
+export function createCivilizationGame(
+  config: Partial<SimulationConfig> = {},
+  specs: CivilizationSpec[],
+): GameState {
+  const merged: SimulationConfig = { ...DEFAULT_CONFIG, ...config };
+  if (specs.length < 2) {
+    throw new Error('createCivilizationGame needs at least 2 civilizations to compete');
+  }
+  const civilizations = specs.map((spec) =>
+    createCivilization(spec.id, spec.displayName, spec.rules, merged),
+  );
+
+  const metricsByCiv: GameState['metricsByCiv'] = {};
+  for (const civ of civilizations) metricsByCiv[civ.id] = emptyMetrics();
+
+  return {
+    config: merged,
+    round: 0,
+    civilizations,
+    marketTasks: [],
+    events: [],
+    rngState: merged.seed,
+    metricsByCiv,
+  };
+}
+
 export function createDualCivilizationGame(
   config: Partial<SimulationConfig> = {},
   rulesA = createFreeMarketRules(),
   rulesB = createPublicResearchRules(),
 ): GameState {
-  const merged: SimulationConfig = { ...DEFAULT_CONFIG, ...config };
-  const civA = createCivilization('civ-a', 'Civilization A', rulesA, merged);
-  const civB = createCivilization('civ-b', 'Civilization B', rulesB, merged);
-
-  return {
-    config: merged,
-    round: 0,
-    civilizations: [civA, civB],
-    marketTasks: [],
-    events: [],
-    rngState: merged.seed,
-    metricsByCiv: {
-      [civA.id]: emptyMetrics(),
-      [civB.id]: emptyMetrics(),
-    },
-  };
+  return createCivilizationGame(config, [
+    { id: 'civ-a', displayName: 'Civilization A', rules: rulesA },
+    { id: 'civ-b', displayName: 'Civilization B', rules: rulesB },
+  ]);
 }
 
 function emptyMetrics() {

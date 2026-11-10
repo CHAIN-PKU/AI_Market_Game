@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber';
+import { apiUrl } from '../apiBase';
 import { NeutralToneMapping } from 'three';
-import { Html } from '@react-three/drei';
+import { useProgress } from '@react-three/drei';
 import { Component, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import fixtureJson from '../demo/bid-demo.fixture.json';
 import { GameScene } from './GameScene';
@@ -8,6 +9,9 @@ import { CampaignHistory } from './CampaignHistory';
 import { Guide } from './Guide';
 import { CastPanel } from './CastPanel';
 import { NegotiationPanel } from './NegotiationPanel';
+import { EvolutionPanel } from './EvolutionPanel';
+import { StoryOverlay } from './StoryOverlay';
+import { BARGAIN_LENGTH } from './bargainScript';
 import { InstitutionPanel, summarizeRun } from './InstitutionPanel';
 import { QUALITY, readQuality, writeQuality, type Quality } from './quality';
 import {
@@ -93,12 +97,25 @@ class SceneBoundary extends Component<{ children: ReactNode; onRetry: () => void
   }
 }
 
-function SceneLoading() {
-  return (
-    <Html center position={[0, 1.8, 0]} zIndexRange={[30, 0]} style={{ pointerEvents: 'none' }}>
-      <div className="g-scene-loading">正在点亮晨曦文明…</div>
-    </Html>
-  );
+/**
+ * 加载提示放在 Canvas 外层。
+ * 之前它是 <Suspense> 的 fallback 且用了 drei 的 <Html>：模型加载结束时该门户
+ * 会在 React 渲染过程中被同步卸载，触发 removeChild 报错（加载后约 2 秒必现）。
+ */
+function SceneLoadingOverlay() {
+  const { active } = useProgress();
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    if (!active) {
+      setVisible(false);
+      return;
+    }
+    // 极短的加载不闪一下提示
+    const timer = window.setTimeout(() => setVisible(true), 250);
+    return () => window.clearTimeout(timer);
+  }, [active]);
+  if (!visible) return null;
+  return <div className="g-scene-loading g-scene-loading--overlay">正在点亮晨曦文明…</div>;
 }
 
 export function GamePage() {
@@ -126,6 +143,28 @@ export function GamePage() {
   const [showGuide, setShowGuide] = useState(false);
   const [showCast, setShowCast] = useState(false);
   const [showNegotiation, setShowNegotiation] = useState(false);
+  const [showEvolution, setShowEvolution] = useState(false);
+  const [theaterT, setTheaterT] = useState<number | null>(null);
+
+  // Theater playback: drives the speech bubbles above each resident's head.
+  const theaterOn = theaterT != null;
+  useEffect(() => {
+    if (!theaterOn) return;
+    const started = performance.now();
+    // 10fps 足够（台词按秒切），避免 60fps 重渲染把 drei 的 Html 门户刷爆
+    const timer = window.setInterval(() => {
+      const t = (performance.now() - started) / 1000;
+      if (t > BARGAIN_LENGTH) {
+        setTheaterT(null);
+        window.clearInterval(timer);
+        return;
+      }
+      setTheaterT(t);
+    }, 100);
+    return () => window.clearInterval(timer);
+    // Restart only when the theater is switched on.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [theaterOn]);
   const [campaignBusy, setCampaignBusy] = useState(false);
   const [compare, setCompare] = useState<RuleCompare | null>(null);
   const [quality, setQuality] = useState<Quality>(() => readQuality());
@@ -350,7 +389,7 @@ export function GamePage() {
     const id = localStorage.getItem('dsh-campaign-id');
     if (!id) return;
     let cancelled = false;
-    fetch(`/api/games/${id}`)
+    fetch(apiUrl(`/api/games/${id}`))
       .then(async (res) => {
         if (!res.ok) {
           if (res.status === 404) localStorage.removeItem('dsh-campaign-id');
@@ -380,7 +419,7 @@ export function GamePage() {
     setCampaignBusy(true);
     try {
       const r = fixture.civilization.rules;
-      const res = await fetch('/api/games', {
+      const res = await fetch(apiUrl('/api/games'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -416,7 +455,7 @@ export function GamePage() {
     if (!campaign || campaign.done) return;
     setCampaignBusy(true);
     try {
-      const res = await fetch(`/api/games/${campaign.id}/advance`, { method: 'POST' });
+      const res = await fetch(apiUrl(`/api/games/${campaign.id}/advance`), { method: 'POST' });
       if (!res.ok) {
         const text = await res.text().catch(() => '');
         throw new Error(`HTTP ${res.status}${text ? `：${text.slice(0, 100)}` : ''}`);
@@ -471,7 +510,7 @@ export function GamePage() {
               camera={{ position: [0, 17.2, 23.8], fov: 38, near: 0.1, far: 140 }}
               onPointerMissed={() => setSelectedId(null)}
             >
-              <Suspense fallback={<SceneLoading />}>
+              <Suspense fallback={null}>
                 <GameScene
                   fixture={fixture}
                   step={step}
@@ -480,9 +519,11 @@ export function GamePage() {
                   onSelect={setSelectedId}
                   onPublish={startDemo}
                   quality={QUALITY[quality]}
+                  theaterT={theaterT}
                 />
               </Suspense>
             </Canvas>
+            <SceneLoadingOverlay />
           </SceneBoundary>
         </div>
         {view === '2d' && <BidBoard2D fixture={fixture} derived={derived} onSelect={setSelectedId} />}
@@ -529,12 +570,35 @@ export function GamePage() {
         <InstitutionPanel fixture={fixture} onClose={() => setShowInstitutions(false)} onApplied={applyRound} />
       )}
 
-      <button type="button" className="g-nego-open" onClick={() => setShowNegotiation(true)}>
+      <StoryOverlay fixture={fixture} step={step} />
+
+      <div className="g-dock">
+      <button type="button" className="g-dock-btn g-dock-btn--nego" onClick={() => setShowNegotiation(true)}>
         <span>谈判室</span>
         <em>合作？背叛？</em>
       </button>
 
+      <button
+        type="button"
+        className={`g-dock-btn g-dock-btn--strong g-dock-btn--theater ${theaterT != null ? 'is-live' : ''}`}
+        onClick={() => {
+          setShowNegotiation(false);
+          setTheaterT((t) => (t == null ? 0 : null));
+        }}
+      >
+        <span>{theaterT != null ? '停止剧演' : '剧演 · 心流'}</span>
+        <em>{theaterT != null ? '气泡正在演' : '脑袋上说话'}</em>
+      </button>
+
       {showNegotiation && <NegotiationPanel fixture={fixture} onClose={() => setShowNegotiation(false)} />}
+
+      <button type="button" className="g-dock-btn g-dock-btn--accent g-dock-btn--evo" onClick={() => { setShowEvolution(true); setTheaterT(null); }}>
+        <span>投资 · 进化</span>
+        <em>中标之后呢？</em>
+      </button>
+      </div>
+
+      {showEvolution && <EvolutionPanel fixture={fixture} onClose={() => setShowEvolution(false)} />}
 
       {showCast && (
         <CastPanel fixture={fixture} onClose={() => setShowCast(false)} onSelect={setSelectedId} />

@@ -58,9 +58,18 @@ function metaHint(): string {
 
 const app = Fastify({ logger: true });
 
-await app.register(cors, {
-  origin: ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:5180', 'http://localhost:5180'],
-});
+// 允许的跨域来源：本地开发端口 + 额外来源（静态包部署时用 DSH_WEB_ORIGINS 追加）
+const ALLOWED_ORIGINS = [
+  'http://127.0.0.1:5173',
+  'http://localhost:5173',
+  'http://127.0.0.1:5180',
+  'http://localhost:5180',
+  ...(process.env.DSH_WEB_ORIGINS ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
+];
+await app.register(cors, { origin: ALLOWED_ORIGINS });
 
 const WEB_URL = 'http://127.0.0.1:5173';
 
